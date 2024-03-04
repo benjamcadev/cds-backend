@@ -1,4 +1,5 @@
 const pool = require('../db')
+const {toObject} = require('../helpers/convertToObject')
 
 // OBTENER TODOS LOS MATERIALES
 const getMateriales = async (req, res) => {
@@ -9,14 +10,18 @@ const getMateriales = async (req, res) => {
 
 const getMaterial = async (req, res) => {
     const { search_value } = req.body
-    console.log(search_value)
+
 
     try {
-        const result = await pool.query('SELECT * FROM material WHERE "Descripcion" LIKE UPPER(\'%\' || $1 || \'%\')', [search_value])
+        const conn = await pool.getConnection()
 
-        if (result.rows.length === 0) { return res.status(404).json({ message: "Material no encontrado" }) }
+        const result = await conn.query('SELECT * FROM articulo WHERE nombre LIKE \'%\' ? \'%\'',[search_value])
 
-        res.status(200).json(  result.rows)
+        //const result = await pool.query('SELECT * FROM material WHERE "Descripcion" LIKE UPPER(\'%\' || $1 || \'%\')', [search_value])
+
+        if (result.length === 0) { return res.status(404).json({ message: "Material no encontrado" }) }
+
+        res.status(200).json(toObject(result))
 
 
     } catch (error) {
@@ -25,6 +30,8 @@ const getMaterial = async (req, res) => {
 
 
 }
+
+
 
 // CREAR UN MATERIAL
 
