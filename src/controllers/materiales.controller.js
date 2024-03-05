@@ -17,8 +17,9 @@ const getMaterial = async (req, res) => {
 
         const result = await conn.query('SELECT * FROM articulo WHERE nombre LIKE \'%\' ? \'%\' OR sku LIKE  \'%\' ? \'%\'',[search_value, search_value])
 
-        if (result.length === 0) { return res.status(404).json({ message: "Material no encontrado" }) }
+        if (result.length === 0) { conn.end(); return res.status(404).json({ message: "Material no encontrado" });   }
 
+        conn.end();
         res.status(200).json(toObject(result))
 
 
