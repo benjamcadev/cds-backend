@@ -15,9 +15,7 @@ const getMaterial = async (req, res) => {
     try {
         const conn = await pool.getConnection()
 
-        const result = await conn.query('SELECT * FROM articulo WHERE nombre LIKE \'%\' ? \'%\'',[search_value])
-
-        //const result = await pool.query('SELECT * FROM material WHERE "Descripcion" LIKE UPPER(\'%\' || $1 || \'%\')', [search_value])
+        const result = await conn.query('SELECT * FROM articulo WHERE nombre LIKE \'%\' ? \'%\' OR sku LIKE  \'%\' ? \'%\'',[search_value, search_value])
 
         if (result.length === 0) { return res.status(404).json({ message: "Material no encontrado" }) }
 
