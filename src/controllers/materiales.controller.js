@@ -1,5 +1,5 @@
 const pool = require('../db')
-const {toObject} = require('../helpers/convertToObject')
+const { toObject } = require('../helpers/convertToObject')
 
 // OBTENER TODOS LOS MATERIALES
 const getMateriales = async (req, res) => {
@@ -15,29 +15,44 @@ const getMaterial = async (req, res) => {
     try {
         const conn = await pool.getConnection()
 
-        const result_entrada = await conn.query('SELECT articulo.nombre, articulo.sap, articulo.codigo_interno, articulo.sku, SUM(detalle_ticket_entrada.cantidad) AS cantidad_entrada '+ 
-        'FROM articulo INNER JOIN  detalle_ticket_entrada ON articulo.idarticulo = detalle_ticket_entrada.articulo_idarticulo '+
-        'WHERE nombre LIKE \'%\' ? \'%\' OR sku LIKE  \'%\' ? \'%\'',[search_value, search_value])
+        const result = await conn.query('SELECT articulo.idarticulo, articulo.nombre, articulo.sap, articulo.codigo_interno, articulo.sku, articulo.comentario, SUM(detalle_ticket_entrada.cantidad) AS cantidad ' +
+            'FROM articulo left JOIN  detalle_ticket_entrada ON articulo.idarticulo = detalle_ticket_entrada.articulo_idarticulo ' +
+            'WHERE nombre LIKE \'%\' ? \'%\' OR sku LIKE  \'%\' ? \'%\' ' +
+            'GROUP BY articulo.nombre ' +
+            'UNION ' +
+            'SELECT articulo.idarticulo,articulo.nombre, articulo.sap, articulo.codigo_interno, articulo.sku,articulo.comentario, SUM(detalle_ticket_salida.cantidad) AS cantidad ' +
+            'FROM articulo RIGHT JOIN  detalle_ticket_salida ON articulo.idarticulo = detalle_ticket_salida.articulo_idarticulo ' +
+            'WHERE nombre LIKE \'%\' ? \'%\' OR sku LIKE  \'%\' ? \'%\' ' +
+            'GROUP BY articulo.nombre  LIMIT 0, 50 ', [search_value, search_value, search_value, search_value])
 
-        const result_salida = await conn.query('SELECT articulo.nombre, articulo.sap, articulo.codigo_interno, articulo.sku, SUM(detalle_ticket_salida.cantidad) AS cantidad_salida '+ 
-        'FROM articulo INNER JOIN detalle_ticket_salida ON articulo.idarticulo = detalle_ticket_salida.articulo_idarticulo '+
-        'WHERE nombre LIKE \'%\' ? \'%\' OR sku LIKE  \'%\' ? \'%\'',[search_value, search_value])
 
-        console.log(result_salida)
+        let cantidades_positivas = []
+        let cantidades_negativas = []
 
-        const result =  {
-        nombre: result_entrada.nombre,
-        sap: result_entrada.sap,
-        codigo_interno: result_entrada.codigo_interno,
-        sku: result_entrada.sku,
-        cantidad: result_entrada.cantidad + result_salida.cantidad}
+        for (var i = 0; i < result.length; i++) {
+            if (result[i].cantidad >= 0) {
+                cantidades_positivas.push({ id: result[i].idarticulo, Descripcion: result[i].nombre, Codigo_SAP: result[i].sap, Codigo_interno: result[i].codigo_interno, SKU: result[i].sku, Comentarios: result[i].comentario,  Stock: Number(result[i].cantidad) })
 
-        console.log(result)
+            }
+            if (result[i].cantidad < 0) {
+                cantidades_negativas.push({ id: result[i].idarticulo, Stock: Number(result[i].cantidad) })
+            }
 
-        if (result.length === 0) { conn.end(); return res.status(404).json({ message: "Material no encontrado" });   }
+        }
+
+
+        for (var j = 0; j < cantidades_negativas.length; j++) {
+            if (cantidades_positivas[j].id == cantidades_negativas[j].id) {
+                cantidades_positivas[j].Stock = cantidades_positivas[j].Stock + cantidades_negativas[j].Stock
+            }
+        }
+
+        const result_final = cantidades_positivas;
+
+        if (result_final.length === 0) { conn.end(); return res.status(404).json({ message: "Material no encontrado" }); }
 
         conn.end();
-        res.status(200).json(toObject(result))
+        res.status(200).json(toObject(result_final))
 
 
     } catch (error) {
