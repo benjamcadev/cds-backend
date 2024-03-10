@@ -31,7 +31,14 @@ const getMaterial = async (req, res) => {
 
         for (var i = 0; i < result.length; i++) {
             if (result[i].cantidad >= 0) {
-                cantidades_positivas.push({ id: result[i].idarticulo, Descripcion: result[i].nombre, Codigo_SAP: result[i].sap, Codigo_interno: result[i].codigo_interno, SKU: result[i].sku, Comentarios: result[i].comentario,  Stock: Number(result[i].cantidad) })
+                cantidades_positivas.push({ 
+                    id: result[i].idarticulo, 
+                    Descripcion: result[i].nombre, 
+                    Codigo_SAP: result[i].sap, 
+                    Codigo_interno: result[i].codigo_interno, 
+                    SKU: result[i].sku, 
+                    Comentarios: result[i].comentario,  
+                    Stock: Number(result[i].cantidad)  })
 
             }
             if (result[i].cantidad < 0) {
