@@ -3,6 +3,7 @@ const morgan = require('morgan')
 const cors = require('cors')
 
 const materialesRoutes = require('./routes/materiales.routes')
+const bodegasRoutes = require('./routes/bodegas.routes')
 
 
 
@@ -14,6 +15,7 @@ app.use(morgan('dev'))
 app.use(express.json())
 
 app.use(materialesRoutes)
+app.use(bodegasRoutes)
 
 app.listen(3000)
 console.log('Server listen in port 3000')
