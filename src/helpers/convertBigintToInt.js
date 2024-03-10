@@ -1,6 +1,6 @@
 
 
- const toObject = (result) => {
+ const convertBigintToInt = (result) => {
     return JSON.parse(JSON.stringify(result, (key, value) =>
         typeof value === 'bigint'
             ? Number(value)
@@ -10,4 +10,4 @@
 
 
 
-module.exports = {toObject};
+module.exports = {convertBigintToInt};

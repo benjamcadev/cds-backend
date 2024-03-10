@@ -1,5 +1,5 @@
 const pool = require('../db')
-const { toObject } = require('../helpers/convertToObject')
+const { convertBigintToInt } = require('../helpers/convertBigintToInt')
 
 // OBTENER TODOS LOS MATERIALES
 const getMateriales = async (req, res) => {
@@ -52,7 +52,7 @@ const getMaterial = async (req, res) => {
         if (result_final.length === 0) { conn.end(); return res.status(404).json({ message: "Material no encontrado" }); }
 
         conn.end();
-        res.status(200).json(toObject(result_final))
+        res.status(200).json(convertBigintToInt(result_final))
 
 
     } catch (error) {
