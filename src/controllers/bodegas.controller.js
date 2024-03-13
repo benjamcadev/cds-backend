@@ -38,9 +38,22 @@ const getBodegaMaterial = async (req, res) => {
         res.status(200).json(convertBigintToInt(result_entradas))
 
     } catch (error) {
-        res.status(400).send('hubo un error' + error)
+        res.status(400).send('hubo un error en getBodegaMaterial: ' + error)
     }
     //res.json('obtener bodega de un material')
+}
+
+
+const getBodega = async (req,res) => {
+
+    try {
+        const conn = await pool.getConnection()
+        const result = await conn.query('SELECT * FROM bodegas')
+        conn.end()
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(400).send('hubo un error getBodega:  ' + error)
+    }
 }
 
 
@@ -48,6 +61,7 @@ const getBodegaMaterial = async (req, res) => {
 
 
 module.exports = {
-    getBodegaMaterial
+    getBodegaMaterial,
+    getBodega
 }
 
