@@ -5,6 +5,7 @@ const cors = require('cors')
 const materialesRoutes = require('./routes/materiales.routes')
 const bodegasRoutes = require('./routes/bodegas.routes')
 const ticketEntradaRoutes = require('./routes/ticketentrada.routes')
+const usuariosRoutes = require('./routes/usuarios.routes')
 
 
 
@@ -18,6 +19,7 @@ app.use(express.json())
 app.use(materialesRoutes)
 app.use(bodegasRoutes)
 app.use(ticketEntradaRoutes)
+app.use(usuariosRoutes)
 
 app.listen(3000)
 console.log('Server listen in port 3000')
