@@ -65,8 +65,6 @@ const getMaterial = async (req, res) => {
 
         const result_final = cantidades_positivas;
 
-        console.log(result_final)
-
         if (result_final.length === 0) { conn.end(); return res.status(404).json({ message: "Material no encontrado" }); }
 
         conn.end();
