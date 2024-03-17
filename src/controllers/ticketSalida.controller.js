@@ -23,7 +23,7 @@ const createTicket = async(req,res) => {
             for (let i = 0; i < request.detalle.length; i++) {
                 const result2 = await conn.query('INSERT INTO detalle_ticket_salida (cantidad, articulo_idarticulo, ticket_salida_idticket_salida, bodegas_idbodegas) '+ 
                 'VALUES (?, ?, ?, ?)',
-                [request.detalle[i].cantidad * (-request.detalle[i].cantidad), request.detalle[i].idArticulo, lastIdTicketEntrada,  request.detalle[i].bodega])
+                [request.detalle[i].cantidad * -1, request.detalle[i].idArticulo, lastIdTicketEntrada,  request.detalle[i].bodega])
                 
             }
            
