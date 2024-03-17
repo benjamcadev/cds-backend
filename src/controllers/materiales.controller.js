@@ -23,38 +23,49 @@ const getMaterial = async (req, res) => {
             'SELECT articulo.idarticulo,articulo.nombre, articulo.sap, articulo.codigo_interno, articulo.sku,articulo.comentario, SUM(detalle_ticket_salida.cantidad) AS cantidad ' +
             'FROM articulo RIGHT JOIN  detalle_ticket_salida ON articulo.idarticulo = detalle_ticket_salida.articulo_idarticulo ' +
             'WHERE nombre LIKE \'%\' ? \'%\' OR sku LIKE  \'%\' ? \'%\'  OR sap  LIKE  \'%\' ? \'%\'' +
-            'GROUP BY articulo.nombre  LIMIT 0, 50 ', [search_value, search_value, search_value, search_value,search_value, search_value])
+            'GROUP BY articulo.nombre  LIMIT 0, 50 ', [search_value, search_value, search_value, search_value, search_value, search_value])
 
 
         let cantidades_positivas = []
         let cantidades_negativas = []
 
+
+
         for (var i = 0; i < result.length; i++) {
             if (result[i].cantidad >= 0) {
-                cantidades_positivas.push({ 
-                    id: result[i].idarticulo, 
-                    Descripcion: result[i].nombre, 
-                    Codigo_SAP: result[i].sap, 
-                    Codigo_interno: result[i].codigo_interno, 
-                    SKU: result[i].sku, 
-                    Comentarios: result[i].comentario,  
-                    Stock: Number(result[i].cantidad)  })
+                cantidades_positivas.push({
+                    id: Number(result[i].idarticulo),
+                    Descripcion: result[i].nombre,
+                    Codigo_SAP: result[i].sap,
+                    Codigo_interno: result[i].codigo_interno,
+                    SKU: result[i].sku,
+                    Comentarios: result[i].comentario,
+                    Stock: Number(result[i].cantidad)
+                })
 
             }
             if (result[i].cantidad < 0) {
-                cantidades_negativas.push({ id: result[i].idarticulo, Stock: Number(result[i].cantidad) })
+                cantidades_negativas.push({ id: Number(result[i].idarticulo), Stock: Number(result[i].cantidad) })
             }
 
         }
 
+        
 
-        for (var j = 0; j < cantidades_negativas.length; j++) {
-            if (cantidades_positivas[j].id == cantidades_negativas[j].id) {
-                cantidades_positivas[j].Stock = cantidades_positivas[j].Stock + cantidades_negativas[j].Stock
+        var o = 0
+        for (var j = 0; j < cantidades_positivas.length; j++) {
+            if (cantidades_negativas.length > o) {
+                if (cantidades_positivas[j].id == cantidades_negativas[o].id) {
+                    cantidades_positivas[j].Stock = cantidades_positivas[j].Stock + cantidades_negativas[o].Stock
+                    o++
+                   
+                }
             }
         }
 
         const result_final = cantidades_positivas;
+
+        console.log(result_final)
 
         if (result_final.length === 0) { conn.end(); return res.status(404).json({ message: "Material no encontrado" }); }
 
