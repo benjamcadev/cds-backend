@@ -6,6 +6,7 @@ const materialesRoutes = require('./routes/materiales.routes')
 const bodegasRoutes = require('./routes/bodegas.routes')
 const ticketEntradaRoutes = require('./routes/ticketentrada.routes')
 const usuariosRoutes = require('./routes/usuarios.routes')
+const ticketSalidaRoutes = require('./routes/ticketsalida.routes')
 
 
 
@@ -20,6 +21,7 @@ app.use(materialesRoutes)
 app.use(bodegasRoutes)
 app.use(ticketEntradaRoutes)
 app.use(usuariosRoutes)
+app.use(ticketSalidaRoutes)
 
 app.listen(3000)
 console.log('Server listen in port 3000')
