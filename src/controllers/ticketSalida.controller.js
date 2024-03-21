@@ -1,11 +1,12 @@
 const pool = require('../db')
 const { convertBigintToInt } = require('../helpers/convertBigintToInt')
+const { htmlToPDF } = require('../helpers/generatePDF')
 
 const createTicket = async(req,res) => {
     try {
         const conn = await pool.getConnection()
         const request = req.body
-        console.log(request)
+
         let result = ''
         //PREGUNTAR SI VIENE ABIERTO O NO EL TICKET CON LA FIRMA DEL RESPONSABLE
         if (request.firmaSolicitante == '') {
@@ -28,6 +29,9 @@ const createTicket = async(req,res) => {
             }
            
             conn.end()
+
+            //INVOCAR GENERACION DEL PDF
+            htmlToPDF()
             
             res.status(200).json({
                 idTicket: lastIdTicketEntrada
