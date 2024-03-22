@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+
 <html>
 <head>
 <style>
@@ -12,12 +12,11 @@
 .titulo {
 font-family: Arial, Helvetica, sans-serif;
   padding: 20px;
-  font-size: 12px;
+  font-size: 10px;
   text-align: center;
   align-self: center;
   justify-self: center;
   color: white;
-  
 }
 
 .imgLogoPsinet {
@@ -36,16 +35,17 @@ font-family: Arial, Helvetica, sans-serif;
 .body-datos {
 	display: grid;
   	grid-template-columns: 1fr 1fr;
-    margin: 40px 0px 0px 0px;
+    margin: 30px 15px 0px 15px;
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 20px;
+    font-size: 15px;
    	border: 3px solid grey;
     border-radius: 10px;
-  
 }
 
 .body-descripcion {
-
+	padding: 15px 0px 0px 0px;
+	font-family: Arial, Helvetica, sans-serif;
+     font-size: 15px;
 }
 
 .input {
@@ -53,8 +53,26 @@ font-family: Arial, Helvetica, sans-serif;
   	align-self: center;
   	justify-self: left;
     text-align: left;
-    padding: 20px;
+    padding: 10px;
 }
+
+.tabla {
+	margin: 10px;
+}
+
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th, td {
+   border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+
 
 </style>
 <title>VALE SALIDA DE MATERIALES</title>
@@ -63,11 +81,11 @@ font-family: Arial, Helvetica, sans-serif;
 
 <div class="header"> 
 
-  	<img class="imgLogoPsinet " alt="Logo Psinet" width="180" 		src="https://www.psinet.cl/wp-content/uploads/2022/10/cropped-Recurso-14Logo-PSINet.png">
+  	<img class="imgLogoPsinet " alt="Logo Psinet" width="130" 		src="https://www.psinet.cl/wp-content/uploads/2022/10/cropped-Recurso-14Logo-PSINet.png">
   
 	<div class="titulo"><h1>VALE SALIDA DE MATERIALES</h1></div>
   
-  	<img class="imgLogoCodelco" alt="Logo Codelco" width="180" 		src="https://www.codelco.com/prontus_codelco/site/artic/20221125/imag/foto_0000000120221125121535/codelco_default640x360.png">
+  	<img class="imgLogoCodelco" alt="Logo Codelco" width="130" 		src="https://www.codelco.com/prontus_codelco/site/artic/20221125/imag/foto_0000000120221125121535/codelco_default640x360.png">
   
 </div>
 
@@ -91,9 +109,28 @@ font-family: Arial, Helvetica, sans-serif;
 
 <div class="body-descripcion"> 
 <p class="input"><b>Descripcion del Trabajo: </b>Trabajos en el TK4</p>
+<p class="input"><b>Observaciones: </b>Trabajos en el TK4</p>
 </div>
 
-
+<div class="tabla">
+<table>
+ <tr>
+  <th>Item</th>
+  <th>Unidad</th>
+  <th>Descripcion</th>
+  <th>Cantidad</th>
+  <th>Bodega</th>
+  </tr>
+  
+  <tr>
+  <td>1</td>
+  <td>Unidad</td>
+  <td>JUMPER FIBRA ST/FC SM 2MT</td>
+  <td>1</td>
+  <td>NETWORKING</td>
+  </tr>
+</table>
+</div>
 
 </body>
 </html>

@@ -1,6 +1,8 @@
 const pool = require('../db')
 const { convertBigintToInt } = require('../helpers/convertBigintToInt')
 const { htmlToPDF } = require('../helpers/generatePDF')
+const { jsonToHtmlValeSalida } = require('../helpers/generateHtml')
+
 
 const createTicket = async(req,res) => {
     try {
@@ -27,11 +29,25 @@ const createTicket = async(req,res) => {
                 [request.detalle[i].cantidad * -1, request.detalle[i].idArticulo, lastIdTicketEntrada,  request.detalle[i].bodega])
                 
             }
+
+            const result_user = await conn.query('SELECT idusuario AS id,idusuario AS value, nombre AS label,correo,usuario FROM usuario')
            
             conn.end()
 
+            let nombreResponsableEntrega = result_user.map(function(responsable){
+                if(responsable.id === request.responsableEntrega){
+                    return responsable.label
+                }    
+            })
+
+            //SACANDO EL NOMBRE DEL BODEGUERO MEDIANTE EL ID
+            nombreResponsableEntrega = nombreResponsableEntrega.filter(i => i)
+            request.responsableEntrega = nombreResponsableEntrega
+
+            //GENERAR HTML A PARTIR DEL JSON
+            const html = jsonToHtmlValeSalida(request)
             //INVOCAR GENERACION DEL PDF
-            htmlToPDF()
+            htmlToPDF(html)
             
             res.status(200).json({
                 idTicket: lastIdTicketEntrada

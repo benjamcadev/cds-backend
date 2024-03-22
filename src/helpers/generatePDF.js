@@ -1,6 +1,8 @@
 const puppeteer = require('puppeteer');
+const fs = require('fs');
 
-const htmlToPDF = async () => {
+
+const htmlToPDF = async (html) => {
 
     // launch a new chrome instance
     const browser = await puppeteer.launch({
@@ -9,12 +11,17 @@ const htmlToPDF = async () => {
     // create a new page
     const page = await browser.newPage();
 
-    const html = ''
+    //let html = fs.readFileSync('./src/html-vale-salida.html', 'utf8')
+    
 
-    await page.setContent('<h1>Hello, Puppeteer!</h1><p>Esto es un parrafo</p>');
+    await page.setContent(html);
 
 
-    await page.pdf({ path: 'example.pdf', format: 'A4' });
+    await page.pdf({ 
+        path: 'example.pdf', 
+        format: 'A4',
+        printBackground: true
+    });
 
     await browser.close();
 
