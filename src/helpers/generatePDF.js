@@ -20,7 +20,8 @@ const htmlToPDF = async (html) => {
     await page.pdf({ 
         path: 'example.pdf', 
         format: 'A4',
-        printBackground: true
+        printBackground: true,
+        preferCSSPageSize: true
     });
 
     await browser.close();

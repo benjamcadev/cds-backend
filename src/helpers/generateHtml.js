@@ -5,6 +5,7 @@ const jsonToHtmlValeSalida = (json) => {
     let html = '<html>' +
         '<head>' +
         '<style>' +
+      
         '.header {' +
         ' display: grid;' +
         'grid-template-columns: 1fr 2fr 1fr;' +
@@ -60,12 +61,34 @@ const jsonToHtmlValeSalida = (json) => {
         'font-family: arial, sans-serif;' +
         'border-collapse: collapse;' +
         ' width: 100%;' +
+        'font-size: 12px;'+
         '}' +
         'th, td {' +
         'border: 1px solid #dddddd;' +
         'text-align: left;' +
         'padding: 8px;' +
         ' }' +
+
+       ' .footer {'+
+            ' position: fixed;'+
+           ' left: 0;'+
+           ' bottom: 10;'+
+           ' width: 100%;'+
+           ' text-align: center;'+
+           ' display: grid;'+
+           ' grid-template-columns: 1fr 1fr;'+
+          '}'+
+          '.firma {'+
+            'border: 3px solid grey;'+
+           ' width: 200px;'+
+           'height: 160px;'+
+            'align-self: center;'+
+            'justify-self: center;'+
+         ' }'+
+         '.text-firma {'+
+           ' font-weight: bold;'+
+          '}'+
+         
         ' </style>' +
 
         '<title>VALE SALIDA DE MATERIALES</title>' +
@@ -121,8 +144,21 @@ const jsonToHtmlValeSalida = (json) => {
     }
 
 
+    html = html + 
+    
     ' </table>' +
         '</div>' +
+
+       ' <div class="footer">'+
+        '<p class="text-firma">Firma quien retira</p>'+
+        '<p class="text-firma">Firma responsable bodega</p>'+
+        '<div class="firma">'+
+         ' <img width="120" alt="" src="'+ json.firmaSolicitante +'">'+
+       ' </div>'+
+        '<div class="firma">'+
+        '  <img width="120" alt="" src="'+ json.firmaBodega +'">'+
+        '</div>'+
+     ' </div>'+
 
         '</body>' +
         '</html>'
