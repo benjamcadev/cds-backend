@@ -45,7 +45,11 @@ const createTicket = async(req,res) => {
             request.responsableEntrega = nombreResponsableEntrega
 
             //GENERAR HTML A PARTIR DEL JSON
-            const html = jsonToHtmlValeSalida(request)
+            const html = jsonToHtmlValeSalida(request, lastIdTicketEntrada)
+
+            //GENERAR DIRECTORIO DONDE SE GUARDARA EL PDF Y LA FIRMA DEL TICKET
+
+
             //INVOCAR GENERACION DEL PDF
             htmlToPDF(html)
             
