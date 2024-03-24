@@ -12,19 +12,19 @@ const createDirectoryTicketSalida = async(idTicket) => {
 
     try {
         if (!fs.existsSync(dir_public)){
-            fs.mkdirSync(dir_public);
+            fs.mkdirSync(dir_public, { recursive: true });
         }
 
         if (!fs.existsSync(dir_uploads)){
-            fs.mkdirSync(dir_uploads);
+            fs.mkdirSync(dir_uploads, { recursive: true });
         }
 
         if (!fs.existsSync(dir_ticketsSalida)){
-            fs.mkdirSync(dir_ticketsSalida);
+            fs.mkdirSync(dir_ticketsSalida, { recursive: true });
         }
 
         if (!fs.existsSync(dir_ticketSalida)){
-            fs.mkdirSync(dir_ticketSalida);
+            fs.mkdirSync(dir_ticketSalida, { recursive: true });
             return dir_ticketSalida
         }
 
