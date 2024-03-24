@@ -2,7 +2,7 @@ const pool = require('../db')
 const { convertBigintToInt } = require('../helpers/convertBigintToInt')
 const { htmlToPDF } = require('../helpers/generatePDF')
 const { jsonToHtmlValeSalida } = require('../helpers/generateHtml')
-const { createDirectoryTicketSalida } = require('../helpers/createDirectory')
+const { createDirectoryTicketSalida, saveSignature } = require('../helpers/directory')
 
 
 const createTicket = async (req, res) => {
@@ -52,7 +52,10 @@ const createTicket = async (req, res) => {
             //GENERAR HTML A PARTIR DEL JSON
             const html = await jsonToHtmlValeSalida(request, lastIdTicketEntrada)
 
-            //INVOCAR GENERACION DEL PDF
+            //GUARDAR FIRMAS
+            await saveSignature(request, responsePath, lastIdTicketEntrada)
+
+            //GENERACION DEL PDF
             await htmlToPDF(html, responsePath, lastIdTicketEntrada)
 
 

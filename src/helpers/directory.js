@@ -33,9 +33,19 @@ const createDirectoryTicketSalida = async(idTicket) => {
         return error
     }
 
+}
 
-
+const saveSignature = async(request, path, idTicket) => {
+    try {
+        let base64DataFirmaBodega = request.firmaBodega.replace(/^data:image\/png;base64,/, "");
+        let base64DataFirmaResponsable = request.firmaSolicitante.replace(/^data:image\/png;base64,/, "");
+        fs.writeFileSync(path+ '/firma_bodega_'+idTicket+'.png', base64DataFirmaBodega , 'base64');
+        fs.writeFileSync(path+ '/firma_responsable_'+idTicket+'.png', base64DataFirmaResponsable , 'base64');
+        
+    } catch (error) {
+    return error;
+    }
 
 }
 
-module.exports = { createDirectoryTicketSalida }
+module.exports = { createDirectoryTicketSalida, saveSignature }
