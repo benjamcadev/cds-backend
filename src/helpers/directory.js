@@ -24,7 +24,7 @@ const createDirectoryTicketSalida = async(idTicket) => {
         }
 
         if (!fs.existsSync(dir_ticketSalida)){
-            fs.mkdirSync(dir_ticketSalida, { recursive: true });
+           await fs.mkdirSync(dir_ticketSalida, { recursive: true });
             return dir_ticketSalida
         }
 
