@@ -1,12 +1,12 @@
 const fs = require('fs');
-
+const {join} = require('path')
 
 const createDirectoryTicketSalida = async(idTicket) => {
 
-    let dir_public = './public';
-    let dir_uploads = './public/uploads'
-    let dir_ticketsSalida = './public/uploads/ticket_salida'
-    let dir_ticketSalida = './public/uploads/ticket_salida/'+idTicket;
+    let dir_public = join(__dirname, '../../public');
+    let dir_uploads = join(__dirname, '../../public/uploads' );
+    let dir_ticketsSalida = join(__dirname, '../../public/uploads/ticket_salida');
+    let dir_ticketSalida =  join(__dirname, '../../public/uploads/ticket_salida/'+idTicket);
 
     //COMPROBAR SI EXISTE CARPETA PUBLIC
 
@@ -25,7 +25,7 @@ const createDirectoryTicketSalida = async(idTicket) => {
 
         if (!fs.existsSync(dir_ticketSalida)){
             fs.mkdirSync(dir_ticketSalida, { recursive: true }, err => { return err} );
-            return __dirname
+            return dir_ticketSalida
         }
 
 

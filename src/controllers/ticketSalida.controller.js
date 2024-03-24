@@ -50,8 +50,6 @@ const createTicket = async (req, res) => {
                 //GENERAR DIRECTORIO DONDE SE GUARDARA EL PDF Y LA FIRMA DEL TICKET
             const responsePath = await createDirectoryTicketSalida(lastIdTicketEntrada)
 
-            res.send(responsePath)
-
 
             //GENERAR HTML A PARTIR DEL JSON
             const html = await jsonToHtmlValeSalida(request, lastIdTicketEntrada)
@@ -68,7 +66,7 @@ const createTicket = async (req, res) => {
 
             } catch (error) {
                 conn.end()
-                res.status(400).send('hubo un error ' + result)
+                res.status(400).send('hubo un error ' + error)
             }
             
 
