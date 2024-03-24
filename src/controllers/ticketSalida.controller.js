@@ -45,7 +45,9 @@ const createTicket = async (req, res) => {
             nombreResponsableEntrega = nombreResponsableEntrega.filter(i => i)
             request.responsableEntrega = nombreResponsableEntrega
 
-            //GENERAR DIRECTORIO DONDE SE GUARDARA EL PDF Y LA FIRMA DEL TICKET
+
+            try {
+                //GENERAR DIRECTORIO DONDE SE GUARDARA EL PDF Y LA FIRMA DEL TICKET
             const responsePath = await createDirectoryTicketSalida(lastIdTicketEntrada)
 
 
@@ -59,9 +61,14 @@ const createTicket = async (req, res) => {
                 //GENERACION DEL PDF
                 await htmlToPDF(html, responsePath, lastIdTicketEntrada)
                 //ENVIAR PDF POR CORREO
-                
+
             }
 
+            } catch (error) {
+                conn.end()
+                res.status(400).send('hubo un error ' + result)
+            }
+            
 
 
 
