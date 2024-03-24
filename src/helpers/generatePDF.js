@@ -9,16 +9,21 @@ const htmlToPDF = async (html, responsePath, numberTicket) => {
     // launch a new chrome instance
     let browser;
 
-    if(production){
-        browser = await puppeteer.launch({
-            headless: true,
-            executablePath: '/usr/bin/chromium-browser'
-        })
-    }else{
-        browser = await puppeteer.launch({
-            headless: true
-        })
-    }
+    browser = await puppeteer.launch({
+        headless: true,
+        executablePath: '/usr/bin/chromium-browser'
+    })
+
+    // if(production){
+    //     browser = await puppeteer.launch({
+    //         headless: true,
+    //         executablePath: '/usr/bin/chromium-browser'
+    //     })
+    // }else{
+    //     browser = await puppeteer.launch({
+    //         headless: true
+    //     })
+    // }
   
     // create a new page
     const page = await browser.newPage();
