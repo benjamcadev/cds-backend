@@ -55,9 +55,12 @@ const createTicket = async (req, res) => {
             //GUARDAR FIRMAS
             await saveSignature(request, responsePath, lastIdTicketEntrada)
 
-            //GENERACION DEL PDF
-            await htmlToPDF(html, responsePath, lastIdTicketEntrada)
-
+            if (!request.firmaSolicitante == '') {
+                //GENERACION DEL PDF
+                await htmlToPDF(html, responsePath, lastIdTicketEntrada)
+                //ENVIAR PDF POR CORREO
+                
+            }
 
 
 
