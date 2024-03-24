@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer');
 
 
 
-const htmlToPDF = async (html) => {
+const htmlToPDF = async (html, responsePath, numberTicket) => {
 
     // launch a new chrome instance
     const browser = await puppeteer.launch({
@@ -18,7 +18,7 @@ const htmlToPDF = async (html) => {
 
 
     await page.pdf({ 
-        path: 'example.pdf', 
+        path: responsePath + '/ticket_salida_'+numberTicket+'.pdf', 
         format: 'A4',
         printBackground: true,
         preferCSSPageSize: true

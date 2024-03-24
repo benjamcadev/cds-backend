@@ -1,6 +1,6 @@
 
 
-const jsonToHtmlValeSalida = (json, idTicket) => {
+const jsonToHtmlValeSalida = async (json, idTicket) => {
 
   let html = '<html>' +
     '<head>' +
