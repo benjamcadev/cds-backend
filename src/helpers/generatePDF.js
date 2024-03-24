@@ -1,30 +1,22 @@
 const puppeteer = require('puppeteer');
-require('dotenv').config()
+const locateChrome = require('locate-chrome');
 
 
 const htmlToPDF = async (html, responsePath, numberTicket) => {
 
-    let production = process.env.PRODUCTION
+   
+
+    //find chrome in operating system
+    const executablePath = await new Promise(resolve => locateChrome(arg => resolve(arg)));
 
     // launch a new chrome instance
-    let browser;
 
-    browser = await puppeteer.launch({
+    let browser = await puppeteer.launch({
         headless: true,
-        executablePath: '../../usr/bin/chromium-browser'
+        executablePath
     })
 
-    // if(production){
-    //     browser = await puppeteer.launch({
-    //         headless: true,
-    //         executablePath: '/usr/bin/chromium-browser'
-    //     })
-    // }else{
-    //     browser = await puppeteer.launch({
-    //         headless: true
-    //     })
-    // }
-  
+    
     // create a new page
     const page = await browser.newPage();
 
