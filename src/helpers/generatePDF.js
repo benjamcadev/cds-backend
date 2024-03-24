@@ -1,13 +1,25 @@
 const puppeteer = require('puppeteer');
-
+require('dotenv').config()
 
 
 const htmlToPDF = async (html, responsePath, numberTicket) => {
 
+    let production = process.env.PRODUCTION
+
     // launch a new chrome instance
-    const browser = await puppeteer.launch({
-        headless: true
-    })
+    let browser;
+
+    if(production){
+        browser = await puppeteer.launch({
+            headless: true,
+            executablePath: '/usr/bin/chromium-browser'
+        })
+    }else{
+        browser = await puppeteer.launch({
+            headless: true
+        })
+    }
+  
     // create a new page
     const page = await browser.newPage();
 
