@@ -4,10 +4,6 @@ const locateChrome = require('locate-chrome');
 
 const htmlToPDF = async (html, responsePath, numberTicket) => {
 
-   
-
-   
-
     // launch a new chrome instance
 
     let browser = await puppeteer.launch({

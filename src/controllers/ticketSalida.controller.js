@@ -3,6 +3,7 @@ const { convertBigintToInt } = require('../helpers/convertBigintToInt')
 const { htmlToPDF } = require('../helpers/generatePDF')
 const { jsonToHtmlValeSalida } = require('../helpers/generateHtml')
 const { createDirectoryTicketSalida, saveSignature } = require('../helpers/directory')
+const { sendEmailTicketSalida } = require('../helpers/emails')
 
 
 const createTicket = async (req, res) => {
@@ -68,7 +69,7 @@ const createTicket = async (req, res) => {
                     //GENERACION DEL PDF
                     await htmlToPDF(html, responsePath, lastIdTicketEntrada)
                     //ENVIAR PDF POR CORREO
-
+                    await sendEmailTicketSalida()
 
                     res.status(200).json({
                         idTicket: lastIdTicketEntrada
