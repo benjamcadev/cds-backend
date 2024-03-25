@@ -11,7 +11,8 @@ const htmlToPDF = async (html, responsePath, numberTicket) => {
     // launch a new chrome instance
 
     let browser = await puppeteer.launch({
-        headless: true
+        headless: true,
+        args: ['--no-sandbox']
         
     })
 
