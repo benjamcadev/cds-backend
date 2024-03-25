@@ -6,16 +6,13 @@ const htmlToPDF = async (html, responsePath, numberTicket) => {
 
    
 
-    //find chrome in operating system
-    const executablePath = await new Promise(resolve => locateChrome(arg => resolve(arg)));
-
-    console.log(executablePath)
+   
 
     // launch a new chrome instance
 
     let browser = await puppeteer.launch({
-        headless: true,
-        executablePath
+        headless: true
+        
     })
 
     
