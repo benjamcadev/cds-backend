@@ -48,37 +48,40 @@ const createTicket = async (req, res) => {
 
             try {
                 //GENERAR DIRECTORIO DONDE SE GUARDARA EL PDF Y LA FIRMA DEL TICKET
-            const responsePath = await createDirectoryTicketSalida(lastIdTicketEntrada)
+                const responsePath = await createDirectoryTicketSalida(lastIdTicketEntrada)
 
 
-            //GENERAR HTML A PARTIR DEL JSON
-            const html = await jsonToHtmlValeSalida(request, lastIdTicketEntrada)
+                //GENERAR HTML A PARTIR DEL JSON
+                const html = await jsonToHtmlValeSalida(request, lastIdTicketEntrada)
 
-            //GUARDAR FIRMAS
-            await saveSignature(request, responsePath, lastIdTicketEntrada)
+                //GUARDAR FIRMAS
+                await saveSignature(request, responsePath, lastIdTicketEntrada)
 
-            if (!request.firmaSolicitante == '') {
-                //GENERACION DEL PDF
-                await htmlToPDF(html, responsePath, lastIdTicketEntrada)
-                //ENVIAR PDF POR CORREO
+                if (request.firmaSolicitante == '') {
+                    //ENVIAR CORREO DE FIRMA PENDIENTE
 
-            }
+
+                    res.status(200).json({
+                        idTicket: lastIdTicketEntrada
+                    })
+                } else {
+                    //GENERACION DEL PDF
+                    await htmlToPDF(html, responsePath, lastIdTicketEntrada)
+                    //ENVIAR PDF POR CORREO
+
+
+                    res.status(200).json({
+                        idTicket: lastIdTicketEntrada
+                    })
+                }
 
             } catch (error) {
                 conn.end()
                 res.status(400).send('hubo un error ' + error)
             }
-            
 
 
 
-
-
-
-
-            res.status(200).json({
-                idTicket: lastIdTicketEntrada
-            })
 
         } else {
             conn.end()
