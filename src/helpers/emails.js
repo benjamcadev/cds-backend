@@ -1,6 +1,9 @@
 const nodemailer = require('nodemailer');
+const {emailValeSalida} = require('./generateHtml')
 
-const sendEmailTicketSalida = async () => {
+const sendEmailTicketSalida = async (responsePath, idTicket, request) => {
+
+    let path_pdf = responsePath + '/ticket_salida_' + idTicket + '.pdf'
 
     const transporter = nodemailer.createTransport({
         service: 'gmail',
@@ -11,20 +14,18 @@ const sendEmailTicketSalida = async () => {
       });
 
       const mailOptions = {
-        from: 'bodegatica.dsal@gmail.com',
+        from: '"Bodegas GOT" <bodegatica.dsal@gmail.com>',
         to: 'benjamin.cortes@psinet.cl',
-        subject: 'Correo de prueba',
-        text: 'Este es un correo de prueba',
-        //html: `
-        //  <h1>Sample Heading Here</h1>
-        //  <p>message here</p>
-        //`,
-        // attachments: [
-        //   {
-        //     filename: 'image.png',
-        //     path: 'https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png>'
-        //   }
-        // ]
+        //cc: ''
+        subject: 'Vale de Salida Materiales',
+        text: 'Texto de correo',
+        html: emailValeSalida(idTicket, request.responsableRetira),
+        attachments: [
+          {
+            filename: '/ticket_salida_' + idTicket + '.pdf',
+            path: path_pdf
+          }
+        ]
       };
 
       transporter.sendMail(mailOptions, function(error, info){

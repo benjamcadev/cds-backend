@@ -23,12 +23,12 @@ const createTicket = async (req, res) => {
 
 
         if (result.affectedRows == 1) {
-            const lastIdTicketEntrada = convertBigintToInt(result.insertId)
+            const lastIdTicketSalida = convertBigintToInt(result.insertId)
 
             for (let i = 0; i < request.detalle.length; i++) {
                 const result2 = await conn.query('INSERT INTO detalle_ticket_salida (cantidad, articulo_idarticulo, ticket_salida_idticket_salida, bodegas_idbodegas) ' +
                     'VALUES (?, ?, ?, ?)',
-                    [request.detalle[i].cantidad * -1, request.detalle[i].idArticulo, lastIdTicketEntrada, request.detalle[i].bodega])
+                    [request.detalle[i].cantidad * -1, request.detalle[i].idArticulo, lastIdTicketSalida, request.detalle[i].bodega])
 
             }
 
@@ -49,30 +49,32 @@ const createTicket = async (req, res) => {
 
             try {
                 //GENERAR DIRECTORIO DONDE SE GUARDARA EL PDF Y LA FIRMA DEL TICKET
-                const responsePath = await createDirectoryTicketSalida(lastIdTicketEntrada)
+                const responsePath = await createDirectoryTicketSalida(lastIdTicketSalida)
 
 
                 //GENERAR HTML A PARTIR DEL JSON
-                const html = await jsonToHtmlValeSalida(request, lastIdTicketEntrada)
+                const html = await jsonToHtmlValeSalida(request, lastIdTicketSalida)
 
                 //GUARDAR FIRMAS
-                await saveSignature(request, responsePath, lastIdTicketEntrada)
+                await saveSignature(request, responsePath, lastIdTicketSalida)
 
                 if (request.firmaSolicitante == '') {
                     //ENVIAR CORREO DE FIRMA PENDIENTE
 
 
                     res.status(200).json({
-                        idTicket: lastIdTicketEntrada
+                        idTicket: lastIdTicketSalida
                     })
                 } else {
                     //GENERACION DEL PDF
-                    await htmlToPDF(html, responsePath, lastIdTicketEntrada)
+                    await htmlToPDF(html, responsePath, lastIdTicketSalida)
                     //ENVIAR PDF POR CORREO
-                    await sendEmailTicketSalida()
+                  
+
+                    await sendEmailTicketSalida(responsePath,lastIdTicketSalida, request)
 
                     res.status(200).json({
-                        idTicket: lastIdTicketEntrada
+                        idTicket: lastIdTicketSalida
                     })
                 }
 
