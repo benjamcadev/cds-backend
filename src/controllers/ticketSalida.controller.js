@@ -34,7 +34,7 @@ const createTicket = async (req, res) => {
 
             const result_user = await conn.query('SELECT idusuario AS id,idusuario AS value, nombre AS label,correo,usuario FROM usuario')
 
-            conn.end()
+
 
             let nombreResponsableEntrega = result_user.map(function (responsable) {
                 if (responsable.id === request.responsableEntrega) {
@@ -56,11 +56,17 @@ const createTicket = async (req, res) => {
                 const html = await jsonToHtmlValeSalida(request, lastIdTicketSalida)
 
                 //GUARDAR FIRMAS
-                await saveSignature(request, responsePath, lastIdTicketSalida)
+                let pathSignature = await saveSignature(request, responsePath, lastIdTicketSalida)
+
+
+                //UPDATEAR PATH DE FIRMAS
+                result = await conn.query('UPDATE ticket_salida SET signature_path_entrega="' + pathSignature.entrega + '" WHERE  idticket_salida = ' + lastIdTicketSalida)
+
 
                 if (request.firmaSolicitante == '') {
                     //ENVIAR CORREO DE FIRMA PENDIENTE
 
+                    conn.end()
 
                     res.status(200).json({
                         idTicket: lastIdTicketSalida
@@ -69,10 +75,11 @@ const createTicket = async (req, res) => {
                     //GENERACION DEL PDF
                     await htmlToPDF(html, responsePath, lastIdTicketSalida)
                     //ENVIAR PDF POR CORREO
-                  
+                    await sendEmailTicketSalida(responsePath, lastIdTicketSalida, request)
 
-                    await sendEmailTicketSalida(responsePath,lastIdTicketSalida, request)
-
+                    //UPDATEAR FIRMA RETIRA
+                    result = await conn.query('UPDATE ticket_salida SET signature_path_retira="' + pathSignature.retira + '" WHERE  idticket_salida = ' + lastIdTicketSalida)
+                    conn.end()
                     res.status(200).json({
                         idTicket: lastIdTicketSalida
                     })
