@@ -4,7 +4,7 @@ const { htmlToPDF } = require('../helpers/generatePDF')
 const { jsonToHtmlValeSalida } = require('../helpers/generateHtml')
 const { createDirectoryTicketSalida, saveSignature } = require('../helpers/directory')
 const { sendEmailTicketSalida } = require('../helpers/emails')
-
+const fs = require('fs');
 
 const createTicket = async (req, res) => {
     try {
@@ -152,9 +152,25 @@ const getSignature = async (req, res) => {
              });
         }
 
-        res.status(200).json(result)
+        console.log(result)
+        //convertir a base64
+        const base64_entrega = 'data:image/png;base64,' + fs.readFileSync(result[0].signature_path_entrega, {encoding: 'base64'});
+
+        let base64_retira = ''
+        if (result.signature_path_retira != null) {
+         base64_retira = 'data:image/png;base64,' + fs.readFileSync(result[0].signature_path_retira, {encoding: 'base64'});
+        }
+       
+
+       
+
+        const result_final = {
+            base64_entrega: base64_entrega,
+            base64_retira: base64_retira
+        }
+        res.status(200).json(result_final)
     } catch (error) {
-        res.status(400).send('hubo un error en getUsuarios: ' + error)
+        res.status(400).send('hubo un error en getSignature: ' + error)
     }
 }
 

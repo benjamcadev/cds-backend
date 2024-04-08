@@ -13,7 +13,7 @@ router.post('/ticket/salida/',createTicket)
 //CONSULTAR TICKET DE SALIDA
 router.get('/ticket/salida/:id',getTicket)
 
-//CONSULTAR FIRMA
+//CONSULTAR FIRMA, DEVUELVE EN IMAGEN PNG EN BASE64
 router.get('/ticket/salida/signature/:id',getSignature)
 
 
