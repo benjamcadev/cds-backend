@@ -117,7 +117,7 @@ const getTicket = async (req, res) => {
         //QUERY RESCATA DATOS DEL TICKET ENTRADA
        let result_ticket = await conn.query(`SELECT * FROM ticket_salida WHERE idticket_salida = ${id_ticket}`)
         //QUERY RESCATA EL DETALLE DEL TICKET DE ENTRADA
-       let result_ticket_detalle = await conn.query(`SELECT detalle_ticket_salida.bodegas_idbodegas AS bodega, detalle_ticket_salida.cantidad, 
+       let result_ticket_detalle = await conn.query(`SELECT detalle_ticket_salida.bodegas_idbodegas AS bodega, (detalle_ticket_salida.cantidad) * -1 as cantidad, 
         articulo.nombre AS descripcion,articulo.idarticulo AS id, articulo.unidad_medida AS unidad,
         articulo.idarticulo AS idArticulo
         FROM detalle_ticket_salida 
