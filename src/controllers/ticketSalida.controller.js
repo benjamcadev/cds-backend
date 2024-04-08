@@ -109,6 +109,36 @@ const createTicket = async (req, res) => {
     }
 }
 
+const getTicket = async (req, res) => {
+    const id_ticket = req.params.id
+    try {
+       
+        const conn = await pool.getConnection()
+        //QUERY RESCATA DATOS DEL TICKET ENTRADA
+       let result_ticket = await conn.query(`SELECT * FROM ticket_salida WHERE idticket_salida = ${id_ticket}`)
+        //QUERY RESCATA EL DETALLE DEL TICKET DE ENTRADA
+       let result_ticket_detalle = await conn.query(`SELECT * FROM detalle_ticket_salida WHERE ticket_salida_idticket_salida = ${id_ticket}`)
+
+       conn.end()
+        if (result_ticket.length == 0) {
+            return res.status(400).json({
+                message: 'No existe datos para ticket consultado',
+                title: 'Error'
+             });
+        }
+       console.log(result_ticket)
+       result_final = {...result_ticket[0], detalle: result_ticket_detalle}
+      
+       
+       res.status(200).json(convertBigintToInt(result_final))
+
+
+    } catch (error) {
+         res.status(400).send('hubo un error en getUsuarios: ' + error)
+    }
+}
+
 module.exports = {
-    createTicket
+    createTicket,
+    getTicket
 }
