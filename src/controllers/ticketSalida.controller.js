@@ -117,7 +117,14 @@ const getTicket = async (req, res) => {
         //QUERY RESCATA DATOS DEL TICKET ENTRADA
        let result_ticket = await conn.query(`SELECT * FROM ticket_salida WHERE idticket_salida = ${id_ticket}`)
         //QUERY RESCATA EL DETALLE DEL TICKET DE ENTRADA
-       let result_ticket_detalle = await conn.query(`SELECT * FROM detalle_ticket_salida WHERE ticket_salida_idticket_salida = ${id_ticket}`)
+       let result_ticket_detalle = await conn.query(`SELECT detalle_ticket_salida.bodegas_idbodegas AS bodega, detalle_ticket_salida.cantidad, 
+        articulo.nombre AS descripcion,articulo.idarticulo AS id, articulo.unidad_medida AS unidad,
+        articulo.idarticulo AS idArticulo
+        FROM detalle_ticket_salida 
+        INNER JOIN articulo
+        ON detalle_ticket_salida.articulo_idarticulo = articulo.idarticulo
+        WHERE ticket_salida_idticket_salida = ${id_ticket}
+        GROUP BY articulo.nombre`)
 
        conn.end()
         if (result_ticket.length == 0) {
