@@ -126,7 +126,7 @@ const getTicket = async (req, res) => {
                 title: 'Error'
              });
         }
-       console.log(result_ticket)
+      
        result_final = {...result_ticket[0], detalle: result_ticket_detalle}
       
        
@@ -138,7 +138,28 @@ const getTicket = async (req, res) => {
     }
 }
 
+const getSignature = async (req, res) => {
+    const id_ticket = req.params.id
+    try {
+        const conn = await pool.getConnection()
+        const result = await conn.query(`SELECT signature_path_retira, signature_path_entrega FROM ticket_salida WHERE idticket_salida = ${id_ticket}`)
+        conn.end()
+
+        if (result.length == 0) {
+            return res.status(400).json({
+                message: 'No existen firmas para ticket consultado',
+                title: 'Error'
+             });
+        }
+
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(400).send('hubo un error en getUsuarios: ' + error)
+    }
+}
+
 module.exports = {
     createTicket,
-    getTicket
+    getTicket,
+    getSignature
 }
