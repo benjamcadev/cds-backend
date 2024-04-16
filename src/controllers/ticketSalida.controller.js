@@ -159,7 +159,7 @@ const getSignature = async (req, res) => {
              });
         }
 
-        console.log(result)
+       
         //convertir a base64
         const base64_entrega = 'data:image/png;base64,' + fs.readFileSync(result[0].signature_path_entrega, {encoding: 'base64'});
 
