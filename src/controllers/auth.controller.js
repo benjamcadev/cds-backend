@@ -1,6 +1,6 @@
 const pool = require('../db')
 const bcrypt = require('bcryptjs')
-const jwt = require('jsonwebtoken')
+const { createAccessToken } = require("../helpers/jwt")
 const { convertBigintToInt } = require('../helpers/convertBigintToInt')
 
 const register = async (req, res) => {
@@ -27,41 +27,94 @@ const register = async (req, res) => {
             const conn = await pool.getConnection()
             const resultNewUser = await conn.query(`INSERT INTO usuario (nombre, correo, usuario, pass, estado_usuario_idestado_usuario) 
             VALUES (?, ?, ?, ?, ?)`, [nombre, correo, usuario, passHash, tipo_usuario])
-            conn.end()
+
 
             if (resultNewUser.affectedRows >= 1) {
                 //CREAR TOKEN
-                jwt.sign({
-                    id: convertBigintToInt(resultNewUser.insertId)
-                },
-                    "secret123",
-                    {
-                        expiresIn: "1d"
-                    },
-                    (err, token) => {
-                        if(err) console.log(err);
-                        //GUARDAMOS EL TOKEN EN UNA COOKIE
-                        res.cookie('token', token)
-                        res.status(200).json({
-                            message: 'Usuario creado exitosamente'
-                         })
-                    })
+                const token = await createAccessToken({ id: convertBigintToInt(resultNewUser.insertId) })
                 
+                const resultUser = await conn.query('SELECT * FROM usuario WHERE idusuario = ?', [resultNewUser.insertId])
+
+
+                //GUARDAMOS EL TOKEN EN UNA COOKIE
+                res.cookie('token', token)
+                res.status(200).json({
+                    message: 'Usuario creado exitosamente',
+                    id: resultUser[0].idusuario,
+                    nombre: resultUser[0].nombre,
+                    correo: resultUser[0].correo,
+                    usuario: resultUser[0].usuario
+                })
+
+                conn.end()
+
             } else {
-                res.status(400).json({
+                conn.end()
+                res.status(500).json({
                     message: 'No se pudo crear al usuario'
                 })
             }
 
+            conn.end()
+
 
         }
     } catch (error) {
-        res.send('Hubo un error al registrar usuario: ' + error)
+        res.status(500).json({
+            message: 'Hubo un error al registrar usuario: ' + error
+        })
     }
 
 }
 
-const login = (req, res) => { res.send('login') }
+const login = async (req, res) => {
+
+    const { correo, pass } = req.body
+
+    try {
+        const conn = await pool.getConnection()
+        const resultUser = await conn.query('SELECT * FROM usuario WHERE correo = ?', [correo])
+        conn.end()
+
+        if (resultUser.length == 0) {
+            //USUARIO NO EXISTE
+            res.status(400).json({
+                message: 'Usuario no esta registrado.'
+            })
+        } else {
+            //USUARIO EXISTE
+
+            //COMPARANDO PASS
+            const passMatch = await bcrypt.compare(pass, resultUser[0].pass)
+
+            if (!passMatch) {  
+                res.status(400).json({
+                    message: 'Contraseña incorrecta.'
+                })
+            }
+
+             //CREAR TOKEN
+             const token = await createAccessToken({ id: convertBigintToInt(resultUser[0].idusuario) })
+
+           //GUARDAMOS EL TOKEN EN UNA COOKIE
+           res.cookie('token', token)
+           res.status(200).json({
+               message: 'Usuario logeado exitosamente',
+               id: resultUser[0].idusuario,
+               nombre: resultUser[0].nombre,
+               correo: resultUser[0].correo,
+               usuario: resultUser[0].usuario
+           })
+
+
+
+        }
+    } catch (error) {
+        res.status(500).json({
+            message: 'Hubo un error al registrar usuario: ' + error
+        })
+    }
+}
 
 module.exports = {
     register,
