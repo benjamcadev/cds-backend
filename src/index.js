@@ -1,6 +1,7 @@
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
+const cookieParser = require('cookie-parser')
 
 const materialesRoutes = require('./routes/materiales.routes')
 const bodegasRoutes = require('./routes/bodegas.routes')
@@ -17,6 +18,7 @@ const app = express()
 app.use(cors({credentials: true, origin: true}))
 app.use(morgan('dev'))
 app.use(express.json())
+app.use(cookieParser())
 
 app.use(materialesRoutes)
 app.use(bodegasRoutes)

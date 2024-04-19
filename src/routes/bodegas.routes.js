@@ -1,17 +1,15 @@
 const { Router } = require('express')
-
-//CONEXION A LA BD
-const pool = require('../db')
+const { authRequired } = require('../middlewares/validateToken')
 
 const { getBodegaMaterial, getBodega } = require('../controllers/bodegas.controller')
 
 const router = Router()
 
 //LISTAR TODAS LAS BODEGAS
-router.get('/bodegas/',getBodega)
+router.get('/bodegas/',authRequired, getBodega)
 
 //BUSCAR BODEGAS QUE PERTENECE MATERIAL
-router.get('/bodegas/find/:id',getBodegaMaterial)
+router.get('/bodegas/find/:id',authRequired, getBodegaMaterial)
 
 
 
