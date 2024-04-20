@@ -78,7 +78,7 @@ const login = async (req, res) => {
 
         if (resultUser.length == 0) {
             //USUARIO NO EXISTE
-            res.status(400).json({
+           return res.status(400).json({
                 message: 'Usuario no esta registrado.'
             })
         } else {
@@ -88,7 +88,7 @@ const login = async (req, res) => {
             const passMatch = await bcrypt.compare(pass, resultUser[0].pass)
 
             if (!passMatch) {  
-                res.status(400).json({
+               return res.status(400).json({
                     message: 'Contraseña incorrecta.'
                 })
             }
