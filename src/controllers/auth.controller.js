@@ -2,6 +2,7 @@ const pool = require('../db')
 const bcrypt = require('bcryptjs')
 const { createAccessToken } = require("../helpers/jwt")
 const { convertBigintToInt } = require('../helpers/convertBigintToInt')
+require('dotenv').config()
 
 const register = async (req, res) => {
 
