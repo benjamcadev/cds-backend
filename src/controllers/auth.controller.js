@@ -111,7 +111,7 @@ const login = async (req, res) => {
         }
     } catch (error) {
         res.status(500).json({
-            message: 'Hubo un error al registrar usuario: ' + error
+            message: 'Hubo un error al logear usuario: ' + error
         })
     }
 }
