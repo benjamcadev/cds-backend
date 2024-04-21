@@ -96,6 +96,8 @@ const login = async (req, res) => {
              //CREAR TOKEN
              const token = await createAccessToken({ id: convertBigintToInt(resultUser[0].idusuario) })
 
+             console.log(token)
+
            //GUARDAMOS EL TOKEN EN UNA COOKIE
            res.cookie('token', token)
            res.status(200).json({
