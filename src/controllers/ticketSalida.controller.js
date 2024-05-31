@@ -32,9 +32,8 @@ const createTicket = async (req, res) => {
 
             }
 
+            //CONSULTANDO NOMBRE DE BODEGUEROS
             const result_user = await conn.query('SELECT idusuario AS id,idusuario AS value, nombre AS label,correo,usuario FROM usuario')
-
-
 
             let nombreResponsableEntrega = result_user.map(function (responsable) {
                 if (responsable.id === request.responsableEntrega) {
@@ -46,6 +45,21 @@ const createTicket = async (req, res) => {
             nombreResponsableEntrega = nombreResponsableEntrega.filter(i => i)
             request.responsableEntrega = nombreResponsableEntrega
 
+            //SACANDO NOMBRES DE BODEGAS
+            const result_bodegas = await conn.query('SELECT idbodegas, nombre AS label_bodega FROM bodegas WHERE estado = 1')
+
+            //RECORRER EL DETALLE DE DEL REQUEST PARA REMPLAZAR EL NUMERO DE LA BODEGA POR SU NOMBRE
+            for (let i = 0; i < request.detalle.length; i++) {
+                for (let o = 0; o < result_bodegas.length; o++) {
+
+                    if(request.detalle[i].bodega === result_bodegas[o].idbodegas){
+                        request.detalle[i].bodega = result_bodegas[o].label_bodega
+                    }
+                    
+                }
+               
+                
+            }
 
             try {
                 //GENERAR DIRECTORIO DONDE SE GUARDARA EL PDF Y LA FIRMA DEL TICKET
