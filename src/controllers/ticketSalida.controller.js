@@ -26,9 +26,9 @@ const createTicket = async (req, res) => {
             const lastIdTicketSalida = convertBigintToInt(result.insertId)
 
             for (let i = 0; i < request.detalle.length; i++) {
-                const result2 = await conn.query('INSERT INTO detalle_ticket_salida (cantidad, articulo_idarticulo, ticket_salida_idticket_salida, bodegas_idbodegas) ' +
-                    'VALUES (?, ?, ?, ?)',
-                    [request.detalle[i].cantidad * -1, request.detalle[i].idArticulo, lastIdTicketSalida, request.detalle[i].bodega])
+                const result2 = await conn.query('INSERT INTO detalle_ticket_salida (cantidad, articulo_idarticulo, ticket_salida_idticket_salida, bodegas_idbodegas, ubicacion_bodegas_id) ' +
+                    'VALUES (?, ?, ?, ?, ?)',
+                    [request.detalle[i].cantidad * -1, request.detalle[i].idArticulo, lastIdTicketSalida, request.detalle[i].bodega, request.detalle[i].ubicacion])
 
             }
 
@@ -52,20 +52,30 @@ const createTicket = async (req, res) => {
             for (let i = 0; i < request.detalle.length; i++) {
                 for (let o = 0; o < result_bodegas.length; o++) {
 
-                    if(request.detalle[i].bodega === result_bodegas[o].idbodegas){
+                    if(request.detalle[i].bodega == result_bodegas[o].idbodegas){
                         request.detalle[i].bodega = result_bodegas[o].label_bodega
                     }
-                    
                 }
-               
-                
+            }
+
+            //SACANDO NOMBRES DE UBICACION BODEGAS
+            const result_ubicacion_bodegas = await conn.query('SELECT id_ubicacion_bodegas, ubicacion AS label_ubicacion_bodega FROM ubicacion_bodegas')
+
+             //RECORRER EL DETALLE DE DEL REQUEST PARA REMPLAZAR EL NUMERO DE LA UBICACION BODEGA POR SU NOMBRE
+             for (let i = 0; i < request.detalle.length; i++) {
+                for (let o = 0; o < result_ubicacion_bodegas.length; o++) {
+
+                    if(request.detalle[i].ubicacion == result_ubicacion_bodegas[o].id_ubicacion_bodegas){
+                        request.detalle[i].ubicacion = result_ubicacion_bodegas[o].label_ubicacion_bodega
+                    }
+                }
             }
 
             try {
                 //GENERAR DIRECTORIO DONDE SE GUARDARA EL PDF Y LA FIRMA DEL TICKET
                 const responsePath = await createDirectoryTicketSalida(lastIdTicketSalida)
 
-
+                console.log(request)
                 //GENERAR HTML A PARTIR DEL JSON
                 const html = await jsonToHtmlValeSalida(request, lastIdTicketSalida)
 

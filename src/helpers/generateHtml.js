@@ -147,7 +147,7 @@ const jsonToHtmlValeSalida = async (json, idTicket) => {
       '<td>' + json.detalle[i].unidad + '</td>' +
       '<td>' + json.detalle[i].descripcion + '</td>' +
       '<td>' + json.detalle[i].cantidad + '</td>' +
-      ' <td>' + json.detalle[i].bodega + '</td>' +
+      ' <td>' + json.detalle[i].bodega + ' - '+ json.detalle[i].ubicacion +'</td>' +
       ' </tr>'
 
   }
