@@ -12,16 +12,16 @@ const router = Router()
 router.get('/materiales',authRequired, getMateriales)
 
 //BUSCAR MATERIALES
-router.post('/materiales/find',authRequired, getMaterial)
+router.post('/api/v1/materiales/find',authRequired, getMaterial)
 
 
 //CREAR MATERIAL
-router.post('/materiales', authRequired, createMaterial)
+router.post('/api/v1/materiales', authRequired, createMaterial)
 
 //ELIMINAR MATERIAL
-router.delete('/materiales',authRequired, deleteMaterial)
+router.delete('/api/v1/materiales',authRequired, deleteMaterial)
 
 //ACTUALIZAR MATERIAL
-router.put('/materiales', authRequired, updateMaterial)
+router.put('/api/v1/materiales', authRequired, updateMaterial)
 
 module.exports = router

@@ -9,7 +9,7 @@ const router = Router()
 
 
 //GUARDAR UN TICKET
-router.post('/ticket/entrada', createTicket)
+router.post('/api/v1/ticket/entrada', createTicket)
 
 
 

@@ -8,13 +8,13 @@ const { createTicket, getTicket, getSignature } = require('../controllers/ticket
 const router = Router()
 
 //CREAR TICKET DE SALIDA
-router.post('/ticket/salida/', authRequired, createTicket)
+router.post('/api/v1/ticket/salida/', authRequired, createTicket)
 
 //CONSULTAR TICKET DE SALIDA
-router.get('/ticket/salida/:id',authRequired ,getTicket)
+router.get('/api/v1/ticket/salida/:id',authRequired ,getTicket)
 
 //CONSULTAR FIRMA, DEVUELVE EN IMAGEN PNG EN BASE64
-router.get('/ticket/salida/signature/:id',authRequired,getSignature)
+router.get('/api/v1/ticket/salida/signature/:id',authRequired,getSignature)
 
 
 module.exports = router
