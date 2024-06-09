@@ -20,12 +20,14 @@ app.use(morgan('dev'))
 app.use(express.json())
 app.use(cookieParser())
 
+
+
 app.use(materialesRoutes)
 app.use(bodegasRoutes)
 app.use(ticketEntradaRoutes)
 app.use(usuariosRoutes)
 app.use(ticketSalidaRoutes)
-app.use(authRoutes)
+app.use('api/v1',authRoutes)
 
 app.listen(3000)
 console.log('Server listen in port 3000')
