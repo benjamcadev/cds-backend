@@ -27,7 +27,7 @@ app.use(bodegasRoutes)
 app.use(ticketEntradaRoutes)
 app.use(usuariosRoutes)
 app.use(ticketSalidaRoutes)
-app.use('api/v1',authRoutes)
+app.use(authRoutes)
 
 app.listen(3000)
 console.log('Server listen in port 3000')

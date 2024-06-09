@@ -6,13 +6,13 @@ const { getBodegaMaterial, getBodega, getUbicacion } = require('../controllers/b
 const router = Router()
 
 //LISTAR TODAS LAS BODEGAS
-router.get('/bodegas/',authRequired, getBodega)
+router.get('/api/v1/bodegas/',authRequired, getBodega)
 
 //BUSCAR BODEGAS QUE PERTENECE MATERIAL
-router.get('/bodegas/find/:id',authRequired, getBodegaMaterial)
+router.get('/api/v1/bodegas/find/:id',authRequired, getBodegaMaterial)
 
 //BUSCAR UBICACIONES DE BODEGAS QUE PERTENECE MATERIAL
-router.get('/bodegas/ubicacion/',authRequired, getUbicacion)
+router.get('/api/v1/bodegas/ubicacion/',authRequired, getUbicacion)
 
 
 
