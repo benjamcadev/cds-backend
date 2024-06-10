@@ -167,6 +167,9 @@ const jsonToHtmlValeSalida = async (json, idTicket) => {
     '<div class="firma">' +
     '  <img width="120" alt="" src="' + json.firmaBodega + '">' +
     '</div>' +
+    '<p class="text-firma">'+ json.responsableRetira +'</p>'+
+    '<p class="text-firma">'+ json.responsableEntrega +'</p>'+
+
     ' </div>' +
 
     '</body>' +
