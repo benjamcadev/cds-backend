@@ -141,7 +141,7 @@ const getTicket = async (req, res) => {
         //QUERY RESCATA DATOS DEL TICKET ENTRADA
        let result_ticket = await conn.query(`SELECT * FROM ticket_salida WHERE idticket_salida = ${id_ticket}`)
         //QUERY RESCATA EL DETALLE DEL TICKET DE ENTRADA
-       let result_ticket_detalle = await conn.query(`SELECT detalle_ticket_salida.bodegas_idbodegas AS bodega, (detalle_ticket_salida.cantidad) * -1 as cantidad, 
+       let result_ticket_detalle = await conn.query(`SELECT detalle_ticket_salida.bodegas_idbodegas AS bodega, detalle_ticket_salida.ubicacion_bodegas_id AS ubicacion, (detalle_ticket_salida.cantidad) * -1 as cantidad, 
         articulo.nombre AS descripcion,articulo.idarticulo AS id, articulo.unidad_medida AS unidad,
         articulo.idarticulo AS idArticulo
         FROM detalle_ticket_salida 
@@ -149,6 +149,11 @@ const getTicket = async (req, res) => {
         ON detalle_ticket_salida.articulo_idarticulo = articulo.idarticulo
         WHERE ticket_salida_idticket_salida = ${id_ticket}
         GROUP BY articulo.nombre`)
+
+        var fecha_creacion = result_ticket[0].fecha_creacion.toISOString().substring(0, 19).replace("T", " ")
+        result_ticket[0].fecha_creacion = fecha_creacion;
+
+       
 
        conn.end()
         if (result_ticket.length == 0) {
@@ -159,7 +164,6 @@ const getTicket = async (req, res) => {
         }
       
        result_final = {...result_ticket[0], detalle: result_ticket_detalle}
-      
        
        res.status(200).json(convertBigintToInt(result_final))
 
@@ -186,14 +190,8 @@ const getSignature = async (req, res) => {
        
         //convertir a base64
         const base64_entrega = 'data:image/png;base64,' + fs.readFileSync(result[0].signature_path_entrega, {encoding: 'base64'});
+        const base64_retira = 'data:image/png;base64,' + fs.readFileSync(result[0].signature_path_retira, {encoding: 'base64'});
 
-        let base64_retira = ''
-        if (result.signature_path_retira != null || result.signature_path_retira != '') {
-         base64_retira = 'data:image/png;base64,' + fs.readFileSync(result[0].signature_path_retira, {encoding: 'base64'});
-        }
-       
-
-       
 
         const result_final = {
             base64_entrega: base64_entrega,
