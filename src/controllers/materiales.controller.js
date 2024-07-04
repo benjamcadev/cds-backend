@@ -3,7 +3,20 @@ const { convertBigintToInt } = require('../helpers/convertBigintToInt')
 
 // OBTENER TODOS LOS MATERIALES
 const getMateriales = async (req, res) => {
-    res.json('obtener listado de todos los materiales')
+   
+    try {
+          const conn = await pool.getConnection();
+      
+          const query = 'SELECT id, nombre, descripcion FROM materiales'; 
+          const result = await conn.query(query); // Sin parámetros de búsqueda
+      
+          conn.release(); 
+          res.status(200).json(result);
+    } catch (error) {
+        console.error('Error al obtener materiales:', error);
+        res.status(500).send('Error interno del servidor'); 
+    }
+    
 }
 
 // BUSCAR UN MATERIAL

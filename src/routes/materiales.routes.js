@@ -9,7 +9,7 @@ const router = Router()
 
 
 //LISTAR MATERIALES
-router.get('/materiales',authRequired, getMateriales)
+router.get('/materiales', getMateriales)
 
 //BUSCAR MATERIALES
 router.post('/api/v1/materiales/find',authRequired, getMaterial)

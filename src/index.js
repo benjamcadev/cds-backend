@@ -15,6 +15,10 @@ const authRoutes = require('./routes/auth.routes')
 
 const app = express()
 
+app.get ('/', (req, res) => {
+    res.send('Bienvenido a la API')
+})
+
 app.use(cors({credentials: true, origin: true}))
 app.use(morgan('dev'))
 app.use(express.json())
