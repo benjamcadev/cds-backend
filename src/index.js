@@ -1,4 +1,6 @@
 const express = require('express')
+
+dotenv = require('dotenv').config()
 const morgan = require('morgan')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
@@ -33,5 +35,6 @@ app.use(usuariosRoutes)
 app.use(ticketSalidaRoutes)
 app.use(authRoutes)
 
-app.listen(3000)
-console.log('Server listen in port 3000')
+app.listen(process.env.PORT, () => {
+    console.log(`Servidor corriendo en http://localhost:${process.env.PORT}`)
+})
