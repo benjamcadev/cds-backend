@@ -1,19 +1,9 @@
 const express = require('express')
-
 dotenv = require('dotenv').config()
 const morgan = require('morgan')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
-
-const materialesRoutes = require('./routes/materiales.routes')
-const bodegasRoutes = require('./routes/bodegas.routes')
-const ticketEntradaRoutes = require('./routes/ticketentrada.routes')
-const usuariosRoutes = require('./routes/usuarios.routes')
-const ticketSalidaRoutes = require('./routes/ticketsalida.routes')
-const authRoutes = require('./routes/auth.routes')
-
-
-
+const { articulosRoutes, bodegasRoutes, ticketEntradaRoutes, usuariosRoutes, ticketSalidaRoutes, authRoutes } = require('./routes')
 
 const app = express()
 
@@ -26,9 +16,7 @@ app.use(morgan('dev'))
 app.use(express.json())
 app.use(cookieParser())
 
-
-
-app.use(materialesRoutes)
+app.use(articulosRoutes)
 app.use(bodegasRoutes)
 app.use(ticketEntradaRoutes)
 app.use(usuariosRoutes)
