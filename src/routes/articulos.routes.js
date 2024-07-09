@@ -14,7 +14,7 @@ router.post('/api/v1/materiales/create', createArticulo)
 router.get('/materiales/list', getListaArticulos)
 
 //ACTUALIZAR MATERIAL
-router.put('/api/v1/materiales', updateArticulo)
+router.put('/api/v1/materiales/update', updateArticulo)
 
 //ELIMINAR MATERIAL
 router.delete('/api/v1/materiales/delete', deleteArticulo)
