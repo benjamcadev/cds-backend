@@ -4,8 +4,6 @@ require('dotenv').config()
 const morgan = require('morgan')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
-
-// Optimización de rutas
 const { articulosRoutes, bodegasRoutes, ticketEntradaRoutes, usuariosRoutes, ticketSalidaRoutes, authRoutes } = require('./routes')
 
 const app = express()
