@@ -2,26 +2,24 @@ const { Router } = require('express')
 const { authRequired } = require('../middlewares/validateToken')
 
 //IMPORTANDO FUNCIONES
-const { getMateriales, getMaterial, createMaterial, deleteMaterial, updateMaterial } = require('../controllers/materiales.controller')
+const { getListaArticulos, createArticulo, getFindArticulo, deleteArticulo, updateArticulo } = require('../controllers/articulos.controller')
 
 const router = Router()
 
-
+// CRUD ARTICULOS
+//CREAR MATERIAL
+router.post('/api/v1/materiales/create', createArticulo)
 
 //LISTAR MATERIALES
-router.get('/materiales', getMateriales)
-
-//BUSCAR MATERIALES
-router.post('/api/v1/materiales/find',authRequired, getMaterial)
-
-
-//CREAR MATERIAL
-router.post('/api/v1/materiales', authRequired, createMaterial)
-
-//ELIMINAR MATERIAL
-router.delete('/api/v1/materiales',authRequired, deleteMaterial)
+router.get('/materiales/list', getListaArticulos)
 
 //ACTUALIZAR MATERIAL
-router.put('/api/v1/materiales', authRequired, updateMaterial)
+router.put('/api/v1/materiales', updateArticulo)
+
+//ELIMINAR MATERIAL
+router.delete('/api/v1/materiales/delete', deleteArticulo)
+
+//BUSCAR MATERIALES
+router.post('/api/v1/materiales/find', getFindArticulo)
 
 module.exports = router
