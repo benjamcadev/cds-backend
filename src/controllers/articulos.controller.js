@@ -325,7 +325,7 @@ const updateArticulo = async (req, res) => {
         }
 
         
-        // 
+        // Manejar la imagen del artículo base64 si esta presente en la petición para actualizarla en la base de datos
         let imagen_url = null;
         if (imagen_base64) {
             const base64Data = imagen_base64.replace(/^data:image\/\w+;base64,/, '');
@@ -333,14 +333,17 @@ const updateArticulo = async (req, res) => {
             const imagenNombre = `imagen_${Date.now()}.png`;
             const imagenRuta = path.join(__dirname, `../../public/uploads/imagenes_articulos/${imagenNombre}`);
 
+            // Compruebo de que el directorio existe y si no se crea
             if (!fs.existsSync(path.join(__dirname, '../../public/uploads/imagenes_articulos'))) {
                 fs.mkdirSync(path.join(__dirname, '../../public/uploads/imagenes_articulos'), { recursive: true });
             }
 
+            // Guardar la imagen en el servidor y obtener la URL de la imagen almacenada en el servidor para actualizarla en la base de datos
             fs.writeFileSync(imagenRuta, imagenBuffer);
             imagen_url = `/public/uploads/imagenes_articulos/${imagenNombre}`;
         }
 
+        // Consulta SQL para actualizar un artículo en la base de datos con los nuevos valores recibidos en la petición (req.body)
         const query = `
             UPDATE articulo
             SET nombre = ?, sap = ?, codigo_interno = ?, sku = ?, unidad_medida = ?, comentario = ?, categoria_idcategoria = ?, precio = ?, imagen_url = COALESCE(?, imagen_url)
@@ -348,10 +351,13 @@ const updateArticulo = async (req, res) => {
         `;
         const values = [nombre, sap, codigo_interno, sku, unidad_medida, comentario, categoria_idcategoria, precioFloat, imagen_url, idarticulo];
 
+        // Ejectuar la consulta SQL para actualizar un artículo en la base de datos
         const result = await conn.query(query, values);
 
+        // Liberar la conexión a la base de datos
         conn.release();
 
+        // Verificar si el artículo fue actualizado exitosamente en la base de datos y enviar una respuesta al cliente
         if (result.affectedRows === 1) {
             res.status(200).json({ message: 'Artículo actualizado exitosamente' });
             console.log('Artículo actualizado exitosamente');
@@ -360,10 +366,12 @@ const updateArticulo = async (req, res) => {
         }
 
     } catch (error) {
+        // Manejo de errores: imprimir el error en la consola y enviar una respuesta de error al cliente
         console.error('Error al actualizar artículo:', error);
         res.status(500).send('Error interno del servidor');
 
     } finally {
+        // Asegurarse de que la conexión siempre se cierre en caso de error o éxito
         if (conn) {
             console.log('Conexión cerrada')
             conn.end();
