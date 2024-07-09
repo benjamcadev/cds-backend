@@ -3,8 +3,9 @@ const { convertBigintToInt } = require('../helpers/convertBigintToInt')
 const fs = require('fs');
 const path = require('path');
 
+
 // OBTENER TODOS LOS ARTICULOS
-const getMateriales = async (req, res) => {
+const getListaArticulos = async (req, res) => {
     // Obtener los parámetros de paginación de la consulta (query params en la URL (ejemplo: /materiales?page=1&limit=10))
     // Si no se envían los parámetros, se asignan valores por defecto (page=1, limit=10)
     const page = parseInt(req.query.page) || 1;
@@ -49,10 +50,10 @@ const getMateriales = async (req, res) => {
 
         // Preparar la respuesta con los datos obtenidos con información de paginación y los artículos convertidos
         const respuesta = {
-            totalArticulos: totalArticulos, // Número total de artículos en la tabla
-            currentPage: page, // Página actual solicitada
+            total_Articulos: totalArticulos, // Número total de artículos en la tabla
+            Pagina_Actual: page, // Página actual solicitada
             articulosEnPagina: articulosConvertidos.length, // Número de artículos en la página actual
-            totalPages: Math.ceil(totalArticulos / limit), // Número total de páginas
+            total_Paginas: Math.ceil(totalArticulos / limit), // Número total de páginas
             articulos: articulosConvertidos, // Lista de artículos en la página actual
         };
 
@@ -81,9 +82,8 @@ const getMateriales = async (req, res) => {
 };
 
 // BUSCAR UN MATERIAL
-const getMaterial = async (req, res) => {
+const getFindArticulo = async (req, res) => {
     const { search_value } = req.body
-
 
     try {
         const conn = await pool.getConnection()
@@ -98,11 +98,8 @@ const getMaterial = async (req, res) => {
             'WHERE nombre LIKE \'%\' ? \'%\' OR sku LIKE  \'%\' ? \'%\'  OR sap  LIKE  \'%\' ? \'%\'' +
             'GROUP BY articulo.nombre  LIMIT 0, 50 ', [search_value, search_value, search_value, search_value, search_value, search_value])
 
-
         let cantidades_positivas = []
         let cantidades_negativas = []
-
-
 
         for (var i = 0; i < result.length; i++) {
             if (result[i].cantidad >= 0) {
@@ -115,15 +112,12 @@ const getMaterial = async (req, res) => {
                     Comentarios: result[i].comentario,
                     Stock: Number(result[i].cantidad)
                 })
-
             }
+
             if (result[i].cantidad < 0) {
                 cantidades_negativas.push({ id: Number(result[i].idarticulo), Stock: Number(result[i].cantidad) })
             }
-
         }
-
-        
 
         var o = 0
         for (var j = 0; j < cantidades_positivas.length; j++) {
@@ -143,15 +137,13 @@ const getMaterial = async (req, res) => {
         conn.end();
         res.status(200).json(convertBigintToInt(result_final))
 
-
     } catch (error) {
         res.status(400).send('hubo un error' + error)
     }
-
-
 }
 
-// Verificar permisos de usuario para crear un material
+
+// Verificar permisos de usuario para crear un material y actualizar un material
 const verificarPermisos = async (usuarioId) => {
 
     // Se declara como let conn para poder reasignarla en el bloque finally si es necesario cerrar la conexión a la base de datos
@@ -190,7 +182,6 @@ const verificarPermisos = async (usuarioId) => {
         if (conn) conn.release();
     }
 };
-
 
 // CREAR UN Articulo en la base de datos
 const createArticulo = async (req, res) => {
@@ -292,24 +283,104 @@ const createArticulo = async (req, res) => {
     }
 };
 
-
 // ACTUALIZAR UN MATERIAL
+const updateArticulo = async (req, res) => {
+    // Declarar la variable conn con let para poder reasignarla en el bloque finally
+    let conn;
 
-const updateMaterial = async (req, res) => {
-    res.send('actualizando un material')
-}
+    // Obtener los datos del material desde el cuerpo de la petición para actualizar un artículo en la base de datos
+    const { idarticulo, nombre, sap, codigo_interno, sku, unidad_medida, comentario, categoria_idcategoria, precio, imagen_base64 } = req.body;
+
+    // Obtener el id del usuario de los headers de la petición para verificar permisos de actualización de un artículo en la base de datos
+    const usuarioId = req.headers.usuarioid;
+
+    // Verificar si todos los campos obligatorios están presentes en la petición para actualizar un artículo
+    if (!idarticulo || !nombre || !sap || !codigo_interno || !sku || !unidad_medida || !categoria_idcategoria || precio === undefined) {
+        return res.status(400).json({ message: 'Todos los campos son obligatorios' });
+    }
+
+    // Convertir el precio a un número de punto flotante y verificar si es válido
+    const precioFloat = parseFloat(precio);
+    if (isNaN(precioFloat)) {
+        return res.status(400).json({ message: 'El precio debe ser un número válido' });
+    }
+
+    // Actualizar un artículo en la base de datos
+    try {
+
+        // Verificar permisos del usuario para actualizar un artículo por su idusuario
+        const tienePermisos = await verificarPermisos(usuarioId);
+
+        // Verificar si el usuario tiene permisos para actualizar un artículo
+        if (!tienePermisos) {
+            return res.status(403).json({ message: 'No tiene permisos para actualizar un artículo' });
+        }
+
+        // Obtener una conexión a la base de datos desde el pool de conexiones
+        conn = await pool.getConnection();
+
+        // Verificar si se obtuvo la conexión a la base de datos
+        if (!conn) {
+            return res.status(500).json({ message: 'Error al conectar con la base de datos' });
+        }
+
+        
+        // 
+        let imagen_url = null;
+        if (imagen_base64) {
+            const base64Data = imagen_base64.replace(/^data:image\/\w+;base64,/, '');
+            const imagenBuffer = Buffer.from(base64Data, 'base64');
+            const imagenNombre = `imagen_${Date.now()}.png`;
+            const imagenRuta = path.join(__dirname, `../../public/uploads/imagenes_articulos/${imagenNombre}`);
+
+            if (!fs.existsSync(path.join(__dirname, '../../public/uploads/imagenes_articulos'))) {
+                fs.mkdirSync(path.join(__dirname, '../../public/uploads/imagenes_articulos'), { recursive: true });
+            }
+
+            fs.writeFileSync(imagenRuta, imagenBuffer);
+            imagen_url = `/public/uploads/imagenes_articulos/${imagenNombre}`;
+        }
+
+        const query = `
+            UPDATE articulo
+            SET nombre = ?, sap = ?, codigo_interno = ?, sku = ?, unidad_medida = ?, comentario = ?, categoria_idcategoria = ?, precio = ?, imagen_url = COALESCE(?, imagen_url)
+            WHERE idarticulo = ?
+        `;
+        const values = [nombre, sap, codigo_interno, sku, unidad_medida, comentario, categoria_idcategoria, precioFloat, imagen_url, idarticulo];
+
+        const result = await conn.query(query, values);
+
+        conn.release();
+
+        if (result.affectedRows === 1) {
+            res.status(200).json({ message: 'Artículo actualizado exitosamente' });
+            console.log('Artículo actualizado exitosamente');
+        } else {
+            res.status(400).json({ message: 'No se pudo actualizar el artículo' });
+        }
+
+    } catch (error) {
+        console.error('Error al actualizar artículo:', error);
+        res.status(500).send('Error interno del servidor');
+
+    } finally {
+        if (conn) {
+            console.log('Conexión cerrada')
+            conn.end();
+        }
+    }
+};
 
 
-// ELIMINAR UN MATERIAL
-const deleteMaterial = async (req, res) => {
-    res.send('eliminando un material')
-}
+// ELIMINAR UN ARTICULO (marcar como inactivo)
 
 
+
+// CRUD: Create, Read, Update, Delete
 module.exports = {
-    getMateriales,
-    getMaterial,
     createArticulo,
-    deleteMaterial,
-    updateMaterial
+    getListaArticulos,
+    updateArticulo,
+    deleteArticulo,
+    getFindArticulo,
 }
