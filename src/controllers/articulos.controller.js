@@ -1,3 +1,4 @@
+
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
@@ -7,6 +8,7 @@ const { convertBigintToInt } = require('../helpers/convertBigintToInt')
 
 // OBTENER TODOS LOS ARTICULOS
 const getListaArticulos = async (req, res) => {
+
 
     // Obtener los parámetros de paginación de la consulta (query params en la URL (ejemplo: /materiales?page=1&limit=10))
     // Si no se envían los parámetros, se asignan valores por defecto (page=1, limit=10)
@@ -29,16 +31,20 @@ const getListaArticulos = async (req, res) => {
         // Verificar si la tabla 'articulo' existe en la base de datos
         const verificarTabla = await conn.query('SHOW TABLES LIKE "articulo"');
         if (verificarTabla.length === 0) {
+
             conn.release();
+
             return res.status(404).json({ message: 'La tabla articulo no existe' });
         }
         
         // Consultar el número total de registros en la tabla 'articulo'
+
         const totalRegistrosQuery = 'SELECT COUNT(*) AS total FROM articulo WHERE activo = TRUE';
         const totalResult = await conn.query(totalRegistrosQuery);
         const totalArticulos = Number(totalResult[0].total); // Convertir el valor BigInt a Number
         
         // Consultar los registros de la tabla 'articulo' con paginación
+
         const query = 'SELECT * FROM articulo WHERE activo = TRUE LIMIT ? OFFSET ?';
         const result = await conn.query(query, [limit, offset]);
 
@@ -53,10 +59,14 @@ const getListaArticulos = async (req, res) => {
 
         // Preparar la respuesta con los datos obtenidos con información de paginación y los artículos convertidos
         const respuesta = {
+
+
             total_Articulos: totalArticulos, // Número total de artículos en la tabla
             Pagina_Actual: page, // Página actual solicitada
             articulosEnPagina: articulosConvertidos.length, // Número de artículos en la página actual
             total_Paginas: Math.ceil(totalArticulos / limit), // Número total de páginas
+
+
             articulos: articulosConvertidos, // Lista de artículos en la página actual
         };
 
@@ -85,8 +95,10 @@ const getListaArticulos = async (req, res) => {
 };
 
 // BUSCAR UN MATERIAL
+
 const getFindArticulo = async (req, res) => {
     const { search_value } = req.body
+
 
     try {
         const conn = await pool.getConnection()
@@ -101,8 +113,10 @@ const getFindArticulo = async (req, res) => {
             'WHERE nombre LIKE \'%\' ? \'%\' OR sku LIKE  \'%\' ? \'%\'  OR sap  LIKE  \'%\' ? \'%\'' +
             'GROUP BY articulo.nombre  LIMIT 0, 50 ', [search_value, search_value, search_value, search_value, search_value, search_value])
 
+
         let cantidades_positivas = []
         let cantidades_negativas = []
+
 
         for (var i = 0; i < result.length; i++) {
             if (result[i].cantidad >= 0) {
@@ -115,12 +129,16 @@ const getFindArticulo = async (req, res) => {
                     Comentarios: result[i].comentario,
                     Stock: Number(result[i].cantidad)
                 })
+
+
             }
 
             if (result[i].cantidad < 0) {
                 cantidades_negativas.push({ id: Number(result[i].idarticulo), Stock: Number(result[i].cantidad) })
             }
         }
+
+
 
         var o = 0
         for (var j = 0; j < cantidades_positivas.length; j++) {
@@ -140,6 +158,7 @@ const getFindArticulo = async (req, res) => {
         conn.end();
         res.status(200).json(convertBigintToInt(result_final))
 
+
     } catch (error) {
         res.status(400).send('hubo un error' + error)
     }
@@ -147,6 +166,7 @@ const getFindArticulo = async (req, res) => {
 
 
 // Verificar permisos de usuario para crear un material y actualizar un material
+
 const verificarPermisos = async (usuarioId) => {
 
     // Se declara como let conn para poder reasignarla en el bloque finally si es necesario cerrar la conexión a la base de datos
@@ -186,6 +206,7 @@ const verificarPermisos = async (usuarioId) => {
     }
 };
 
+
 // CREAR UN Articulo en la base de datos
 const createArticulo = async (req, res) => {
 
@@ -197,6 +218,7 @@ const createArticulo = async (req, res) => {
 
     // Verificar si todos los campos obligatorios están presentes
     if (!nombre || !sap || !sku || !unidad_medida || !categoria_idcategoria || precio === undefined || !imagen_base64) {
+
         return res.status(400).json({ message: 'Todos los campos son obligatorios' });
     }
 
@@ -206,11 +228,13 @@ const createArticulo = async (req, res) => {
         return res.status(400).json({ message: 'El precio debe ser un número válido' });
     }
 
+
     try {
         // Verificar permisos del usuario para crear Articulos por su idusuario
         const tienePermisos = await verificarPermisos(usuarioId);
         if (!tienePermisos) {
             console.log('No tiene permisos para crear un articulo idusuario:', usuarioId);
+
             return res.status(403).json({ message: 'No tiene permisos para crear un articulo' });
         }
 
@@ -227,11 +251,13 @@ const createArticulo = async (req, res) => {
 
         // Convertir la cadena base64 a un buffer de imagen
         const imagenBuffer = Buffer.from(base64Data, 'base64');
+
         const imagenNombre = `imagen_${nombre}.png`;
         const imagenRuta = path.join(__dirname, `../../public/uploads/imagenes_articulos/${imagenNombre}`);
 
         // Compruebo de que el directorio existe y si no lo creo
         if (!fs.existsSync(path.join(__dirname, '../../public/uploads/imagenes_articulos'))) {
+
             fs.mkdirSync(path.join(__dirname, '../../public/uploads/imagenes_articulos'), { recursive: true });
         }
 
@@ -239,6 +265,7 @@ const createArticulo = async (req, res) => {
         fs.writeFileSync(imagenRuta, imagenBuffer);
 
         // URL de la imagen almacenada
+
         const imagen_url = `/public/uploads/imagenes_articulos/${imagenNombre}`;
 
         // Consulta SQL para insertar un nuevo Articulo en la base de datos (sin codigo_interno)
@@ -282,6 +309,7 @@ const createArticulo = async (req, res) => {
             } else {
                 res.status(400).json({ message: 'No se pudo actualizar el codigo_interno del Articulo' });
             }
+
         } else {
             res.status(400).json({ message: 'No se pudo crear el Articulo' });
         }
@@ -306,19 +334,25 @@ const createArticulo = async (req, res) => {
     }
 };
 
+
+
 // ACTUALIZAR UN MATERIAL
 const updateArticulo = async (req, res) => {
     // Declarar la variable conn con let para poder reasignarla en el bloque finally
     let conn;
 
     // Obtener los datos del material desde el cuerpo de la petición para actualizar un artículo en la base de datos
+
     const { idarticulo, nombre, sap, sku, unidad_medida, comentario, categoria_idcategoria, precio, imagen_base64 } = req.body;
+
 
     // Obtener el id del usuario de los headers de la petición para verificar permisos de actualización de un artículo en la base de datos
     const usuarioId = req.headers.usuarioid;
 
     // Verificar si todos los campos obligatorios están presentes en la petición para actualizar un artículo
+
     if (!idarticulo || !nombre || !sap || !sku || !unidad_medida || !categoria_idcategoria || precio === undefined) {
+
         return res.status(400).json({ message: 'Todos los campos son obligatorios' });
     }
 
@@ -330,6 +364,8 @@ const updateArticulo = async (req, res) => {
 
     // Actualizar un artículo en la base de datos
     try {
+
+
         // Verificar permisos del usuario para actualizar un artículo por su idusuario
         const tienePermisos = await verificarPermisos(usuarioId);
 
@@ -345,6 +381,7 @@ const updateArticulo = async (req, res) => {
         if (!conn) {
             return res.status(500).json({ message: 'Error al conectar con la base de datos' });
         }
+
 
         // Manejar la imagen del artículo base64 si esta presente en la petición para actualizarla en la base de datos
         // Obtener el nombre del archivo de la imagen del artículo basado en el código interno del artículo para verificar si la imagen es la misma o no
@@ -405,6 +442,7 @@ const updateArticulo = async (req, res) => {
         // Generar el nuevo codigo_interno basado en las características actualizadas del artículo
         const codigo_interno = `${idarticulo.toString().slice(-2)}${nombre.slice(0, 2).toUpperCase()}${categoria_idcategoria}`;
 
+
         // Consulta SQL para actualizar un artículo en la base de datos con los nuevos valores recibidos en la petición (req.body)
         const query = `
             UPDATE articulo
@@ -421,7 +459,9 @@ const updateArticulo = async (req, res) => {
 
         // Verificar si el artículo fue actualizado exitosamente en la base de datos y enviar una respuesta al cliente
         if (result.affectedRows === 1) {
+
             res.status(200).json({ message: 'Artículo actualizado exitosamente', codigo_interno });
+
             console.log('Artículo actualizado exitosamente');
         } else {
             res.status(400).json({ message: 'No se pudo actualizar el artículo' });
@@ -440,6 +480,7 @@ const updateArticulo = async (req, res) => {
         }
     }
 };
+
 
 // ELIMINAR UN ARTICULO (marcar como inactivo)
 const deleteArticulo = async (req, res) => {
@@ -499,6 +540,7 @@ const deleteArticulo = async (req, res) => {
     }
 };
 
+
 // CRUD: Create, Read, Update, Delete
 module.exports = {
     createArticulo,
@@ -506,4 +548,5 @@ module.exports = {
     updateArticulo,
     deleteArticulo,
     getFindArticulo,
+
 }
