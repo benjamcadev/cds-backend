@@ -3,30 +3,31 @@ const { authRequired } = require('../middlewares/validateToken')
 
 //IMPORTANDO FUNCIONES
 
-const { createArticulo, deleteArticulo, updateArticulo, getFindArticulo, getListaArticulos } = require('../controllers/articulos.controller')
+const { getListaArticulos, createArticulo, getFindArticulo, deleteArticulo, updateArticulo } = require('../controllers/articulos.controller')
 
 
 
 
-
-// CRUD ARTICULOS 
+// CRUD ARTICULOS
 
 const router = Router()
 
 
 //CREAR MATERIAL
-router.post('/api/v1/materiales/create', createArticulo) // falta agregar auth
+router.post('/api/v1/materiales/create', createArticulo)
+
 
 //LISTAR MATERIALES
-router.get('/materiales/list', getListaArticulos) // falta agregar auth
-
-//BUSCAR MATERIALES
-router.post('/api/v1/materiales/find',authRequired, getFindArticulo)
+router.get('/materiales/list', getListaArticulos)
 
 //ACTUALIZAR MATERIAL
-router.put('/api/v1/materiales/update', updateArticulo) // falta agregar auth
+router.put('/api/v1/materiales/update', updateArticulo)
 
 //ELIMINAR MATERIAL
-router.delete('/api/v1/materiales/delete', deleteArticulo) // falta agregar auth
+router.delete('/api/v1/materiales/delete', deleteArticulo)
+
+//BUSCAR MATERIALES
+router.post('/api/v1/materiales/find', getFindArticulo)
+
 
 module.exports = router
