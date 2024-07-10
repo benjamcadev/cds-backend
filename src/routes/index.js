@@ -1,6 +1,5 @@
 
 
-
 const articulosRoutes = require('./articulos.routes');
 const bodegasRoutes = require('./bodegas.routes');
 const ticketEntradaRoutes = require('./ticketentrada.routes');
