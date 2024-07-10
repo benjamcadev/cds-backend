@@ -2,11 +2,17 @@ const { Router } = require('express')
 const { authRequired } = require('../middlewares/validateToken')
 
 //IMPORTANDO FUNCIONES
+
 const { createArticulo, deleteArticulo, updateArticulo, getFindArticulo, getListaArticulos } = require('../controllers/articulos.controller')
+
+
+
+
+
+// CRUD ARTICULOS 
 
 const router = Router()
 
-// CRUD ARTICULOS 
 
 //CREAR MATERIAL
 router.post('/api/v1/materiales/create', createArticulo) // falta agregar auth

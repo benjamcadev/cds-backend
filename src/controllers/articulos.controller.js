@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 
+
 // OBTENER TODOS LOS ARTICULOS
 const getListaArticulos = async (req, res) => {
     // Obtener los parámetros de paginación de la consulta (query params en la URL (ejemplo: /materiales?page=1&limit=10))
@@ -50,10 +51,12 @@ const getListaArticulos = async (req, res) => {
 
         // Preparar la respuesta con los datos obtenidos con información de paginación y los artículos convertidos
         const respuesta = {
+
             total_Articulos: totalArticulos, // Número total de artículos en la tabla
             Pagina_Actual: page, // Página actual solicitada
             articulosEnPagina: articulosConvertidos.length, // Número de artículos en la página actual
             total_Paginas: Math.ceil(totalArticulos / limit), // Número total de páginas
+
             articulos: articulosConvertidos, // Lista de artículos en la página actual
         };
 
@@ -82,8 +85,10 @@ const getListaArticulos = async (req, res) => {
 };
 
 // BUSCAR UN MATERIAL
+
 const getFindArticulo = async (req, res) => {
     const { search_value } = req.body
+
 
     try {
         const conn = await pool.getConnection()
@@ -98,8 +103,10 @@ const getFindArticulo = async (req, res) => {
             'WHERE nombre LIKE \'%\' ? \'%\' OR sku LIKE  \'%\' ? \'%\'  OR sap  LIKE  \'%\' ? \'%\'' +
             'GROUP BY articulo.nombre  LIMIT 0, 50 ', [search_value, search_value, search_value, search_value, search_value, search_value])
 
+
         let cantidades_positivas = []
         let cantidades_negativas = []
+
 
         for (var i = 0; i < result.length; i++) {
             if (result[i].cantidad >= 0) {
@@ -112,12 +119,14 @@ const getFindArticulo = async (req, res) => {
                     Comentarios: result[i].comentario,
                     Stock: Number(result[i].cantidad)
                 })
+
             }
 
             if (result[i].cantidad < 0) {
                 cantidades_negativas.push({ id: Number(result[i].idarticulo), Stock: Number(result[i].cantidad) })
             }
         }
+
 
         var o = 0
         for (var j = 0; j < cantidades_positivas.length; j++) {
@@ -137,6 +146,7 @@ const getFindArticulo = async (req, res) => {
         conn.end();
         res.status(200).json(convertBigintToInt(result_final))
 
+
     } catch (error) {
         res.status(400).send('hubo un error' + error)
     }
@@ -144,6 +154,7 @@ const getFindArticulo = async (req, res) => {
 
 
 // Verificar permisos de usuario para crear un material y actualizar un material
+
 const verificarPermisos = async (usuarioId) => {
 
     // Se declara como let conn para poder reasignarla en el bloque finally si es necesario cerrar la conexión a la base de datos
@@ -182,6 +193,8 @@ const verificarPermisos = async (usuarioId) => {
         if (conn) conn.release();
     }
 };
+
+
 
 // CREAR UN Articulo en la base de datos
 const createArticulo = async (req, res) => {
@@ -238,7 +251,9 @@ const createArticulo = async (req, res) => {
         fs.writeFileSync(imagenRuta, imagenBuffer);
 
         // URL de la imagen almacenada
+
         const imagen_url = `/public/uploads/imagenes_articulos/${imagenNombre}`;
+
 
         // Consulta SQL para insertar un nuevo Articulo en la base de datos
         const query = `
@@ -282,6 +297,7 @@ const createArticulo = async (req, res) => {
         }
     }
 };
+
 
 // ACTUALIZAR UN MATERIAL
 const updateArticulo = async (req, res) => {
@@ -391,4 +407,5 @@ module.exports = {
     updateArticulo,
     deleteArticulo,
     getFindArticulo,
+
 }

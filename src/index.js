@@ -1,9 +1,11 @@
 const express = require('express')
-require('dotenv').config()
 
+const dotenv = require('dotenv').config()
 const morgan = require('morgan')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
+
+
 const { articulosRoutes, bodegasRoutes, ticketEntradaRoutes, usuariosRoutes, ticketSalidaRoutes, authRoutes } = require('./routes')
 
 const app = express()
@@ -24,7 +26,8 @@ app.use(usuariosRoutes)
 app.use(ticketSalidaRoutes)
 app.use(authRoutes)
 
-// iniciar el servidor
+
 app.listen(process.env.PORT, () => {
-    console.log(`Servidor corriendo  http://localhost:${process.env.PORT}`)
+    console.log(`Servidor corriendo en http://localhost:${process.env.PORT}`)
+
 })
