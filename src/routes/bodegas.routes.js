@@ -9,7 +9,7 @@ const router = Router()
 router.get('/api/v1/bodegas/',authRequired, getBodega)
 
 //BUSCAR BODEGAS QUE PERTENECE MATERIAL
-router.get('/api/v1/bodegas/find/:id',authRequired, getBodegaMaterial)
+router.get('/api/v1/bodegas/find/:id', getBodegaMaterial)
 
 //BUSCAR UBICACIONES DE BODEGAS QUE PERTENECE MATERIAL
 router.get('/api/v1/bodegas/ubicacion/',authRequired, getUbicacion)

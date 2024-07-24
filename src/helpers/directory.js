@@ -1,6 +1,7 @@
 const fs = require('fs');
 const {join} = require('path')
 
+
 const createDirectoryTicketSalida = async(idTicket) => {
 
     let dir_public = join(__dirname, '../../public');

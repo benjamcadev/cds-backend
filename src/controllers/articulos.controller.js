@@ -1,4 +1,3 @@
-
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
@@ -6,9 +5,9 @@ const pool = require('../db')
 
 const { convertBigintToInt } = require('../helpers/convertBigintToInt')
 
+
 // OBTENER TODOS LOS ARTICULOS
 const getListaArticulos = async (req, res) => {
-
 
     // Obtener los parámetros de paginación de la consulta (query params en la URL (ejemplo: /materiales?page=1&limit=10))
     // Si no se envían los parámetros, se asignan valores por defecto (page=1, limit=10)
@@ -31,9 +30,7 @@ const getListaArticulos = async (req, res) => {
         // Verificar si la tabla 'articulo' existe en la base de datos
         const verificarTabla = await conn.query('SHOW TABLES LIKE "articulo"');
         if (verificarTabla.length === 0) {
-
             conn.release();
-
             return res.status(404).json({ message: 'La tabla articulo no existe' });
         }
         
@@ -45,28 +42,40 @@ const getListaArticulos = async (req, res) => {
         
         // Consultar los registros de la tabla 'articulo' con paginación
 
-        const query = 'SELECT * FROM articulo WHERE activo = TRUE LIMIT ? OFFSET ?';
+        //const query = 'SELECT * FROM articulo  WHERE activo = TRUE LIMIT ? OFFSET ?';
+        const query = `SELECT articulo.idarticulo, articulo.nombre AS Descripcion, articulo.sap AS Codigo_SAP, 
+        articulo.codigo_interno AS Codigo_interno, articulo.sku AS SKU, articulo.comentario AS Comentarios, 
+        articulo.unidad_medida, articulo.categoria_idcategoria, articulo.precio, articulo.imagen_url, 
+        articulo.activo, IFNULL(SUM(detalle_ticket_entrada.cantidad), 0) AS Stock 
+        FROM articulo 
+        LEFT JOIN detalle_ticket_entrada ON articulo.idarticulo = detalle_ticket_entrada.articulo_idarticulo 
+        WHERE articulo.activo = TRUE 
+        GROUP BY articulo.idarticulo 
+        LIMIT ? OFFSET ?`;
         const result = await conn.query(query, [limit, offset]);
 
+        
+
+        
         // Convertir valores BigInt a String durante la serialización
         const articulosConvertidos = result.map(articulo => {
             return {
                 ...articulo,
                 idarticulo: articulo.idarticulo ? articulo.idarticulo.toString() : null,
-                sku: articulo.sku ? articulo.sku.toString() : null,
+                SKU: articulo.sku ? articulo.sku.toString() : null,
+                categoria_idcategoria: articulo.categoria_idcategoria ? articulo.categoria_idcategoria.toString() : null,
+                Stock: articulo.Stock ? articulo.Stock.toString() : null,
             };
         });
 
         // Preparar la respuesta con los datos obtenidos con información de paginación y los artículos convertidos
         const respuesta = {
-
-
             total_Articulos: totalArticulos, // Número total de artículos en la tabla
+
             Pagina_Actual: page, // Página actual solicitada
             articulosEnPagina: articulosConvertidos.length, // Número de artículos en la página actual
             total_Paginas: Math.ceil(totalArticulos / limit), // Número total de páginas
-
-
+            
             articulos: articulosConvertidos, // Lista de artículos en la página actual
         };
 
@@ -79,23 +88,16 @@ const getListaArticulos = async (req, res) => {
         console.error('Error al obtener materiales:', error);
         res.status(500).send('Error interno del servidor');
 
-         // Asegurarse de que la conexión siempre se cierre en caso de error
-         if (conn) {
-            conn.end();
-            console.log('Conexión cerrada')
-        }
-        
     } finally {
         // Asegurarse de que la conexión siempre se cierre en caso de error
         if (conn) {
-            conn.end();
+            conn.release();
             console.log('Conexión cerrada')
         }
     }
 };
 
 // BUSCAR UN MATERIAL
-
 const getFindArticulo = async (req, res) => {
     const { search_value } = req.body
 
@@ -103,15 +105,15 @@ const getFindArticulo = async (req, res) => {
     try {
         const conn = await pool.getConnection()
 
-        const result = await conn.query('SELECT articulo.idarticulo, articulo.nombre, articulo.sap, articulo.codigo_interno, articulo.sku, articulo.comentario, SUM(detalle_ticket_entrada.cantidad) AS cantidad ' +
+        const result = await conn.query('SELECT articulo.idarticulo, articulo.nombre, articulo.sap, articulo.codigo_interno, articulo.sku, articulo.unidad_medida, articulo.precio, articulo.comentario, SUM(detalle_ticket_entrada.cantidad) AS cantidad ' +
             'FROM articulo left JOIN  detalle_ticket_entrada ON articulo.idarticulo = detalle_ticket_entrada.articulo_idarticulo ' +
             'WHERE nombre LIKE \'%\' ? \'%\' OR sku LIKE  \'%\' ? \'%\' OR sap  LIKE  \'%\' ? \'%\'' +
             'GROUP BY articulo.nombre ' +
             'UNION ' +
-            'SELECT articulo.idarticulo,articulo.nombre, articulo.sap, articulo.codigo_interno, articulo.sku,articulo.comentario, SUM(detalle_ticket_salida.cantidad) AS cantidad ' +
+            'SELECT articulo.idarticulo,articulo.nombre, articulo.sap, articulo.codigo_interno, articulo.sku, articulo.unidad_medida, articulo.precio, articulo.comentario, SUM(detalle_ticket_salida.cantidad) AS cantidad ' +
             'FROM articulo RIGHT JOIN  detalle_ticket_salida ON articulo.idarticulo = detalle_ticket_salida.articulo_idarticulo ' +
             'WHERE nombre LIKE \'%\' ? \'%\' OR sku LIKE  \'%\' ? \'%\'  OR sap  LIKE  \'%\' ? \'%\'' +
-            'GROUP BY articulo.nombre  LIMIT 0, 50 ', [search_value, search_value, search_value, search_value, search_value, search_value])
+            'GROUP BY articulo.nombre  LIMIT 0, 50 ', [search_value, search_value, search_value, search_value, search_value, search_value, search_value, search_value, search_value, search_value, search_value, search_value])
 
 
         let cantidades_positivas = []
@@ -125,11 +127,12 @@ const getFindArticulo = async (req, res) => {
                     Descripcion: result[i].nombre,
                     Codigo_SAP: result[i].sap,
                     Codigo_interno: result[i].codigo_interno,
+                    unidad_medida: result[i].unidad_medida,
+                    precio: Number(result[i].precio),
                     SKU: result[i].sku,
                     Comentarios: result[i].comentario,
                     Stock: Number(result[i].cantidad)
                 })
-
 
             }
 
@@ -207,9 +210,59 @@ const verificarPermisos = async (usuarioId) => {
 };
 
 
+// Crear directorios necesarios para el artículo
+
+const createDirectoryForArticle = async (idArticulo) => {
+    let dir_public = path.join(__dirname, '../../public');
+    let dir_uploads = path.join(__dirname, '../../public/uploads');
+    let dir_imagenesArticulos = path.join(__dirname, '../../public/uploads/imagenes_articulos');
+    let dir_articulo = path.join(__dirname, `../../public/uploads/imagenes_articulos/${idArticulo}`);
+
+    try {
+        if (!fs.existsSync(dir_public)){
+            fs.mkdirSync(dir_public, { recursive: true });
+        }
+
+        if (!fs.existsSync(dir_uploads)){
+            fs.mkdirSync(dir_uploads, { recursive: true });
+        }
+
+        if (!fs.existsSync(dir_imagenesArticulos)){
+            fs.mkdirSync(dir_imagenesArticulos, { recursive: true });
+        }
+
+        if (!fs.existsSync(dir_articulo)){
+            fs.mkdirSync(dir_articulo, { recursive: true });
+        }
+
+        return dir_articulo;
+    } catch (error) {
+        throw new Error('Error al crear los directorios para el artículo');
+    }
+};
+
+// Guardar imagen del artículo
+const saveArticleImage = async (base64Image, idarticulo) => {
+    try {
+        const base64Data = base64Image.replace(/^data:image\/\w+;base64,/, '');
+        const imageBuffer = Buffer.from(base64Data, 'base64');
+        const imageName = `imagen_${idarticulo}.png`;
+        const dirPath = await createDirectoryForArticle(idarticulo);
+        const imagePath = path.join(dirPath, imageName);
+        console.log(`Guardando imagen en: ${imagePath}`);
+        fs.writeFileSync(imagePath, imageBuffer);
+
+        // Devuelve la ruta relativa que será accesible a través de tu servidor Express
+        return imagePath
+    } catch (error) {
+        console.error('Error al guardar la imagen del artículo:', error);
+        throw new Error('Error al guardar la imagen del artículo');
+    }
+};
+
+
 // CREAR UN Articulo en la base de datos
 const createArticulo = async (req, res) => {
-
     let conn;
 
     // Obtener los datos del Articulo desde el cuerpo de la petición
@@ -217,24 +270,27 @@ const createArticulo = async (req, res) => {
     const usuarioId = req.headers.usuarioid; // Me aseguro de que el usuarioId esté disponible en los headers de la petición
 
     // Verificar si todos los campos obligatorios están presentes
-    if (!nombre || !sap || !sku || !unidad_medida || !categoria_idcategoria || precio === undefined || !imagen_base64) {
-
+    if (!nombre || !unidad_medida  || precio === undefined || !imagen_base64) {
         return res.status(400).json({ message: 'Todos los campos son obligatorios' });
     }
 
-    // Convertir el precio a un número de punto flotante y verificar si es válido
+    // Asignar valores por defecto si no se proporcionan
+    const sapValue = sap || 0;
+    const skuValue = sku || 0;
+    const comentarioValue = comentario || '';
     const precioFloat = parseFloat(precio);
+    const categoria_idcategoriaValue = categoria_idcategoria || 0;
+
+    // Convertir el precio a un número de punto flotante y verificar si es válido
     if (isNaN(precioFloat)) {
         return res.status(400).json({ message: 'El precio debe ser un número válido' });
     }
-
 
     try {
         // Verificar permisos del usuario para crear Articulos por su idusuario
         const tienePermisos = await verificarPermisos(usuarioId);
         if (!tienePermisos) {
             console.log('No tiene permisos para crear un articulo idusuario:', usuarioId);
-
             return res.status(403).json({ message: 'No tiene permisos para crear un articulo' });
         }
 
@@ -246,44 +302,28 @@ const createArticulo = async (req, res) => {
             return res.status(500).json({ message: 'Error al conectar con la base de datos' });
         }
 
-        // Eliminar el prefijo de datos de la cadena base64 de la imagen
-        const base64Data = imagen_base64.replace(/^data:image\/\w+;base64,/, '');
-
-        // Convertir la cadena base64 a un buffer de imagen
-        const imagenBuffer = Buffer.from(base64Data, 'base64');
-
-        const imagenNombre = `imagen_${nombre}.png`;
-        const imagenRuta = path.join(__dirname, `../../public/uploads/imagenes_articulos/${imagenNombre}`);
-
-        // Compruebo de que el directorio existe y si no lo creo
-        if (!fs.existsSync(path.join(__dirname, '../../public/uploads/imagenes_articulos'))) {
-
-            fs.mkdirSync(path.join(__dirname, '../../public/uploads/imagenes_articulos'), { recursive: true });
-        }
-
-        // Guardar la imagen en el servidor
-        fs.writeFileSync(imagenRuta, imagenBuffer);
-
-        // URL de la imagen almacenada
-
-        const imagen_url = `/public/uploads/imagenes_articulos/${imagenNombre}`;
-
-        // Consulta SQL para insertar un nuevo Articulo en la base de datos (sin codigo_interno)
+        // Insertar el artículo sin la URL de la imagen para obtener el idArticulo
         const queryInsert = `
-            INSERT INTO articulo (nombre, sap, sku, unidad_medida, comentario, categoria_idcategoria, precio, imagen_url)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO articulo (nombre, sap, sku, unidad_medida, comentario, categoria_idcategoria, precio)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
         `;
-
-        // Valores a insertar en la tabla Articulo (Asegúrate de incluir todos los campos)
-        const valuesInsert = [nombre, sap, sku, unidad_medida, comentario, categoria_idcategoria, precioFloat, imagen_url];
-
-        // Ejecutar la consulta SQL e insertar un nuevo Articulo en la base de datos
+        const valuesInsert = [nombre, sapValue, skuValue, unidad_medida, comentarioValue, categoria_idcategoriaValue, precioFloat];
         const resultInsert = await conn.query(queryInsert, valuesInsert);
 
         // Verificar si el articulo fue creado exitosamente en la base de datos
         if (resultInsert.affectedRows === 1) {
-            // Obtener el id del articulo creado
             const idarticulo = resultInsert.insertId;
+
+            // Guardar la imagen en el servidor
+            const imagenUrl = await saveArticleImage(imagen_base64, idarticulo);
+
+            // Actualizar la URL de la imagen en la base de datos
+            const queryUpdateImage = `
+                UPDATE articulo
+                SET imagen_url = ?
+                WHERE idarticulo = ?
+            `;
+            await conn.query(queryUpdateImage, [imagenUrl, idarticulo]);
 
             // Generar el codigo_interno basado en las características del artículo
             const codigoInterno = `${idarticulo.toString().slice(-2)}${nombre.slice(0, 2).toUpperCase()}${categoria_idcategoria}`;
@@ -295,8 +335,6 @@ const createArticulo = async (req, res) => {
                 WHERE idarticulo = ?
             `;
             const valuesUpdate = [codigoInterno, idarticulo];
-
-            // Ejecutar la consulta SQL para actualizar el codigo_interno del Articulo en la base de datos
             const resultUpdate = await conn.query(queryUpdate, valuesUpdate);
 
             // Liberar la conexión a la base de datos
@@ -309,11 +347,9 @@ const createArticulo = async (req, res) => {
             } else {
                 res.status(400).json({ message: 'No se pudo actualizar el codigo_interno del Articulo' });
             }
-
         } else {
             res.status(400).json({ message: 'No se pudo crear el Articulo' });
         }
-
     } catch (error) {
         // Manejo de errores: imprimir el error en la consola y enviar una respuesta de error al cliente
         console.error('Error al crear Articulo:', error);
@@ -321,166 +357,121 @@ const createArticulo = async (req, res) => {
 
         // Asegurarse de que la conexión siempre se cierre en caso de error o éxito
         if (conn) {
-            console.log('Conexión cerrada')
+            console.log('Conexión cerrada');
             conn.end();
         }
-
     } finally {
         // Asegurarse de que la conexión siempre se cierre en caso de error o éxito
         if (conn) {
-            console.log('Conexión cerrada')
+            console.log('Conexión cerrada');
             conn.end();
         }
     }
 };
 
 
-
 // ACTUALIZAR UN MATERIAL
 const updateArticulo = async (req, res) => {
-    // Declarar la variable conn con let para poder reasignarla en el bloque finally
     let conn;
 
-    // Obtener los datos del material desde el cuerpo de la petición para actualizar un artículo en la base de datos
-
-    const { idarticulo, nombre, sap, sku, unidad_medida, comentario, categoria_idcategoria, precio, imagen_base64 } = req.body;
-
-
-    // Obtener el id del usuario de los headers de la petición para verificar permisos de actualización de un artículo en la base de datos
+    const { idarticulo, Descripcion, Codigo_SAP, SKU, unidad_medida, comentario, categoria_idcategoria, precio, imagen_base64 } = req.body;
     const usuarioId = req.headers.usuarioid;
 
-    // Verificar si todos los campos obligatorios están presentes en la petición para actualizar un artículo
-
-    if (!idarticulo || !nombre || !sap || !sku || !unidad_medida || !categoria_idcategoria || precio === undefined) {
-
+    if (!idarticulo || !Descripcion || !unidad_medida) {
         return res.status(400).json({ message: 'Todos los campos son obligatorios' });
     }
 
-    // Convertir el precio a un número de punto flotante y verificar si es válido
+    const sapValue = Codigo_SAP || 0;
+    const skuValue = SKU || 0;
+    const comentarioValue = comentario || '';
     const precioFloat = parseFloat(precio);
+    const categoria_idcategoriaValue = categoria_idcategoria || 0;
+
     if (isNaN(precioFloat)) {
         return res.status(400).json({ message: 'El precio debe ser un número válido' });
     }
 
-    // Actualizar un artículo en la base de datos
     try {
-
-
-        // Verificar permisos del usuario para actualizar un artículo por su idusuario
         const tienePermisos = await verificarPermisos(usuarioId);
-
-        // Verificar si el usuario tiene permisos para actualizar un artículo
         if (!tienePermisos) {
             return res.status(403).json({ message: 'No tiene permisos para actualizar un artículo' });
         }
 
-        // Obtener una conexión a la base de datos desde el pool de conexiones
         conn = await pool.getConnection();
-
-        // Verificar si se obtuvo la conexión a la base de datos
         if (!conn) {
             return res.status(500).json({ message: 'Error al conectar con la base de datos' });
         }
 
-
-        // Manejar la imagen del artículo base64 si esta presente en la petición para actualizarla en la base de datos
-        // Obtener el nombre del archivo de la imagen del artículo basado en el código interno del artículo para verificar si la imagen es la misma o no
         let imagen_url = null;
-
-        // Verificar si la imagen del artículo está presente en la petición y si es diferente a la imagen actual del artículo
         if (imagen_base64) {
-            const base64Data = imagen_base64.replace(/^data:image\/\w+;base64,/, '');
-            const imagenBuffer = Buffer.from(base64Data, 'base64');
-
-            // verificar si la imagen coincide con el codigo interno del articulo y para ver si es la misma imagen o no 
-            const queryImagen = 'SELECT imagen_url FROM articulo WHERE idarticulo = ?';
-            const resultImagen = await conn.query(queryImagen, [idarticulo]);
-            const imagenAnterior = resultImagen[0]?.imagen_url;
-       
-            if (imagenAnterior) {
-                const imagenRutaAnterior = path.join(__dirname, `../../public/uploads/imagenes_articulos/${path.basename(imagenAnterior)}`);
-       
-                if (fs.existsSync(imagenRutaAnterior)) {
-                    const imagenBufferAnterior = fs.readFileSync(imagenRutaAnterior);
-                    const hashImagenAnterior = crypto.createHash('md5').update(imagenBufferAnterior).digest('hex');
-                    const hashImagenNueva = crypto.createHash('md5').update(imagenBuffer).digest('hex');
-        
-                    if (hashImagenAnterior === hashImagenNueva) {
-                        // Si las imágenes son iguales, no se sube la nueva imagen
-                        imagen_url = imagenAnterior;
-                    } else {
-                        // Si las imágenes son diferentes, se guarda la nueva imagen
-                        const imagenNombre = `imagen_${idarticulo}_${Date.now()}.png`;
-                        const imagenRuta = path.join(__dirname, `../../public/uploads/imagenes_articulos/${imagenNombre}`);
-        
-                        // Compruebo de que el directorio existe y si no se crea
-                        if (!fs.existsSync(path.join(__dirname, '../../public/uploads/imagenes_articulos'))) {
-                            fs.mkdirSync(path.join(__dirname, '../../public/uploads/imagenes_articulos'), { recursive: true });
-                        }
-        
-                        // Guardar la imagen en el servidor y obtener la URL de la imagen almacenada en el servidor para actualizarla en la base de datos
-                        fs.writeFileSync(imagenRuta, imagenBuffer);
-                        imagen_url = `/public/uploads/imagenes_articulos/${imagenNombre}`;
-                    }
-                }
-            } else {
-                // Si no hay imagen anterior, se guarda la nueva imagen
-                const imagenNombre = `imagen_${idarticulo}_${Date.now()}.png`;
-                const imagenRuta = path.join(__dirname, `../../public/uploads/imagenes_articulos/${imagenNombre}`);
-       
-                // Compruebo de que el directorio existe y si no se crea
-                if (!fs.existsSync(path.join(__dirname, '../../public/uploads/imagenes_articulos'))) {
-                    fs.mkdirSync(path.join(__dirname, '../../public/uploads/imagenes_articulos'), { recursive: true });
-                }
-       
-                // Guardar la imagen en el servidor y obtener la URL de la imagen almacenada en el servidor para actualizarla en la base de datos
-                fs.writeFileSync(imagenRuta, imagenBuffer);
-                imagen_url = `/public/uploads/imagenes_articulos/${imagenNombre}`;
-            }
+            imagen_url = await saveArticleImage(imagen_base64, idarticulo);
         }
 
-        // Generar el nuevo codigo_interno basado en las características actualizadas del artículo
-        const codigo_interno = `${idarticulo.toString().slice(-2)}${nombre.slice(0, 2).toUpperCase()}${categoria_idcategoria}`;
+        const codigo_interno = `${idarticulo.toString().slice(-2)}${Descripcion.slice(0, 2).toUpperCase()}${categoria_idcategoria}`;
 
-
-        // Consulta SQL para actualizar un artículo en la base de datos con los nuevos valores recibidos en la petición (req.body)
         const query = `
             UPDATE articulo
             SET nombre = ?, sap = ?, codigo_interno = ?, sku = ?, unidad_medida = ?, comentario = ?, categoria_idcategoria = ?, precio = ?, imagen_url = COALESCE(?, imagen_url)
             WHERE idarticulo = ?
         `;
-        const values = [nombre, sap, codigo_interno, sku, unidad_medida, comentario, categoria_idcategoria, precioFloat, imagen_url, idarticulo];
-
-        // Ejectuar la consulta SQL para actualizar un artículo en la base de datos
+        const values = [Descripcion, sapValue, codigo_interno, skuValue, unidad_medida, comentarioValue, categoria_idcategoriaValue, precioFloat, imagen_url, idarticulo];
         const result = await conn.query(query, values);
 
-        // Liberar la conexión a la base de datos
         conn.release();
 
-        // Verificar si el artículo fue actualizado exitosamente en la base de datos y enviar una respuesta al cliente
         if (result.affectedRows === 1) {
-
             res.status(200).json({ message: 'Artículo actualizado exitosamente', codigo_interno });
-
-            console.log('Artículo actualizado exitosamente');
         } else {
             res.status(400).json({ message: 'No se pudo actualizar el artículo' });
         }
 
     } catch (error) {
-        // Manejo de errores: imprimir el error en la consola y enviar una respuesta de error al cliente
         console.error('Error al actualizar artículo:', error);
         res.status(500).send('Error interno del servidor');
 
-    } finally {
-        // Asegurarse de que la conexión siempre se cierre en caso de error o éxito
         if (conn) {
-            console.log('Conexión cerrada')
+            console.log('Conexión cerrada');
+            conn.end();
+        }
+    } finally {
+        if (conn) {
+            console.log('Conexión cerrada');
             conn.end();
         }
     }
 };
 
+// OBTENER IMAGEN DE UN ARTICULO
+const getImageBase64 = async (req, res) => {
+
+    const idarticulo = req.params.id;
+
+    try {
+        const conn = await pool.getConnection();
+        const result = await conn.query('SELECT imagen_url FROM articulo WHERE idarticulo = ?', [idarticulo]);
+        conn.release();
+
+        if (result.length === 0) {
+            return res.status(404).json({ 
+                message: 'No existe imagen para el artículo' 
+            });
+        }
+        console.log(result);
+
+        const imagePath = result[0].imagen_url;
+        if (!fs.existsSync(imagePath)) {
+            return res.status(404).json({ 
+                message: 'El archivo de imagen no existe en el servidor' 
+            });
+        }
+
+        const imageBase64 = 'data:image/png;base64,' + fs.readFileSync(imagePath, { encoding: 'base64' });
+
+        res.status(200).json({ base64: imageBase64 });
+    } catch (error) {
+        res.status(400).send('hubo un error en getImageBase64: ' + error)
+    }
+};
 
 // ELIMINAR UN ARTICULO (marcar como inactivo)
 const deleteArticulo = async (req, res) => {
@@ -540,7 +531,6 @@ const deleteArticulo = async (req, res) => {
     }
 };
 
-
 // CRUD: Create, Read, Update, Delete
 module.exports = {
     createArticulo,
@@ -548,5 +538,6 @@ module.exports = {
     updateArticulo,
     deleteArticulo,
     getFindArticulo,
+    getImageBase64
 
 }
