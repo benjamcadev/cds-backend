@@ -374,10 +374,10 @@ const createArticulo = async (req, res) => {
 const updateArticulo = async (req, res) => {
     let conn;
 
-    const { idarticulo, Descripcion, Codigo_SAP, SKU, unidad_medida, comentario, categoria_idcategoria, precio, imagen_base64 } = req.body;
+    const { id, Descripcion, Codigo_SAP, SKU, unidad_medida, comentario, categoria_idcategoria, precio, imagen_base64 } = req.body;
     const usuarioId = req.headers.usuarioid;
 
-    if (!idarticulo || !Descripcion || !unidad_medida) {
+    if ( !Descripcion || !unidad_medida) {
         return res.status(400).json({ message: 'Todos los campos son obligatorios' });
     }
 
@@ -385,7 +385,7 @@ const updateArticulo = async (req, res) => {
     const skuValue = SKU || 0;
     const comentarioValue = comentario || '';
     const precioFloat = parseFloat(precio);
-    const categoria_idcategoriaValue = categoria_idcategoria || 0;
+    const categoria_idcategoriaValue = categoria_idcategoria || 1;
 
     if (isNaN(precioFloat)) {
         return res.status(400).json({ message: 'El precio debe ser un número válido' });
@@ -404,17 +404,17 @@ const updateArticulo = async (req, res) => {
 
         let imagen_url = null;
         if (imagen_base64) {
-            imagen_url = await saveArticleImage(imagen_base64, idarticulo);
+            imagen_url = await saveArticleImage(imagen_base64, id);
         }
 
-        const codigo_interno = `${idarticulo.toString().slice(-2)}${Descripcion.slice(0, 2).toUpperCase()}${categoria_idcategoria}`;
+        const codigo_interno = `${id.toString().slice(-2)}${Descripcion.slice(0, 2).toUpperCase()}${categoria_idcategoria}`;
 
         const query = `
             UPDATE articulo
             SET nombre = ?, sap = ?, codigo_interno = ?, sku = ?, unidad_medida = ?, comentario = ?, categoria_idcategoria = ?, precio = ?, imagen_url = COALESCE(?, imagen_url)
             WHERE idarticulo = ?
         `;
-        const values = [Descripcion, sapValue, codigo_interno, skuValue, unidad_medida, comentarioValue, categoria_idcategoriaValue, precioFloat, imagen_url, idarticulo];
+        const values = [Descripcion, sapValue, codigo_interno, skuValue, unidad_medida, comentarioValue, categoria_idcategoriaValue, precioFloat, imagen_url, id];
         const result = await conn.query(query, values);
 
         conn.release();
@@ -422,6 +422,7 @@ const updateArticulo = async (req, res) => {
         if (result.affectedRows === 1) {
             res.status(200).json({ message: 'Artículo actualizado exitosamente', codigo_interno });
         } else {
+            
             res.status(400).json({ message: 'No se pudo actualizar el artículo' });
         }
 

@@ -7,7 +7,7 @@ const cookieParser = require('cookie-parser')
 const path = require('path')
 
 
-const { articulosRoutes, bodegasRoutes, ticketEntradaRoutes, usuariosRoutes, ticketSalidaRoutes, authRoutes } = require('./routes')
+const { articulosRoutes, bodegasRoutes, ticketEntradaRoutes, usuariosRoutes, ticketSalidaRoutes, authRoutes, categoriasRoutes } = require('./routes')
 
 const app = express()
 
@@ -30,6 +30,7 @@ app.use(cookieParser())
 
 app.use(articulosRoutes)
 app.use(bodegasRoutes)
+app.use(categoriasRoutes)
 app.use(ticketEntradaRoutes)
 app.use(usuariosRoutes)
 app.use(ticketSalidaRoutes)
