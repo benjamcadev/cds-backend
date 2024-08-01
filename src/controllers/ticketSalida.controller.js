@@ -113,25 +113,17 @@ const createTicket = async (req, res) => {
                 conn.end()
                 res.status(400).send('hubo un error ' + error)
             }
-
-
-
-
         } else {
             conn.end()
             res.status(400).send('hubo un error ' + result)
         }
 
 
-
-
-
-
-
     } catch (error) {
         res.status(400).send('hubo un error ' + error)
     }
 }
+
 
 const getTicket = async (req, res) => {
     const id_ticket = req.params.id

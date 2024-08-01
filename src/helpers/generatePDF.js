@@ -36,11 +36,39 @@ const htmlToPDF = async (html, responsePath, numberTicket) => {
     } catch (error) {
         console.log(error)
     }
+}
+
+const htmlToPdfEntrada = async (html, responsePath, numberTicket) => {
+    
+    try {
+        // launch a new chrome instance
+
+        let browser = await puppeteer.launch({
+            headless: true,
+            args: ['--no-sandbox']
+
+        })
+        
+        // create a new page
+
+        const page = await browser.newPage();
 
 
+        await page.setContent(html);
 
+        await page.pdf({
+            path: responsePath + '/ticket_entrada_' + numberTicket + '.pdf',
+            format: 'A4',
+            printBackground: true,
+            preferCSSPageSize: true
+        });
+
+        await browser.close();
+    } catch (error) {
+        console.log(error)
+    }
 }
 
 
 
-module.exports = { htmlToPDF }
+module.exports = { htmlToPDF, htmlToPdfEntrada }

@@ -36,6 +36,39 @@ const createDirectoryTicketSalida = async(idTicket) => {
 
 }
 
+
+const createDirectoryTicketEntrada = async( idTicketEntrada ) => {
+
+    let dir_public = join(__dirname, '../../public');
+    let dir_uploads = join(__dirname, '../../public/uploads' );
+    let dir_ticketsEntrada = join(__dirname, '../../public/uploads/ticket_entrada');
+    let dir_ticketEntrada =  join(__dirname, '../../public/uploads/ticket_entrada/'+idTicketEntrada);
+
+    try {
+        if (!fs.existsSync(dir_public)){
+            fs.mkdirSync(dir_public, { recursive: true });
+        }
+
+        if (!fs.existsSync(dir_uploads)){
+            fs.mkdirSync(dir_uploads, { recursive: true });
+        }
+
+        if (!fs.existsSync(dir_ticketsEntrada)){
+            fs.mkdirSync(dir_ticketsEntrada, { recursive: true });
+        }
+
+        if (!fs.existsSync(dir_ticketEntrada)){
+            fs.mkdirSync(dir_ticketEntrada, { recursive: true }, err => { return err} );
+            return dir_ticketEntrada
+        }
+
+
+    } catch (error) {
+        return error
+    }
+
+}
+
 const saveSignature = async(request, path, idTicket) => {
     let pathSignatures = {
         retira: '',
@@ -60,4 +93,5 @@ const saveSignature = async(request, path, idTicket) => {
 
 }
 
-module.exports = { createDirectoryTicketSalida, saveSignature }
+
+module.exports = { createDirectoryTicketSalida, saveSignature, createDirectoryTicketEntrada }

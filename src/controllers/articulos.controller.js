@@ -30,7 +30,7 @@ const getListaArticulos = async (req, res) => {
         // Verificar si la tabla 'articulo' existe en la base de datos
         const verificarTabla = await conn.query('SHOW TABLES LIKE "articulo"');
         if (verificarTabla.length === 0) {
-            conn.release();
+            conn.end();
             return res.status(404).json({ message: 'La tabla articulo no existe' });
         }
         
@@ -92,6 +92,7 @@ const getListaArticulos = async (req, res) => {
         // Asegurarse de que la conexión siempre se cierre en caso de error
         if (conn) {
             conn.release();
+            conn.end();
             console.log('Conexión cerrada')
         }
     }
@@ -205,7 +206,10 @@ const verificarPermisos = async (usuarioId) => {
 
     } finally {
         // Asegurarse de que la conexión siempre se libere en caso de error
-        if (conn) conn.release();
+        if (conn) {
+            conn.release();
+            conn.end();
+        }
     }
 };
 
@@ -339,6 +343,7 @@ const createArticulo = async (req, res) => {
 
             // Liberar la conexión a la base de datos
             conn.release();
+            conn.end();
 
             // Verificar si el codigo_interno fue actualizado exitosamente en la base de datos y enviar una respuesta de éxito
             if (resultUpdate.affectedRows === 1) {
@@ -418,6 +423,7 @@ const updateArticulo = async (req, res) => {
         const result = await conn.query(query, values);
 
         conn.release();
+        conn.end();
 
         if (result.affectedRows === 1) {
             res.status(200).json({ message: 'Artículo actualizado exitosamente', codigo_interno });
@@ -451,6 +457,7 @@ const getImageBase64 = async (req, res) => {
         const conn = await pool.getConnection();
         const result = await conn.query('SELECT imagen_url FROM articulo WHERE idarticulo = ?', [idarticulo]);
         conn.release();
+        conn.end();
 
         if (result.length === 0) {
             return res.status(404).json({ 
@@ -510,6 +517,7 @@ const deleteArticulo = async (req, res) => {
 
         // Liberar la conexión a la base de datos
         conn.release();
+        conn.end();
 
         // Verificar si el artículo fue marcado como inactivo exitosamente
         if (result.affectedRows === 1) {

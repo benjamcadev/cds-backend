@@ -1,5 +1,5 @@
 const nodemailer = require('nodemailer');
-const {emailValeSalida} = require('./generateHtml')
+const { emailValeSalida } = require('./generateHtml')
 
 const sendEmailTicketSalida = async (responsePath, idTicket, request) => {
 
@@ -50,4 +50,48 @@ const sendEmailTicketSalida = async (responsePath, idTicket, request) => {
 
 }
 
-module.exports = { sendEmailTicketSalida }
+const sendEmailTicketEntrada = async (responsePath, idTicketEntrada, request) => {
+  
+  let path_pdf = responsePath + '/ticket_entrada_' + idTicketEntrada + '.pdf'
+
+  // const transporter = nodemailer.createTransport({
+  //     service: 'gmail',
+  //     auth: {
+  //       user: "
+
+  const transporter = nodemailer.createTransport({
+    host: "mail.ssll-dsal.cl",
+    port: 465,
+    secure: true,
+    auth: {
+      user: "bodega_tica@ssll-dsal.cl",
+      pass: process.env.PASS_EMAIL_SUBDOMAIN,
+    },
+  });
+    
+  const mailOptions = {
+    from: '"Bodegas GOT" <bodega_tica@ssll-dsal.cl>',
+    //to: 'benjamin.cortes@psinet.cl',
+    to: 'francodevs01@gmail.com',
+    //cc: ''
+    subject: 'Vale de Salida Materiales',
+    text: 'Texto de correo',
+    html: emailValeSalida(idTicketEntrada, request.responsableRetira),
+    attachments: [
+      {
+        filename: '/ticket_salida_' + idTicketEntrada + '.pdf',
+        path: path_pdf
+      }
+    ]
+  };
+
+  transporter.sendMail(mailOptions, function(error, info){
+    if (error) {
+      console.log(error);
+    } else {
+      console.log('Email sent: ' + info.response);
+    }
+  });
+}
+
+module.exports = { sendEmailTicketSalida, sendEmailTicketEntrada }

@@ -1,5 +1,6 @@
 const pool = require('../db')
 
+
 const getUsuarios = async(req, res) => {
     const tipo_usuario = req.params.id
 
@@ -35,6 +36,6 @@ const getTypesUsuarios = async(req, res) => {
 }
 
 module.exports = {
-getUsuarios,
-getTypesUsuarios
+    getUsuarios,
+    getTypesUsuarios
 }
