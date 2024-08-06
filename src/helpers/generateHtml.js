@@ -116,7 +116,7 @@ const jsonToHtmlValeSalida = async (json, idTicket) => {
 
   ' <div class="body-datos">' +
     '<p class="input"><b>Fecha: </b>' + json.fecha + '</p>' +
-    '<p class="input"><b>Area Solicitante: </b>' + json.area + '</p>' +
+    '<p class="input"><b>Nro° Ticket de Trabajo: </b>' + json.ticketTrabajo + '</p>' +
     '<p class="input"><b>Solicitante Codelco: </b>' + json.solCodelco + '</p>' +
     '<p class="input"><b>Responsable: </b>' + json.responsableRetira + '</p>' +
     '<p class="input"><b>Responsable Bodega: </b>' + json.responsableEntrega + '</p>' +

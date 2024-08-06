@@ -14,11 +14,11 @@ const createTicket = async (req, res) => {
         let result = ''
         //PREGUNTAR SI VIENE ABIERTO O NO EL TICKET CON LA FIRMA DEL RESPONSABLE
         if (request.firmaSolicitante == '') {
-            result = await conn.query('INSERT INTO ticket_salida (fecha_creacion, motivo, solicitante, cliente_trabajo, CC, area_operacion, observaciones, estado_ticket_idestado_ticket, usuario_idusuario) ' +
-                'VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?)', [request.fecha, request.descripcion, request.responsableRetira, request.solCodelco, request.ceco, request.area, request.observaciones, request.responsableEntrega])
+            result = await conn.query('INSERT INTO ticket_salida (fecha_creacion, motivo, solicitante, cliente_trabajo, CC, ticketTrabajo, observaciones, estado_ticket_idestado_ticket, usuario_idusuario) ' +
+                'VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?)', [request.fecha, request.descripcion, request.responsableRetira, request.solCodelco, request.ceco, request.ticketTrabajo, request.observaciones, request.responsableEntrega])
         } else {
-            result = await conn.query('INSERT INTO ticket_salida (fecha_creacion,fecha_cierre, motivo, solicitante, cliente_trabajo, CC, area_operacion, observaciones, estado_ticket_idestado_ticket, usuario_idusuario) ' +
-                'VALUES (?, ?, ?, ?, ?, ?, ?, ?, 2, ?)', [request.fecha, request.fechaCierre, request.descripcion, request.responsableRetira, request.solCodelco, request.ceco, request.area, request.observaciones, request.responsableEntrega])
+            result = await conn.query('INSERT INTO ticket_salida (fecha_creacion,fecha_cierre, motivo, solicitante, cliente_trabajo, CC, ticketTrabajo, observaciones, estado_ticket_idestado_ticket, usuario_idusuario) ' +
+                'VALUES (?, ?, ?, ?, ?, ?, ?, ?, 2, ?)', [request.fecha, request.fechaCierre, request.descripcion, request.responsableRetira, request.solCodelco, request.ceco, request.ticketTrabajo, request.observaciones, request.responsableEntrega])
         }
 
 
