@@ -198,6 +198,7 @@ const jsonToHtmlValeSalida = async (json, idTicket) => {
 const jsonToHtmlValeEntrada = async (json, idTicketEntrada) => {
 
   let html = '<html>' +
+
     '<head>' +
     '<style>' +
 
@@ -314,17 +315,28 @@ const jsonToHtmlValeEntrada = async (json, idTicketEntrada) => {
     ' <div class="body-datos">' +
     '<p class="input"><b>Fecha: </b>' + json.fecha + '</p>' +
     '<p class="input"><b>Tipo De Entrada: </b>' + json.tipoTicket + '</p>' +
-    '<p class="input"><b>Tipo De Compra: </b>' + json.tipoCompra + '</p>' +
-    '<p class="input"><b>N° De Documento: </b>' + json.numeroDocumento + '</p>' +
-    '<p class="input"><b>Tipo De Recepción: </b>' + json.tipoRecepcion + '</p>' +
-    '<p class="input"><b>Responsable Bodega: </b>' + json.responsableEntrega + '</p>' +
-    '<p class="input"><b>Observaciones: </b>' + json.descripcion + '</p>';
-  //'<p class="input"><b>Responsable: </b>' + json.responsableRetira + '</p>' 
+   
 
+  if (json.tipoTicket === 'Inventario') {
+    // Add fields specific to "Inventario" tipoTicket
+    html += '<p class="input"><b>Responsable Bodega: </b>' + json.responsableEntrega + '</p>';
+    html += '<p class="input"><b>Observaciones: </b>' + json.descripcion + '</p>';
+  } else if (json.tipoTicket === 'Compra') {
+    // Add fields specific to "Compra" tipoTicket
+    html += '<p class="input"><b>Tipo De Compra: </b>' + json.tipoCompra + '</p>';
+    html += '<p class="input"><b>N° De Documento: </b>' + json.numeroDocumento + '</p>';
+    html += '<p class="input"><b>Tipo De Recepción: </b>' + json.tipoRecepcion + '</p>';
+    html += '<p class="input"><b>Responsable Bodega: </b>' + json.responsableEntrega + '</p>';
+    html += '<p class="input"><b>Observaciones: </b>' + json.descripcion + '</p>';
+  } else if ( json.tipoTicket	=== 'Devolucion') {
+    html += '<p class="input"><b>Responsable Bodega: </b>' + json.responsableEntrega + '</p>';
+    html += '<p class="input"><b>Responsable: </b>' + json.responsableRetira + '</p>';
+    html += '<p class="input"><b>Observaciones: </b>' + json.descripcion + '</p>';
+  }
 
-  html = html + '</div>' +
-
+  html += '</div>' +
     '<div class="body-descripcion">' +
+
     //'<p class="input"><b>Descripcion del Trabajo: </b>' + json.descripcion + '</p>' +
 
     '</div>';
@@ -344,8 +356,11 @@ const jsonToHtmlValeEntrada = async (json, idTicketEntrada) => {
       '<th>Descripcion</th>' +
       '<th>Cantidad</th>' +
       '<th>Bodega/Ubicación</th>' +
-      '<th>Reserva/OC</th>' +
-      '</tr>';
+     
+  if (json.tipoTicket === 'Compra') {
+    html += '<th>Reserva/OC</th>';
+  }
+      html += '</tr>';
 
     if (p > 0) { filas_tabla = 20; }
 
@@ -358,41 +373,61 @@ const jsonToHtmlValeEntrada = async (json, idTicketEntrada) => {
         '<td>' + json.detalle[i].descripcion + '</td>' +
         '<td>' + json.detalle[i].cantidad + '</td>' +
         '<td>' + json.detalle[i].bodega + ' - ' + json.detalle[i].ubicacion + '</td>' +
-        '<td>' + json.detalle[i].reserva + '</td>' +
-        '</tr>'
+          if (json.tipoTicket === 'Compra') {
+        html += '<td>' + json.detalle[i].reserva + '</td>';
+    }
+         html += '</tr>';
 
     }
 
     ' </table>' +
       '</div>';
-
+   
   }
 
 
+  if (json.tipoTicket === 'Compra') {
 
-  html = html +
 
+    html += '<div class="footer">';
+    html += '<p class="text-firma">Firma responsable bodega</p>';
+    html += '<div class="firma firma-compra">' +
+        '<img width="120" alt="" src="' + json.firmaBodega + '">' +
+        '</div>';
+    html += '<p class="text-firma">' + json.responsableEntrega + '</p>';
 
-    ' <div class="footer">' +
-    '<p class="text-firma">Firma quien retira</p>' +
-    '<p class="text-firma">Firma responsable bodega</p>' +
-    '<div class="firma">' +
-    '<img width="120" alt="" src="' + json.firmaSolicitante + '">' +
-    '</div>' +
-    '<div class="firma">' +
-    '<img width="120" alt="" src="' + json.firmaBodega + '">' +
-    '</div>' +
-    '<p class="text-firma">' + json.responsableRetira + '</p>' +
-    '<p class="text-firma">' + json.responsableEntrega + '</p>' +
+  } else if (json.tipoTicket === 'Inventario') {
+    html += '<div class="footer">';
+    html += '<p class="text-firma">Firma responsable bodega</p>';
+    html += '<div class="firma">' +
+        '<img width="120" alt="" src="' + json.firmaBodega + '">' +
+        '</div>';
+    html += '<p class="text-firma">' + json.responsableEntrega + '</p>';
 
-    ' </div>' +
+  } else if (json.tipoTicket === 'Devolucion') {
+    html += '<div class="footer footer-devolucion">';
+    html += '<div><p class="text-firma">Firma quien retira</p>' +
+      '<div class="firma firma-devolucion">' +
+      '<img width="120" alt="" src="' + (json.firmaSolicitante || '') + '">' +
+      '</div>' +
+      '<p class="text-firma">' + (json.responsableRetira || '') + '</p></div>';
+    html += '<div><p class="text-firma">Firma responsable bodega</p>' +
+      '<div class="firma firma-devolucion">' +
+      '<img width="120" alt="" src="' + json.firmaBodega + '">' +
+      '</div>' +
+      '<p class="text-firma">' + json.responsableEntrega + '</p></div>';
+  }
 
-    '</body>' +
-    '</html>'
+  html += '</div>' +
+      '</body>' +
+      '</html>';
 
-  return html
+  return html;
+
 
 }
+
+
 
 const emailValeSalida = (idTicket, responsableRetira) => {
 

@@ -25,9 +25,11 @@ const createTicket = async (req, res) => {
             const lastIdTicketEntrada = convertBigintToInt(result.insertId);
 
             for (let i = 0; i < request.detalle.length; i++) {
+                const reservaOcValue = request.detalle[i].reserva ? request.detalle[i].reserva : null;
+
                 await conn.query('INSERT INTO detalle_ticket_entrada (cantidad, articulo_idarticulo, ticket_entrada_idticket_entrada, bodegas_idbodegas, ubicacion_bodegas_id, reserva_oc) ' +
                     'VALUES (?, ?, ?, ?, ?, ?)',
-                    [request.detalle[i].cantidad, request.detalle[i].idArticulo, lastIdTicketEntrada, request.detalle[i].bodega, request.detalle[i].ubicacion, request.detalle[i].reserva]
+                    [request.detalle[i].cantidad, request.detalle[i].idArticulo, lastIdTicketEntrada, request.detalle[i].bodega, request.detalle[i].ubicacion, reservaOcValue]
                 );
             }
 
