@@ -181,135 +181,139 @@ const jsonToHtmlValeSalida = async (json, idTicket) => {
 const jsonToHtmlValeEntrada = async (json, idTicketEntrada) => {
 
   let html = '<html>' +
-    '<head>' +
-    '<style>' +
-
-    '.header {' +
-    ' display: grid;' +
-    'grid-template-columns: 1fr 2fr 1fr;' +
-    ' background-color: #0e0a1a;' +
-    'padding: 5px;' +
-    'border-radius: 10px;' +
-    '}' +
-    '.titulo {' +
-    'font-family: Arial, Helvetica, sans-serif;' +
-    'padding: 20px;' +
-    'font-size: 10px;' +
-    'text-align: center;' +
-    'align-self: center;' +
-    ' justify-self: center;' +
-    ' color: white;' +
-    '  }' +
-    '.imgLogoPsinet {' +
-    ' padding: 20px 20px 20px 20px;' +
-    'align-self: center;' +
-    'justify-self: center;' +
-    '}' +
-    '.imgLogoCodelco {' +
-    'padding: 20px 20px 20px 20px;' +
-    'align-self: center;' +
-    'justify-self: center;' +
-    'margin: -40px;' +
-    '}' +
-    '.body-datos {' +
-    ' display: grid;' +
-    'grid-template-columns: 1fr 1fr;' +
-    ' margin: 30px 15px 0px 15px;' +
-    'font-family: Arial, Helvetica, sans-serif;' +
-    'font-size: 15px;' +
-    'border: 3px solid grey;' +
-    'border-radius: 10px;' +
-    '}' +
-    '.body-descripcion {' +
-    ' padding: 15px 0px 0px 10px;' +
-    'font-family: Arial, Helvetica, sans-serif;' +
-    'font-size: 15px;' +
-    ' }' +
-    '.input {' +
-    'margin: 0px;' +
-    'align-self: center;' +
-    'justify-self: left;' +
-    'text-align: left;' +
-    'padding: 10px;' +
-    '}' +
-    '.tabla {' +
-    ' margin: 10px;' +
-    '}' +
-    'table {' +
-    'font-family: arial, sans-serif;' +
-    'border-collapse: collapse;' +
-    ' width: 100%;' +
-    'font-size: 12px;' +
-    '}' +
-    'th, td {' +
-    'border: 1px solid #dddddd;' +
-    'text-align: left;' +
-    'padding: 8px;' +
-    ' }' +
-
-    ' .footer {' +
-    ' position: fixed;' +
-    ' left: 0;' +
-    ' bottom: 10;' +
-    ' width: 100%;' +
-    ' text-align: center;' +
-    ' display: grid;' +
-    ' grid-template-columns: 1fr 1fr;' +
-    '}' +
-    '.firma {' +
-    'border: 3px solid grey;' +
-    ' width: 200px;' +
-    'height: 160px;' +
-    'align-self: center;' +
-    'justify-self: center;' +
-    ' }' +
-    '.text-firma {' +
-    ' font-weight: bold;' +
-    '}' +
-    ' .text-ticket {' +
-    ' padding: 15px 0px 0px 15px;' +
-    ' font-family: Arial, Helvetica, sans-serif;' +
-    'font-size: 20px;' +
-    '}' +
-
-    ' </style>' +
-
-    '<title>VALE ENTRADA DE MATERIALES</title>' +
-    '</head>' +
-
-    '<body>' +
-    ' <div class="header">' +
-
-    '<img class="imgLogoPsinet " alt="Logo Psinet" width="130"  src="https://www.psinet.cl/wp-content/uploads/2022/10/cropped-Recurso-14Logo-PSINet.png">' +
-
-    '<div class="titulo"><h1>VALE ENTRADA DE MATERIALES</h1></div>' +
-
-    '<img class="imgLogoCodelco" alt="Logo Codelco" width="130" src="https://www.codelco.com/prontus_codelco/site/artic/20221125/imag/foto_0000000120221125121535/codelco_default640x360.png">' +
-
-    '</div>' +
-
-   ' <div class="text-ticket">'+
-     ' <h2>Ticket N° '+ idTicketEntrada +'</h2>'+
-    '</div>'+
-
+  '<head>' +
+  '<style>' +
+  '.header {' +
+  ' display: grid;' +
+  'grid-template-columns: 1fr 2fr 1fr;' +
+  ' background-color: #0e0a1a;' +
+  'padding: 5px;' +
+  'border-radius: 10px;' +
+  '}' +
+  '.titulo {' +
+  'font-family: Arial, Helvetica, sans-serif;' +
+  'padding: 20px;' +
+  'font-size: 10px;' +
+  'text-align: center;' +
+  'align-self: center;' +
+  ' justify-self: center;' +
+  ' color: white;' +
+  '  }' +
+  '.imgLogoPsinet {' +
+  ' padding: 20px 20px 20px 20px;' +
+  'align-self: center;' +
+  'justify-self: center;' +
+  '}' +
+  '.imgLogoCodelco {' +
+  'padding: 20px 20px 20px 20px;' +
+  'align-self: center;' +
+  'justify-self: center;' +
+  'margin: -40px;' +
+  '}' +
+  '.body-datos {' +
+  ' display: grid;' +
+  'grid-template-columns: 1fr 1fr;' +
+  ' margin: 30px 15px 0px 15px;' +
+  'font-family: Arial, Helvetica, sans-serif;' +
+  'font-size: 15px;' +
+  'border: 3px solid grey;' +
+  'border-radius: 10px;' +
+  '}' +
+  '.body-descripcion {' +
+  ' padding: 15px 0px 0px 10px;' +
+  'font-family: Arial, Helvetica, sans-serif;' +
+  'font-size: 15px;' +
+  ' }' +
+  '.input {' +
+  'margin: 0px;' +
+  'align-self: center;' +
+  'justify-self: left;' +
+  'text-align: left;' +
+  'padding: 10px;' +
+  '}' +
+  '.tabla {' +
+  ' margin: 10px;' +
+  '}' +
+  'table {' +
+  'font-family: arial, sans-serif;' +
+  'border-collapse: collapse;' +
+  ' width: 100%;' +
+  'font-size: 12px;' +
+  '}' +
+  'th, td {' +
+  'border: 1px solid #dddddd;' +
+  'text-align: left;' +
+  'padding: 8px;' +
+  ' }' +
+  ' .footer {' +
+  ' position: fixed;' +
+  ' left: 0;' +
+  ' bottom: 10;' +
+  ' width: 100%;' +
+  ' text-align: center;' +
+  ' display: grid;' +
+  ' grid-template-columns: 1fr;' +
+  '}' +
+  '.footer-compra, .footer-devolucion {' +
+  ' grid-template-columns: 1fr 1fr;' +
+  '}' +
+  '.firma {' +
+  'border: 3px solid grey;' +
+  ' width: 200px;' +
+  'height: 160px;' +
+  'align-self: center;' +
+  'justify-self: center;' +
+  ' margin: 0 auto;' +
+  ' }' +
+  '.firma-compra, .firma-devolucion {' +
+  ' margin: 0 auto;' +
+  ' }' +
+  '.text-firma {' +
+  ' font-weight: bold;' +
+  '}' +
+  ' .text-ticket {' +
+  ' padding: 15px 0px 0px 15px;' +
+  ' font-family: Arial, Helvetica, sans-serif;' +
+  'font-size: 20px;' +
+  '}' +
+  ' </style>' +
+  '<title>VALE ENTRADA DE MATERIALES</title>' +
+  '</head>' +
+  '<body>' +
+  ' <div class="header">' +
+  '<img class="imgLogoPsinet " alt="Logo Psinet" width="130"  src="https://www.psinet.cl/wp-content/uploads/2022/10/cropped-Recurso-14Logo-PSINet.png">' +
+  '<div class="titulo"><h1>VALE ENTRADA DE MATERIALES</h1></div>' +
+  '<img class="imgLogoCodelco" alt="Logo Codelco" width="130" src="https://www.codelco.com/prontus_codelco/site/artic/20221125/imag/foto_0000000120221125121535/codelco_default640x360.png">' +
+  '</div>' +
+  ' <div class="text-ticket">' +
+  ' <h2>Ticket N° ' + idTicketEntrada + '</h2>' +
+  '</div>' +
   ' <div class="body-datos">' +
-    '<p class="input"><b>Fecha: </b>' + json.fecha + '</p>' +
-    '<p class="input"><b>Tipo De Entrada: </b>' + json.tipoTicket + '</p>' +
-    '<p class="input"><b>Tipo De Compra: </b>' + json.tipoCompra + '</p>' +
-    '<p class="input"><b>N° De Documento: </b>' + json.numeroDocumento + '</p>' +
-    '<p class="input"><b>Tipo De Recepción: </b>' + json.tipoRecepcion + '</p>' +    
-    '<p class="input"><b>Responsable Bodega: </b>' + json.responsableEntrega + '</p>' +
-    '<p class="input"><b>Observaciones: </b>' + json.descripcion + '</p>' ;
-    //'<p class="input"><b>Responsable: </b>' + json.responsableRetira + '</p>' 
+  '<p class="input"><b>Fecha: </b>' + json.fecha + '</p>' +
+  '<p class="input"><b>Tipo De Entrada: </b>' + json.tipoTicket + '</p>'
 
-  
-    html = html + '</div>' +
+  if (json.tipoTicket === 'Inventario') {
+    // Add fields specific to "Inventario" tipoTicket
+    html += '<p class="input"><b>Responsable Bodega: </b>' + json.responsableEntrega + '</p>';
+    html += '<p class="input"><b>Observaciones: </b>' + json.descripcion + '</p>';
+  } else if (json.tipoTicket === 'Compra') {
+    // Add fields specific to "Compra" tipoTicket
+    html += '<p class="input"><b>Tipo De Compra: </b>' + json.tipoCompra + '</p>';
+    html += '<p class="input"><b>N° De Documento: </b>' + json.numeroDocumento + '</p>';
+    html += '<p class="input"><b>Tipo De Recepción: </b>' + json.tipoRecepcion + '</p>';
+    html += '<p class="input"><b>Responsable Bodega: </b>' + json.responsableEntrega + '</p>';
+    html += '<p class="input"><b>Observaciones: </b>' + json.descripcion + '</p>';
+  } else if ( json.tipoTicket	=== 'Devolucion') {
+    html += '<p class="input"><b>Responsable Bodega: </b>' + json.responsableEntrega + '</p>';
+    html += '<p class="input"><b>Responsable: </b>' + json.responsableRetira + '</p>';
+    html += '<p class="input"><b>Observaciones: </b>' + json.descripcion + '</p>';
+  }
 
+
+
+  html += '</div>' +
     '<div class="body-descripcion">' +
-    //'<p class="input"><b>Descripcion del Trabajo: </b>' + json.descripcion + '</p>' +
-    
     '</div>' +
-
     '<div class="tabla">' +
     '<table>' +
     '<tr>' +
@@ -317,48 +321,75 @@ const jsonToHtmlValeEntrada = async (json, idTicketEntrada) => {
     '<th>Unidad</th>' +
     '<th>Descripcion</th>' +
     '<th>Cantidad</th>' +
-    '<th>Bodega/Ubicación</th>' +
-    '<th>Reserva/OC</th>' +
-    '</tr>';
+    '<th>Bodega/Ubicación</th>';
 
-  for (let i = 0; i < json.detalle.length; i++) {
-
-    html = html +
-      '<tr>' +
-      '<td>' + json.detalle[i].item + '</td>' +
-      '<td>' + json.detalle[i].unidad + '</td>' +
-      '<td>' + json.detalle[i].descripcion + '</td>' +
-      '<td>' + json.detalle[i].cantidad + '</td>' +
-      '<td>' + json.detalle[i].bodega + ' - '+ json.detalle[i].ubicacion +'</td>' +
-      '<td>' + json.detalle[i].reserva + '</td>' +
-      '</tr>'
-
+  if (json.tipoTicket === 'Compra') {
+    html += '<th>Reserva/OC</th>';
   }
 
-  html = html +
+  html += '</tr>';
+
+  for (let i = 0; i < json.detalle.length; i++) {
+    html +=
+        '<tr>' +
+        '<td>' + json.detalle[i].item + '</td>' +
+        '<td>' + json.detalle[i].unidad + '</td>' +
+        '<td>' + json.detalle[i].descripcion + '</td>' +
+        '<td>' + json.detalle[i].cantidad + '</td>' +
+        '<td>' + json.detalle[i].bodega + ' - ' + json.detalle[i].ubicacion + '</td>';
+
+    if (json.tipoTicket === 'Compra') {
+        html += '<td>' + json.detalle[i].reserva + '</td>';
+    }
+
+    html += '</tr>';
+  }
+
+  html +=
     ' </table>' +
-    '</div>' +
+    '</div>';
 
-    ' <div class="footer">' +
-    '<p class="text-firma">Firma quien retira</p>' +
-    '<p class="text-firma">Firma responsable bodega</p>' +
-    '<div class="firma">' +
-    '<img width="120" alt="" src="' + json.firmaSolicitante + '">' +
-    '</div>' +
-    '<div class="firma">' +
-    '<img width="120" alt="" src="' + json.firmaBodega + '">' +
-    '</div>' +
-    '<p class="text-firma">'+ json.responsableRetira +'</p>'+
-    '<p class="text-firma">'+ json.responsableEntrega +'</p>'+
+  if (json.tipoTicket === 'Compra') {
 
-    ' </div>' +
+    html += '<div class="footer">';
+    html += '<p class="text-firma">Firma responsable bodega</p>';
+    html += '<div class="firma firma-compra">' +
+        '<img width="120" alt="" src="' + json.firmaBodega + '">' +
+        '</div>';
+    html += '<p class="text-firma">' + json.responsableEntrega + '</p>';
 
-    '</body>' +
-    '</html>'
+  } else if (json.tipoTicket === 'Inventario') {
+    html += '<div class="footer">';
+    html += '<p class="text-firma">Firma responsable bodega</p>';
+    html += '<div class="firma">' +
+        '<img width="120" alt="" src="' + json.firmaBodega + '">' +
+        '</div>';
+    html += '<p class="text-firma">' + json.responsableEntrega + '</p>';
 
-  return html
+  } else if (json.tipoTicket === 'Devolucion') {
+    html += '<div class="footer footer-devolucion">';
+    html += '<div><p class="text-firma">Firma quien retira</p>' +
+      '<div class="firma firma-devolucion">' +
+      '<img width="120" alt="" src="' + (json.firmaSolicitante || '') + '">' +
+      '</div>' +
+      '<p class="text-firma">' + (json.responsableRetira || '') + '</p></div>';
+    html += '<div><p class="text-firma">Firma responsable bodega</p>' +
+      '<div class="firma firma-devolucion">' +
+      '<img width="120" alt="" src="' + json.firmaBodega + '">' +
+      '</div>' +
+      '<p class="text-firma">' + json.responsableEntrega + '</p></div>';
+  }
+
+  html += '</div>' +
+      '</body>' +
+      '</html>';
+
+  return html;
+
 
 }
+
+
 
 const emailValeSalida = (idTicket, responsableRetira) => {
 
