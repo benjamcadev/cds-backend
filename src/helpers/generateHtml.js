@@ -55,10 +55,13 @@ const jsonToHtmlValeSalida = async (json, idTicket) => {
     'padding: 10px;' +
     '}' +
     '.tabla {' +
-    ' margin: 10px;' +
+    ' margin: 20px;' +
+    ' '+
     '}' +
     'table {' +
     'font-family: arial, sans-serif;' +
+    'margin-bottom: 800px;'+
+    'padding-top: 25px;'+
     'border-collapse: collapse;' +
     ' width: 100%;' +
     'font-size: 12px;' +
@@ -110,11 +113,11 @@ const jsonToHtmlValeSalida = async (json, idTicket) => {
 
     '</div>' +
 
-   ' <div class="text-ticket">'+
-     ' <h2>Ticket N° '+ idTicket +'</h2>'+
-    '</div>'+
+    ' <div class="text-ticket">' +
+    ' <h2>Ticket N° ' + idTicket + '</h2>' +
+    '</div>' +
 
-  ' <div class="body-datos">' +
+    ' <div class="body-datos">' +
     '<p class="input"><b>Fecha: </b>' + json.fecha + '</p>' +
     '<p class="input"><b>Nro° Ticket de Trabajo: </b>' + json.ticketTrabajo + '</p>' +
     '<p class="input"><b>Solicitante Codelco: </b>' + json.solCodelco + '</p>' +
@@ -126,8 +129,14 @@ const jsonToHtmlValeSalida = async (json, idTicket) => {
     '<div class="body-descripcion">' +
     '<p class="input"><b>Descripcion del Trabajo: </b>' + json.descripcion + '</p>' +
     '<p class="input"><b>Observaciones: </b>' + json.observaciones + '</p>' +
-    '</div>' +
+    '</div>';
 
+  let i = 0;
+  let filas_tabla = 10;
+
+  for (let p = 0; p < 2; p++) {
+
+    html = html +
     '<div class="tabla">' +
     ' <table>' +
     ' <tr>' +
@@ -138,19 +147,27 @@ const jsonToHtmlValeSalida = async (json, idTicket) => {
     '<th>Bodega</th>' +
     '</tr>';
 
-  for (let i = 0; i < json.detalle.length; i++) {
+    if (p > 0) { filas_tabla = 20; }
 
-    html = html +
+    for (i; i < filas_tabla; i++) {
+
+      html = html +
       '<tr>' +
       '<td>' + json.detalle[i].item + '</td>' +
       '<td>' + json.detalle[i].unidad + '</td>' +
       '<td>' + json.detalle[i].descripcion + '</td>' +
       '<td>' + json.detalle[i].cantidad + '</td>' +
-      '<td>' + json.detalle[i].bodega + ' - '+ json.detalle[i].ubicacion +'</td>' +
+      '<td>' + json.detalle[i].bodega + ' - ' + json.detalle[i].ubicacion + '</td>' +
       '</tr>'
+
+    }
+
+    ' </table>' +
+      '</div>';
 
   }
 
+  
 
   html = html +
 
@@ -166,8 +183,8 @@ const jsonToHtmlValeSalida = async (json, idTicket) => {
     '<div class="firma">' +
     '<img width="120" alt="" src="' + json.firmaBodega + '">' +
     '</div>' +
-    '<p class="text-firma">'+ json.responsableRetira +'</p>'+
-    '<p class="text-firma">'+ json.responsableEntrega +'</p>'+
+    '<p class="text-firma">' + json.responsableRetira + '</p>' +
+    '<p class="text-firma">' + json.responsableEntrega + '</p>' +
 
     '</div>' +
 
@@ -235,8 +252,10 @@ const jsonToHtmlValeEntrada = async (json, idTicketEntrada) => {
     '.tabla {' +
     ' margin: 10px;' +
     '}' +
-    'table {' +
+   'table {' +
     'font-family: arial, sans-serif;' +
+    'margin-bottom: 800px;'+
+    'padding-top: 25px;'+
     'border-collapse: collapse;' +
     ' width: 100%;' +
     'font-size: 12px;' +
@@ -288,56 +307,71 @@ const jsonToHtmlValeEntrada = async (json, idTicketEntrada) => {
 
     '</div>' +
 
-   ' <div class="text-ticket">'+
-     ' <h2>Ticket N° '+ idTicketEntrada +'</h2>'+
-    '</div>'+
+    ' <div class="text-ticket">' +
+    ' <h2>Ticket N° ' + idTicketEntrada + '</h2>' +
+    '</div>' +
 
-  ' <div class="body-datos">' +
+    ' <div class="body-datos">' +
     '<p class="input"><b>Fecha: </b>' + json.fecha + '</p>' +
     '<p class="input"><b>Tipo De Entrada: </b>' + json.tipoTicket + '</p>' +
     '<p class="input"><b>Tipo De Compra: </b>' + json.tipoCompra + '</p>' +
     '<p class="input"><b>N° De Documento: </b>' + json.numeroDocumento + '</p>' +
-    '<p class="input"><b>Tipo De Recepción: </b>' + json.tipoRecepcion + '</p>' +    
+    '<p class="input"><b>Tipo De Recepción: </b>' + json.tipoRecepcion + '</p>' +
     '<p class="input"><b>Responsable Bodega: </b>' + json.responsableEntrega + '</p>' +
-    '<p class="input"><b>Observaciones: </b>' + json.descripcion + '</p>' ;
-    //'<p class="input"><b>Responsable: </b>' + json.responsableRetira + '</p>' 
+    '<p class="input"><b>Observaciones: </b>' + json.descripcion + '</p>';
+  //'<p class="input"><b>Responsable: </b>' + json.responsableRetira + '</p>' 
 
-  
-    html = html + '</div>' +
+
+  html = html + '</div>' +
 
     '<div class="body-descripcion">' +
     //'<p class="input"><b>Descripcion del Trabajo: </b>' + json.descripcion + '</p>' +
-    
-    '</div>' +
 
-    '<div class="tabla">' +
-    '<table>' +
-    '<tr>' +
-    '<th>Item</th>' +
-    '<th>Unidad</th>' +
-    '<th>Descripcion</th>' +
-    '<th>Cantidad</th>' +
-    '<th>Bodega/Ubicación</th>' +
-    '<th>Reserva/OC</th>' +
-    '</tr>';
+    '</div>';
 
-  for (let i = 0; i < json.detalle.length; i++) {
+
+  let i = 0;
+  let filas_tabla = 10;
+
+  for (let p = 0; p < 2; p++) {
 
     html = html +
+      '<div class="tabla">' +
+      '<table>' +
       '<tr>' +
-      '<td>' + json.detalle[i].item + '</td>' +
-      '<td>' + json.detalle[i].unidad + '</td>' +
-      '<td>' + json.detalle[i].descripcion + '</td>' +
-      '<td>' + json.detalle[i].cantidad + '</td>' +
-      '<td>' + json.detalle[i].bodega + ' - '+ json.detalle[i].ubicacion +'</td>' +
-      '<td>' + json.detalle[i].reserva + '</td>' +
-      '</tr>'
+      '<th>Item</th>' +
+      '<th>Unidad</th>' +
+      '<th>Descripcion</th>' +
+      '<th>Cantidad</th>' +
+      '<th>Bodega/Ubicación</th>' +
+      '<th>Reserva/OC</th>' +
+      '</tr>';
+
+    if (p > 0) { filas_tabla = 20; }
+
+    for (i; i < filas_tabla; i++) {
+
+      html = html +
+        '<tr>' +
+        '<td>' + json.detalle[i].item + '</td>' +
+        '<td>' + json.detalle[i].unidad + '</td>' +
+        '<td>' + json.detalle[i].descripcion + '</td>' +
+        '<td>' + json.detalle[i].cantidad + '</td>' +
+        '<td>' + json.detalle[i].bodega + ' - ' + json.detalle[i].ubicacion + '</td>' +
+        '<td>' + json.detalle[i].reserva + '</td>' +
+        '</tr>'
+
+    }
+
+    ' </table>' +
+      '</div>';
 
   }
 
+
+
   html = html +
-    ' </table>' +
-    '</div>' +
+
 
     ' <div class="footer">' +
     '<p class="text-firma">Firma quien retira</p>' +
@@ -348,8 +382,8 @@ const jsonToHtmlValeEntrada = async (json, idTicketEntrada) => {
     '<div class="firma">' +
     '<img width="120" alt="" src="' + json.firmaBodega + '">' +
     '</div>' +
-    '<p class="text-firma">'+ json.responsableRetira +'</p>'+
-    '<p class="text-firma">'+ json.responsableEntrega +'</p>'+
+    '<p class="text-firma">' + json.responsableRetira + '</p>' +
+    '<p class="text-firma">' + json.responsableEntrega + '</p>' +
 
     ' </div>' +
 
