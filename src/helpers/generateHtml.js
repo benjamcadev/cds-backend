@@ -195,13 +195,11 @@ const jsonToHtmlValeSalida = async (json, idTicket) => {
 
 }
 
+
 const jsonToHtmlValeEntrada = async (json, idTicketEntrada) => {
-
   let html = '<html>' +
-
     '<head>' +
     '<style>' +
-
     '.header {' +
     ' display: grid;' +
     'grid-template-columns: 1fr 2fr 1fr;' +
@@ -253,10 +251,8 @@ const jsonToHtmlValeEntrada = async (json, idTicketEntrada) => {
     '.tabla {' +
     ' margin: 10px;' +
     '}' +
-   'table {' +
+    'table {' +
     'font-family: arial, sans-serif;' +
-    'margin-bottom: 800px;'+
-    'padding-top: 25px;'+
     'border-collapse: collapse;' +
     ' width: 100%;' +
     'font-size: 12px;' +
@@ -266,7 +262,6 @@ const jsonToHtmlValeEntrada = async (json, idTicketEntrada) => {
     'text-align: left;' +
     'padding: 8px;' +
     ' }' +
-
     ' .footer {' +
     ' position: fixed;' +
     ' left: 0;' +
@@ -274,6 +269,9 @@ const jsonToHtmlValeEntrada = async (json, idTicketEntrada) => {
     ' width: 100%;' +
     ' text-align: center;' +
     ' display: grid;' +
+    ' grid-template-columns: 1fr;' +
+    '}' +
+    '.footer-compra, .footer-devolucion {' +
     ' grid-template-columns: 1fr 1fr;' +
     '}' +
     '.firma {' +
@@ -282,6 +280,10 @@ const jsonToHtmlValeEntrada = async (json, idTicketEntrada) => {
     'height: 160px;' +
     'align-self: center;' +
     'justify-self: center;' +
+    ' margin: 0 auto;' +
+    ' }' +
+    '.firma-compra, .firma-devolucion {' +
+    ' margin: 0 auto;' +
     ' }' +
     '.text-firma {' +
     ' font-weight: bold;' +
@@ -291,141 +293,133 @@ const jsonToHtmlValeEntrada = async (json, idTicketEntrada) => {
     ' font-family: Arial, Helvetica, sans-serif;' +
     'font-size: 20px;' +
     '}' +
-
+    ' .page-break {' +
+    ' page-break-before: always;' +
+    '}' +
     ' </style>' +
-
     '<title>VALE ENTRADA DE MATERIALES</title>' +
     '</head>' +
-
     '<body>' +
     ' <div class="header">' +
-
     '<img class="imgLogoPsinet " alt="Logo Psinet" width="130"  src="https://www.psinet.cl/wp-content/uploads/2022/10/cropped-Recurso-14Logo-PSINet.png">' +
-
     '<div class="titulo"><h1>VALE ENTRADA DE MATERIALES</h1></div>' +
-
     '<img class="imgLogoCodelco" alt="Logo Codelco" width="130" src="https://www.codelco.com/prontus_codelco/site/artic/20221125/imag/foto_0000000120221125121535/codelco_default640x360.png">' +
-
     '</div>' +
-
     ' <div class="text-ticket">' +
     ' <h2>Ticket N° ' + idTicketEntrada + '</h2>' +
     '</div>' +
-
     ' <div class="body-datos">' +
     '<p class="input"><b>Fecha: </b>' + json.fecha + '</p>' +
     '<p class="input"><b>Tipo De Entrada: </b>' + json.tipoTicket + '</p>';
-   
-
-  if (json.tipoTicket === 'Inventario') {
-    // Add fields specific to "Inventario" tipoTicket
-    html += '<p class="input"><b>Responsable Bodega: </b>' + json.responsableEntrega + '</p>';
-    html += '<p class="input"><b>Observaciones: </b>' + json.descripcion + '</p>';
-  } else if (json.tipoTicket === 'Compra') {
-    // Add fields specific to "Compra" tipoTicket
-    html += '<p class="input"><b>Tipo De Compra: </b>' + json.tipoCompra + '</p>';
-    html += '<p class="input"><b>N° De Documento: </b>' + json.numeroDocumento + '</p>';
-    html += '<p class="input"><b>Tipo De Recepción: </b>' + json.tipoRecepcion + '</p>';
-    html += '<p class="input"><b>Responsable Bodega: </b>' + json.responsableEntrega + '</p>';
-    html += '<p class="input"><b>Observaciones: </b>' + json.descripcion + '</p>';
-  } else if ( json.tipoTicket	=== 'Devolucion') {
-    html += '<p class="input"><b>Responsable Bodega: </b>' + json.responsableEntrega + '</p>';
-    html += '<p class="input"><b>Responsable: </b>' + json.responsableRetira + '</p>';
-    html += '<p class="input"><b>Observaciones: </b>' + json.descripcion + '</p>';
-  }
-
-  html += '</div>' +
-    '<div class="body-descripcion">' +
-
-    //'<p class="input"><b>Descripcion del Trabajo: </b>' + json.descripcion + '</p>' +
-
-    '</div>';
-
-
-  let i = 0;
-  let filas_tabla = 10;
-
-  for (let p = 0; p < 2; p++) {
-
-    html = html +
-      '<div class="tabla">' +
-      '<table>' +
-      '<tr>' +
-      '<th>Item</th>' +
-      '<th>Unidad</th>' +
-      '<th>Descripcion</th>' +
-      '<th>Cantidad</th>' +
-      '<th>Bodega/Ubicación</th>'
-     
-  if (json.tipoTicket === 'Compra') {
-    html += '<th>Reserva/OC</th>';
-  }
+  
+    if (json.tipoTicket === 'Inventario') {
+      // Add fields specific to "Inventario" tipoTicket
+      html += '<p class="input"><b>Responsable Bodega: </b>' + json.responsableEntrega + '</p>';
+      html += '<p class="input"><b>Observaciones: </b>' + json.descripcion + '</p>';
+    } else if (json.tipoTicket === 'Compra') {
+      // Add fields specific to "Compra" tipoTicket
+      html += '<p class="input"><b>Tipo De Compra: </b>' + json.tipoCompra + '</p>';
+      html += '<p class="input"><b>N° De Documento: </b>' + json.numeroDocumento + '</p>';
+      html += '<p class="input"><b>Tipo De Recepción: </b>' + json.tipoRecepcion + '</p>';
+      html += '<p class="input"><b>Responsable Bodega: </b>' + json.responsableEntrega + '</p>';
+      html += '<p class="input"><b>Observaciones: </b>' + json.descripcion + '</p>';
+    } else if (json.tipoTicket === 'Devolucion') {
+      html += '<p class="input"><b>Responsable Bodega: </b>' + json.responsableEntrega + '</p>';
+      html += '<p class="input"><b>Responsable: </b>' + json.responsableRetira + '</p>';
+      html += '<p class="input"><b>Observaciones: </b>' + json.descripcion + '</p>';
+    }
+  
+    html += '</div>' +
+      '<div class="body-descripcion">' +
+      '</div>';
+  
+    let i = 0;
+    let filas_tabla = 10;
+    const totalItems = json.detalle.length;
+    
+    //Calcular el número de páginas: Usamos Math.ceil(totalItems / filas_tabla) para determinar cuántas páginas necesitaremos para mostrar todos los elementos.
+    for (let p = 0; p < Math.ceil(totalItems / filas_tabla); p++) {
+      // si p es 0, entonces la página es la primera página, por lo que no necesitamos una página de ruptura.
+      if (p > 0) {
+        html += '<div class="page-break"></div>';
+      }
+  
+      html += '<div class="tabla">' +
+        '<table>' +
+        '<tr>' +
+        '<th>Item</th>' +
+        '<th>Unidad</th>' +
+        '<th>Descripcion</th>' +
+        '<th>Cantidad</th>' +
+        '<th>Bodega/Ubicación</th>';
+  
+      if (json.tipoTicket === 'Compra') {
+        html += '<th>Reserva/OC</th>';
+      }
+  
       html += '</tr>';
 
-    if (p > 0) { filas_tabla = json.detalle.length; }
-
-    for (i; i < filas_tabla; i++) {
-
-      html = html +
-        '<tr>' +
-        '<td>' + json.detalle[i].item + '</td>' +
-        '<td>' + json.detalle[i].unidad + '</td>' +
-        '<td>' + json.detalle[i].descripcion + '</td>' +
-        '<td>' + json.detalle[i].cantidad + '</td>' +
-        '<td>' + json.detalle[i].bodega + ' - ' + json.detalle[i].ubicacion + '</td>'
-
+      //  Si p es 0 (primera página), (p + 1) * filas_tabla es (0 + 1) * 10 = 10.
+      // Si p es 1 (segunda página), (p + 1) * filas_tabla es (1 + 1) * 10 = 20.
+      const end = Math.min((p + 1) * filas_tabla, totalItems);
+      
+      // Si p es 0 (primera página), p * filas_tabla es 0 * 10 = 0.
+      // Si p es 1 (segunda página), p * filas_tabla es 1 * 10 = 10.
+      //  i < end: Este es el criterio de continuación del bucle. El bucle continuará iterando mientras i sea menor que end.
+      //  i++: Incrementa el valor de i en 1 en cada iteración del bucle.
+      for (i = p * filas_tabla; i < end; i++) {
+        if (json.detalle[i]) {
+          html +=
+            '<tr>' +
+            '<td>' + (json.detalle[i].item || '') + '</td>' +
+            '<td>' + (json.detalle[i].unidad || '') + '</td>' +
+            '<td>' + (json.detalle[i].descripcion || '') + '</td>' +
+            '<td>' + (json.detalle[i].cantidad || '') + '</td>' +
+            '<td>' + (json.detalle[i].bodega || '') + ' - ' + (json.detalle[i].ubicacion || '') + '</td>';
           if (json.tipoTicket === 'Compra') {
-        html += '<td>' + json.detalle[i].reserva + '</td>';
+            html += '<td>' + (json.detalle[i].reserva || '') + '</td>';
+          }
+          html += '</tr>';
+        }
+      }
+      html += '</table>' +
+        '</div>';
     }
-         html += '</tr>';
 
-    }
-
-    ' </table>' +
-      '</div>';
-   
-  }
-
-
-  if (json.tipoTicket === 'Compra') {
-
-
-    html += '<div class="footer">';
-    html += '<p class="text-firma">Firma responsable bodega</p>';
-    html += '<div class="firma firma-compra">' +
+    if (json.tipoTicket === 'Compra') {
+      html += '<div class="footer">';
+      html += '<p class="text-firma">Firma responsable bodega</p>';
+      html += '<div class="firma firma-compra">' +
         '<img width="120" alt="" src="' + json.firmaBodega + '">' +
         '</div>';
-    html += '<p class="text-firma">' + json.responsableEntrega + '</p>';
-
-  } else if (json.tipoTicket === 'Inventario') {
-    html += '<div class="footer">';
-    html += '<p class="text-firma">Firma responsable bodega</p>';
-    html += '<div class="firma">' +
+      html += '<p class="text-firma">' + json.responsableEntrega + '</p>';
+    } else if (json.tipoTicket === 'Inventario') {
+      html += '<div class="footer">';
+      html += '<p class="text-firma">Firma responsable bodega</p>';
+      html += '<div class="firma">' +
         '<img width="120" alt="" src="' + json.firmaBodega + '">' +
         '</div>';
-    html += '<p class="text-firma">' + json.responsableEntrega + '</p>';
-
-  } else if (json.tipoTicket === 'Devolucion') {
-    html += '<div class="footer footer-devolucion">';
-    html += '<div><p class="text-firma">Firma quien retira</p>' +
-      '<div class="firma firma-devolucion">' +
-      '<img width="120" alt="" src="' + (json.firmaSolicitante || '') + '">' +
-      '</div>' +
-      '<p class="text-firma">' + (json.responsableRetira || '') + '</p></div>';
-    html += '<div><p class="text-firma">Firma responsable bodega</p>' +
-      '<div class="firma firma-devolucion">' +
-      '<img width="120" alt="" src="' + json.firmaBodega + '">' +
-      '</div>' +
-      '<p class="text-firma">' + json.responsableEntrega + '</p></div>';
-  }
-
-  html += '</div>' +
+      html += '<p class="text-firma">' + json.responsableEntrega + '</p>';
+    } else if (json.tipoTicket === 'Devolucion') {
+      html += '<div class="footer footer-devolucion">';
+      html += '<div><p class="text-firma">Firma quien retira</p>' +
+        '<div class="firma firma-devolucion">' +
+        '<img width="120" alt="" src="' + (json.firmaSolicitante || '') + '">' +
+        '</div>' +
+        '<p class="text-firma">' + (json.responsableRetira || '') + '</p></div>';
+      html += '<div><p class="text-firma">Firma responsable bodega</p>' +
+        '<div class="firma firma-devolucion">' +
+        '<img width="120" alt="" src="' + json.firmaBodega + '">' +
+        '</div>' +
+        '<p class="text-firma">' + json.responsableEntrega + '</p></div>';
+    }
+  
+    html += '</div>' +
       '</body>' +
       '</html>';
+  
 
   return html;
-
-
 }
 
 
