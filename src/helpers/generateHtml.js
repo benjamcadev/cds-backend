@@ -147,7 +147,7 @@ const jsonToHtmlValeSalida = async (json, idTicket) => {
     '<th>Bodega</th>' +
     '</tr>';
 
-    if (p > 0) { filas_tabla = 20; }
+    if (p > 0) { filas_tabla = json.detalle.length; }
 
     for (i; i < filas_tabla; i++) {
 
@@ -314,7 +314,7 @@ const jsonToHtmlValeEntrada = async (json, idTicketEntrada) => {
 
     ' <div class="body-datos">' +
     '<p class="input"><b>Fecha: </b>' + json.fecha + '</p>' +
-    '<p class="input"><b>Tipo De Entrada: </b>' + json.tipoTicket + '</p>' +
+    '<p class="input"><b>Tipo De Entrada: </b>' + json.tipoTicket + '</p>';
    
 
   if (json.tipoTicket === 'Inventario') {
@@ -355,14 +355,14 @@ const jsonToHtmlValeEntrada = async (json, idTicketEntrada) => {
       '<th>Unidad</th>' +
       '<th>Descripcion</th>' +
       '<th>Cantidad</th>' +
-      '<th>Bodega/Ubicación</th>' +
+      '<th>Bodega/Ubicación</th>'
      
   if (json.tipoTicket === 'Compra') {
     html += '<th>Reserva/OC</th>';
   }
       html += '</tr>';
 
-    if (p > 0) { filas_tabla = 20; }
+    if (p > 0) { filas_tabla = json.detalle.length; }
 
     for (i; i < filas_tabla; i++) {
 
@@ -372,7 +372,8 @@ const jsonToHtmlValeEntrada = async (json, idTicketEntrada) => {
         '<td>' + json.detalle[i].unidad + '</td>' +
         '<td>' + json.detalle[i].descripcion + '</td>' +
         '<td>' + json.detalle[i].cantidad + '</td>' +
-        '<td>' + json.detalle[i].bodega + ' - ' + json.detalle[i].ubicacion + '</td>' +
+        '<td>' + json.detalle[i].bodega + ' - ' + json.detalle[i].ubicacion + '</td>'
+
           if (json.tipoTicket === 'Compra') {
         html += '<td>' + json.detalle[i].reserva + '</td>';
     }
