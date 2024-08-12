@@ -96,6 +96,9 @@ const jsonToHtmlValeSalida = async (json, idTicket) => {
     ' font-family: Arial, Helvetica, sans-serif;' +
     'font-size: 20px;' +
     '}' +
+    ' .page-break {' +
+    ' page-break-before: always;' +
+    '}' +
 
     ' </style>' +
 
@@ -133,47 +136,51 @@ const jsonToHtmlValeSalida = async (json, idTicket) => {
 
   let i = 0;
   let filas_tabla = 10;
+  const totalItems = json.detalle.length;
 
-  for (let p = 0; p < 2; p++) {
-
-    html = html +
-    '<div class="tabla">' +
-    ' <table>' +
-    ' <tr>' +
-    ' <th>Item</th>' +
-    '<th>Unidad</th>' +
-    '<th>Descripcion</th>' +
-    '<th>Cantidad</th>' +
-    '<th>Bodega</th>' +
-    '</tr>';
-
-    if (p > 0) { filas_tabla = json.detalle.length; }
-
-    for (i; i < filas_tabla; i++) {
-
-      html = html +
-      '<tr>' +
-      '<td>' + json.detalle[i].item + '</td>' +
-      '<td>' + json.detalle[i].unidad + '</td>' +
-      '<td>' + json.detalle[i].descripcion + '</td>' +
-      '<td>' + json.detalle[i].cantidad + '</td>' +
-      '<td>' + json.detalle[i].bodega + ' - ' + json.detalle[i].ubicacion + '</td>' +
-      '</tr>'
-
+  //Calcular el número de páginas: Usamos Math.ceil(totalItems / filas_tabla) para determinar cuántas páginas necesitaremos para mostrar todos los elementos.
+  for (let p = 0; p < Math.ceil(totalItems / filas_tabla); p++) {
+    // si p es 0, entonces la página es la primera página, por lo que no necesitamos una página de ruptura.
+    if (p > 0) {
+      html += '<div class="page-break"></div>';
     }
 
-    ' </table>' +
-      '</div>';
+    html +=
+      '<div class="tabla">' +
+      '<table>' +
+      '<tr>' +
+      '<th>Item</th>' +
+      '<th>Unidad</th>' +
+      '<th>Descripcion</th>' +
+      '<th>Cantidad</th>' +
+      '<th>Bodega/Ubicación</th>' +
+      '</tr>';
 
+    //  Si p es 0 (primera página), (p + 1) * filas_tabla es (0 + 1) * 10 = 10.
+    // Si p es 1 (segunda página), (p + 1) * filas_tabla es (1 + 1) * 10 = 20.
+    const end = Math.min((p + 1) * filas_tabla, totalItems);
+
+    // Si p es 0 (primera página), p * filas_tabla es 0 * 10 = 0.
+    // Si p es 1 (segunda página), p * filas_tabla es 1 * 10 = 10.
+    //  i < end: Este es el criterio de continuación del bucle. El bucle continuará iterando mientras i sea menor que end.
+    //  i++: Incrementa el valor de i en 1 en cada iteración del bucle.
+    for (i = p * filas_tabla; i < end; i++) {
+      if (json.detalle[i]) {
+        html = html +
+          '<tr>' +
+          '<td>' + (json.detalle[i].item || '') + '</td>' +
+          '<td>' + (json.detalle[i].unidad || '') + '</td>' +
+          '<td>' + (json.detalle[i].descripcion || '') + '</td>' +
+          '<td>' + (json.detalle[i].cantidad || '') + '</td>' +
+          '<td>' + (json.detalle[i].bodega || '') + ' - ' + (json.detalle[i].ubicacion || '') + '</td>' +
+          '</tr>';
+      }
+    }
+    html += '</table>' +
+    '</div>';
   }
 
-  
-
   html = html +
-
-    '</table>' +
-    '</div>' +
-
     '<div class="footer">' +
     '<p class="text-firma">Firma quien retira</p>' +
     '<p class="text-firma">Firma responsable bodega</p>' +
@@ -403,12 +410,12 @@ const jsonToHtmlValeEntrada = async (json, idTicketEntrada) => {
     } else if (json.tipoTicket === 'Devolucion') {
       html += '<div class="footer footer-devolucion">';
       html += '<div><p class="text-firma">Firma quien retira</p>' +
-        '<div class="firma firma-devolucion">' +
+        '<div class="firma ">' +
         '<img width="120" alt="" src="' + (json.firmaSolicitante || '') + '">' +
         '</div>' +
         '<p class="text-firma">' + (json.responsableRetira || '') + '</p></div>';
       html += '<div><p class="text-firma">Firma responsable bodega</p>' +
-        '<div class="firma firma-devolucion">' +
+        '<div class="firma ">' +
         '<img width="120" alt="" src="' + json.firmaBodega + '">' +
         '</div>' +
         '<p class="text-firma">' + json.responsableEntrega + '</p></div>';
@@ -1095,7 +1102,7 @@ const emailValeEntrada = (idTicketEntrada, responsableRetira) => {
                 <tr>
                   <td class="wrapper">
                     <p><b>Hola ${responsableRetira} !<b></p>
-                    <p>Se ha generado el ticket N° ${idTicketEntrada}, por el cual se ha creado materiales de las bodegas GOT, en este correo se adjunta en PDF el detalle del vale de salida de los materiales.</p>
+                    <p>Se ha generado el ticket N° ${idTicketEntrada}, por el cual se ha creado materiales de las bodegas GOT, en este correo se adjunta en PDF el detalle del vale de entrada de los materiales.</p>
                     
                     <p>Que tengas un buen dia.</p>
                    

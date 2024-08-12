@@ -1,5 +1,5 @@
 const nodemailer = require('nodemailer');
-const { emailValeSalida } = require('./generateHtml')
+const { emailValeSalida, emailValeEntrada } = require('./generateHtml')
 
 const sendEmailTicketSalida = async (responsePath, idTicket, request) => {
 
@@ -24,7 +24,6 @@ const sendEmailTicketSalida = async (responsePath, idTicket, request) => {
       });
     
       
-
       const mailOptions = {
         from: '"Bodegas GOT" <bodega_tica@ssll-dsal.cl>',
         to: 'benjamin.cortes@psinet.cl',
@@ -50,9 +49,10 @@ const sendEmailTicketSalida = async (responsePath, idTicket, request) => {
 
 }
 
-const sendEmailTicketEntrada = async (responsePath, idTicketEntrada, request) => {
+const sendEmailTicketEntrada = async (responsePath, idTicketEntrada, request, imagePath) => {
   
   let path_pdf = responsePath + '/ticket_entrada_' + idTicketEntrada + '.pdf'
+  let path_image = responsePath + '/foto_documentos_' + idTicketEntrada + '.png'
 
   // const transporter = nodemailer.createTransport({
   //     service: 'gmail',
@@ -74,14 +74,18 @@ const sendEmailTicketEntrada = async (responsePath, idTicketEntrada, request) =>
     //to: 'benjamin.cortes@psinet.cl',
     to: 'francodevs01@gmail.com',
     //cc: ''
-    subject: 'Vale de Salida Materiales',
+    subject: 'Vale de Entrada Materiales',
     text: 'Texto de correo',
-    html: emailValeSalida(idTicketEntrada, request.responsableRetira),
+    html: emailValeEntrada(idTicketEntrada, request.responsableRetira),
     attachments: [
       {
-        filename: '/ticket_salida_' + idTicketEntrada + '.pdf',
+        filename: '/ticket_entrada_' + idTicketEntrada + '.pdf',
         path: path_pdf
-      }
+      },
+      {
+        filename: '/foto_documentos_' + idTicketEntrada + '.png',
+        path: path_image
+      },
     ]
   };
 

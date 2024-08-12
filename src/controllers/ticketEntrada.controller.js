@@ -2,7 +2,7 @@ const pool = require('../db')
 const { convertBigintToInt } = require('../helpers/convertBigintToInt')
 const {  htmlToPdfEntrada } = require('../helpers/generatePDF')
 const { jsonToHtmlValeEntrada } = require('../helpers/generateHtml')
-const { createDirectoryTicketEntrada, saveSignature } = require('../helpers/directory')
+const { createDirectoryTicketEntrada, saveSignature, saveImageEntrada } = require('../helpers/directory')
 const { sendEmailTicketEntrada } = require('../helpers/emails')
 
 
@@ -25,13 +25,16 @@ const createTicket = async (req, res) => {
             const lastIdTicketEntrada = convertBigintToInt(result.insertId);
 
             for (let i = 0; i < request.detalle.length; i++) {
-                const reservaOcValue = request.detalle[i].reserva ? request.detalle[i].reserva : null;
+                const reservaOcValue = request.detalle[i].reserva 
+                    ? request.detalle[i].reserva 
+                    : null;
 
                 await conn.query('INSERT INTO detalle_ticket_entrada (cantidad, articulo_idarticulo, ticket_entrada_idticket_entrada, bodegas_idbodegas, ubicacion_bodegas_id, reserva_oc) ' +
                     'VALUES (?, ?, ?, ?, ?, ?)',
                     [request.detalle[i].cantidad, request.detalle[i].idArticulo, lastIdTicketEntrada, request.detalle[i].bodega, request.detalle[i].ubicacion, reservaOcValue]
                 );
             }
+
 
             const result_user = await conn.query('SELECT idusuario AS id, nombre AS label FROM usuario');
 
@@ -64,12 +67,18 @@ const createTicket = async (req, res) => {
             }
 
             try {
+                const html = await jsonToHtmlValeEntrada(request, lastIdTicketEntrada);
+
                 const responsePath = await createDirectoryTicketEntrada(lastIdTicketEntrada);
 
-                const html = await jsonToHtmlValeEntrada(request, lastIdTicketEntrada);
-                
+               
+                const imagenPath = await saveImageEntrada(request, responsePath, lastIdTicketEntrada)
 
                 let pathSignature = await saveSignature(request, responsePath, lastIdTicketEntrada);
+
+                // Guardar imagenPath en la base de datos
+
+                await conn.query('UPDATE ticket_entrada SET foto_documentos = ? WHERE idticket_entrada = ?', [imagenPath.foto_documentos, lastIdTicketEntrada]);
 
                 await conn.query('UPDATE ticket_entrada SET signature_path_entrega="' + pathSignature.entrega + '" WHERE idticket_entrada = ' + lastIdTicketEntrada);
 
@@ -80,7 +89,7 @@ const createTicket = async (req, res) => {
                     });
                 } else {
                     await htmlToPdfEntrada(html, responsePath, lastIdTicketEntrada);
-                    await sendEmailTicketEntrada(responsePath, lastIdTicketEntrada, request);
+                    await sendEmailTicketEntrada(responsePath, lastIdTicketEntrada, request, imagenPath);
                     await conn.query('UPDATE ticket_entrada SET signature_path_responsable="' + pathSignature.retira + '" WHERE idticket_entrada = ' + lastIdTicketEntrada);
                     conn.end();
                     res.status(200).json({

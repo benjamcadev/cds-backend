@@ -93,5 +93,26 @@ const saveSignature = async(request, path, idTicket) => {
 
 }
 
+const saveImageEntrada = async (request, path, idTicket) => {
+    let pathImages = {
+        foto_documentos: '',
+    };
 
-module.exports = { createDirectoryTicketSalida, saveSignature, createDirectoryTicketEntrada }
+    try {
+        if (request.foto_documentos) {
+            // Eliminar el prefijo base64
+            let base64DataFotoDocumentos = request.foto_documentos.replace(/^data:image\/(png|jpg|jpeg|webp);base64,/, "");
+            // Decodificar la cadena base64 y guardar el archivo
+            fs.writeFileSync(join(path, `foto_documentos_${idTicket}.png`), Buffer.from(base64DataFotoDocumentos, 'base64'));
+            pathImages.foto_documentos = join(path, `foto_documentos_${idTicket}.png`);
+        }
+
+        return pathImages;
+    } catch (error) {
+        console.error("Error al guardar la imagen:", error);
+        return error;
+    }
+};
+
+
+module.exports = { createDirectoryTicketSalida, saveSignature, createDirectoryTicketEntrada, saveImageEntrada }

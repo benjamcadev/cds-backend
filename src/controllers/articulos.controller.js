@@ -81,11 +81,11 @@ const getListaArticulos = async (req, res) => {
 
         // Enviar la respuesta con los datos obtenidos al cliente
         res.status(200).json(respuesta);
-        console.log('Materiales obtenidos correctamente');
+        //console.log('Materiales obtenidos correctamente');
 
     } catch (error) {
         // Manejo de errores: imprimir el error en la consola y enviar una respuesta de error al cliente
-        console.error('Error al obtener materiales:', error);
+        //console.error('Error al obtener materiales:', error);
         res.status(500).send('Error interno del servidor');
 
     } finally {
@@ -93,15 +93,15 @@ const getListaArticulos = async (req, res) => {
         if (conn) {
             conn.release();
             conn.end();
-            console.log('Conexión cerrada')
+            //console.log('Conexión cerrada')
         }
     }
 };
 
 // BUSCAR UN MATERIAL
 const getFindArticulo = async (req, res) => {
+    
     const { search_value } = req.body
-
 
     try {
         const conn = await pool.getConnection()
@@ -189,7 +189,7 @@ const verificarPermisos = async (usuarioId) => {
 
         // Verificar si el resultado de la consulta está vacío o no se encontró el usuario
         if (!result || result.length === 0) {
-            console.error('No se encontró el usuario o el resultado está vacío.');
+            //console.error('No se encontró el usuario o el resultado está vacío.');
             return false;
         }
 
@@ -201,7 +201,7 @@ const verificarPermisos = async (usuarioId) => {
 
     } catch (error) {
         // Manejo de errores: imprimir el error en la consola y retornar false
-        console.error('Error al verificar permisos:', error);
+        //console.error('Error al verificar permisos:', error);
         return false;
 
     } finally {
@@ -253,13 +253,13 @@ const saveArticleImage = async (base64Image, idarticulo) => {
         const imageName = `imagen_${idarticulo}.png`;
         const dirPath = await createDirectoryForArticle(idarticulo);
         const imagePath = path.join(dirPath, imageName);
-        console.log(`Guardando imagen en: ${imagePath}`);
+        //console.log(`Guardando imagen en: ${imagePath}`);
         fs.writeFileSync(imagePath, imageBuffer);
 
         // Devuelve la ruta relativa que será accesible a través de tu servidor Express
         return imagePath
     } catch (error) {
-        console.error('Error al guardar la imagen del artículo:', error);
+        //console.error('Error al guardar la imagen del artículo:', error);
         throw new Error('Error al guardar la imagen del artículo');
     }
 };
@@ -294,7 +294,7 @@ const createArticulo = async (req, res) => {
         // Verificar permisos del usuario para crear Articulos por su idusuario
         const tienePermisos = await verificarPermisos(usuarioId);
         if (!tienePermisos) {
-            console.log('No tiene permisos para crear un articulo idusuario:', usuarioId);
+            //console.log('No tiene permisos para crear un articulo idusuario:', usuarioId);
             return res.status(403).json({ message: 'No tiene permisos para crear un articulo' });
         }
 
@@ -357,18 +357,18 @@ const createArticulo = async (req, res) => {
         }
     } catch (error) {
         // Manejo de errores: imprimir el error en la consola y enviar una respuesta de error al cliente
-        console.error('Error al crear Articulo:', error);
+        //console.error('Error al crear Articulo:', error);
         res.status(500).send('Error interno del servidor');
 
         // Asegurarse de que la conexión siempre se cierre en caso de error o éxito
         if (conn) {
-            console.log('Conexión cerrada');
+            //console.log('Conexión cerrada');
             conn.end();
         }
     } finally {
         // Asegurarse de que la conexión siempre se cierre en caso de error o éxito
         if (conn) {
-            console.log('Conexión cerrada');
+            //console.log('Conexión cerrada');
             conn.end();
         }
     }
@@ -433,16 +433,16 @@ const updateArticulo = async (req, res) => {
         }
 
     } catch (error) {
-        console.error('Error al actualizar artículo:', error);
+        //console.error('Error al actualizar artículo:', error);
         res.status(500).send('Error interno del servidor');
 
         if (conn) {
-            console.log('Conexión cerrada');
+            //console.log('Conexión cerrada');
             conn.end();
         }
     } finally {
         if (conn) {
-            console.log('Conexión cerrada');
+            //console.log('Conexión cerrada');
             conn.end();
         }
     }
@@ -464,7 +464,7 @@ const getImageBase64 = async (req, res) => {
                 message: 'No existe imagen para el artículo' 
             });
         }
-        console.log(result);
+        //console.log(result);
 
         const imagePath = result[0].imagen_url;
         if (!fs.existsSync(imagePath)) {
@@ -529,12 +529,12 @@ const deleteArticulo = async (req, res) => {
 
     } catch (error) {
         // Manejo de errores: imprimir el error en la consola y enviar una respuesta de error al cliente
-        console.error('Error al eliminar Articulo:', error);
+        //console.error('Error al eliminar Articulo:', error);
         res.status(500).send('Error interno del servidor');
     } finally {
         // Asegurarse de que la conexión siempre se cierre en caso de error o éxito
         if (conn) {
-            console.log('Conexión cerrada');
+            //console.log('Conexión cerrada');
             conn.end();
         }
     }

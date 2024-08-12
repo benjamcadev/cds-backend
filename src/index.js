@@ -7,9 +7,11 @@ const cookieParser = require('cookie-parser')
 const path = require('path')
 
 
+
 const { articulosRoutes, bodegasRoutes, ticketEntradaRoutes, usuariosRoutes, ticketSalidaRoutes, authRoutes, categoriasRoutes } = require('./routes')
 
 const app = express()
+
 
 
 // Configurar el límite de tamaño del cuerpo de la solicitud
