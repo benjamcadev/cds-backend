@@ -68,6 +68,7 @@ const sendEmailTicketEntrada = async (responsePath, idTicketEntrada, request, im
       pass: process.env.PASS_EMAIL_SUBDOMAIN,
     },
   });
+  
   const attachments = [
     {
       filename: '/ticket_entrada_' + idTicketEntrada + '.pdf',
