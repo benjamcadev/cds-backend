@@ -68,6 +68,21 @@ const sendEmailTicketEntrada = async (responsePath, idTicketEntrada, request, im
       pass: process.env.PASS_EMAIL_SUBDOMAIN,
     },
   });
+  const attachments = [
+    {
+      filename: '/ticket_entrada_' + idTicketEntrada + '.pdf',
+      path: path_pdf
+    }
+  ];
+
+  // Verificar si la imagen existe antes de añadirla a los attachments
+  if (fs.existsSync(path_image)) {
+    attachments.push({
+      filename: '/foto_documentos_' + idTicketEntrada + '.png',
+      path: path_image
+    });
+  }
+
     
   const mailOptions = {
     from: '"Bodegas GOT" <bodega_tica@ssll-dsal.cl>',
@@ -77,16 +92,7 @@ const sendEmailTicketEntrada = async (responsePath, idTicketEntrada, request, im
     subject: 'Vale de Entrada Materiales',
     text: 'Texto de correo',
     html: emailValeEntrada(idTicketEntrada, request.responsableRetira),
-    attachments: [
-      {
-        filename: '/ticket_entrada_' + idTicketEntrada + '.pdf',
-        path: path_pdf
-      },
-      {
-        filename: '/foto_documentos_' + idTicketEntrada + '.png',
-        path: path_image
-      },
-    ]
+    attachments: attachments
   };
 
   transporter.sendMail(mailOptions, function(error, info){
