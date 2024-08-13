@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const fs = require('fs');
 const { emailValeSalida, emailValeEntrada } = require('./generateHtml')
 
 const sendEmailTicketSalida = async (responsePath, idTicket, request) => {
@@ -68,7 +69,7 @@ const sendEmailTicketEntrada = async (responsePath, idTicketEntrada, request, im
       pass: process.env.PASS_EMAIL_SUBDOMAIN,
     },
   });
-  
+
   const attachments = [
     {
       filename: '/ticket_entrada_' + idTicketEntrada + '.pdf',
