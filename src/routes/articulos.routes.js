@@ -7,7 +7,6 @@ const { getListaArticulos, createArticulo, getFindArticulo, deleteArticulo, upda
 const { getImageBase64 } = require('../controllers/articulos.controller')
 
 
-
 // CRUD ARTICULOS
 
 const router = Router()
@@ -21,7 +20,6 @@ router.post('/api/v1/materiales/create', createArticulo)
 
 // Consultar imagen de un artículo devuelve en imagen png en base64
 router.get('/api/v1/materiales/imagen/:id', getImageBase64)
-
 
 //LISTAR MATERIALES
 router.get('/api/v1/materiales/list', getListaArticulos)

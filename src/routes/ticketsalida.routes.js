@@ -14,7 +14,7 @@ router.post('/api/v1/ticket/salida/', authRequired, createTicket)
 router.get('/api/v1/ticket/salida/:id',authRequired ,getTicket)
 
 //CONSULTAR FIRMA, DEVUELVE EN IMAGEN PNG EN BASE64
-router.get('/api/v1/ticket/salida/signature/:id',authRequired,getSignature)
+router.get('/api/v1/ticket/salida/signature/:id',authRequired, getSignature)
 
 
 module.exports = router

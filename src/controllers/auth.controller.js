@@ -105,7 +105,8 @@ const login = async (req, res) => {
                 id: resultUser[0].idusuario,
                 nombre: resultUser[0].nombre,
                 correo: resultUser[0].correo,
-                usuario: resultUser[0].usuario
+                usuario: resultUser[0].usuario,
+                tipoUser: resultUser[0].estado_usuario_idestado_usuario,
             })
 
 
@@ -151,7 +152,9 @@ const verifyToken = async (req, res) => {
             id: userFound[0].idusuario,
             nombre: userFound[0].nombre,
             correo: userFound[0].correo,
-            usuario: userFound[0].usuario
+            usuario: userFound[0].usuario,
+            tipoUser: userFound[0].estado_usuario_idestado_usuario,
+
         })
     })
 }
