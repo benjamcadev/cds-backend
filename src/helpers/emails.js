@@ -72,7 +72,7 @@ const sendEmailTicketEntrada = async (responsePath, idTicketEntrada, request, im
   const mailOptions = {
     from: '"Bodegas GOT" <bodega_tica@ssll-dsal.cl>',
     //to: 'benjamin.cortes@psinet.cl',
-    to: 'francodevs01@gmail.com',
+    to: 'benjamin.cortes@psinet.cl',
     //cc: ''
     subject: 'Vale de Entrada Materiales',
     text: 'Texto de correo',
