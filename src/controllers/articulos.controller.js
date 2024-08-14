@@ -293,6 +293,9 @@ const createArticulo = async (req, res) => {
     try {
         // Verificar permisos del usuario para crear Articulos por su idusuario
         const tienePermisos = await verificarPermisos(usuarioId);
+
+        console.log(tienePermisos)
+        
         if (!tienePermisos) {
             //console.log('No tiene permisos para crear un articulo idusuario:', usuarioId);
             return res.status(403).json({ message: 'No tiene permisos para crear un articulo' });
