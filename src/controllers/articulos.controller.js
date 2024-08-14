@@ -173,6 +173,8 @@ const getFindArticulo = async (req, res) => {
 
 const verificarPermisos = async (usuarioId) => {
 
+    console.log(usuarioId)
+
     // Se declara como let conn para poder reasignarla en el bloque finally si es necesario cerrar la conexión a la base de datos
     let conn;
 
@@ -187,7 +189,7 @@ const verificarPermisos = async (usuarioId) => {
         // Ejecutar la consulta con el usuarioId como parámetro
         const result = await conn.query(query, [usuarioId]);
 
-        console.log(result)
+        
 
         // Verificar si el resultado de la consulta está vacío o no se encontró el usuario
         if (!result || result.length === 0) {
