@@ -187,6 +187,8 @@ const verificarPermisos = async (usuarioId) => {
         // Ejecutar la consulta con el usuarioId como parámetro
         const result = await conn.query(query, [usuarioId]);
 
+        console.log(result)
+
         // Verificar si el resultado de la consulta está vacío o no se encontró el usuario
         if (!result || result.length === 0) {
             //console.error('No se encontró el usuario o el resultado está vacío.');
@@ -294,8 +296,7 @@ const createArticulo = async (req, res) => {
         // Verificar permisos del usuario para crear Articulos por su idusuario
         const tienePermisos = await verificarPermisos(usuarioId);
 
-        console.log(tienePermisos)
-        
+
         if (!tienePermisos) {
             //console.log('No tiene permisos para crear un articulo idusuario:', usuarioId);
             return res.status(403).json({ message: 'No tiene permisos para crear un articulo' });
