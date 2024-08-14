@@ -6,48 +6,49 @@ const sendEmailTicketSalida = async (responsePath, idTicket, request) => {
 
     let path_pdf = responsePath + '/ticket_salida_' + idTicket + '.pdf'
 
-    // const transporter = nodemailer.createTransport({
-    //     service: 'gmail',
-    //     auth: {
-    //       user: "bodegatica.dsal@gmail.com",
-    //       pass: process.env.PASS_EMAIL,
-    //     },
-    //   });
 
-      const transporter = nodemailer.createTransport({
-        host: "mail.ssll-dsal.cl",
-        port: 465,
-        secure: true,
-        auth: {
-          user: "bodega_tica@ssll-dsal.cl",
-          pass: process.env.PASS_EMAIL_SUBDOMAIN,
-        },
-      });
-    
-      
-      const mailOptions = {
-        from: '"Bodegas GOT" <bodega_tica@ssll-dsal.cl>',
-        to: 'benjamin.cortes@psinet.cl',
-        //cc: ''
-        subject: 'Vale de Salida Materiales',
-        text: 'Texto de correo',
-        html: emailValeSalida(idTicket, request.responsableRetira),
-        attachments: [
-          {
-            filename: '/ticket_salida_' + idTicket + '.pdf',
-            path: path_pdf
-          }
-        ]
-      };
+    const transporter = nodemailer.createTransport({
+      service: "Gmail",
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: "bodega.got@gmail.com",
+        pass: "eubu dqiv heoy cipz",
 
-      transporter.sendMail(mailOptions, function(error, info){
-        if (error) {
-          console.log(error);
-        } else {
-          console.log('Email sent: ' + info.response);
+      },
+    });
+  
+    const mailOptions = {
+      from: '"Bodegas GOT" <bodega.got@gmail.com>',
+      to: `"${request.responsableRetira}" <${request.responsableRetiraCorreo}>`,
+      cc: 'benjamin.cortes@psinet.cl',
+      subject:`Ticket De Salida #${idTicket} - Bodegas GOT`,
+      text: `Salida de Materiales en el Ticket ${idTicket}`,
+      html: emailValeSalida(idTicket, request.responsableRetira),
+      attachments: [
+        {
+          filename: '/ticket_salida_' + idTicket + '.pdf',
+          path: path_pdf
         }
-      });
-
+      ],
+      //charset: 'UTF-8', // Equivalente a $mail->CharSet
+      //encoding: 'base64', // Equivalente a $mail->Encoding
+      //headers: {
+        //"Content-Type": "text/html",
+      //}
+    };
+  
+    transporter.sendMail(mailOptions, function(error, info){
+      if (error) {
+        console.log(error);
+      } else {
+        console.log('Email sent: ' + info.response);
+        //console.log( request.responsableRetiraCorreo)
+        //console.log( request.responsableEntregaCorreo)
+      }
+    });
+     
 }
 
 const sendEmailTicketEntrada = async (responsePath, idTicketEntrada, request, imagePath) => {
@@ -60,13 +61,17 @@ const sendEmailTicketEntrada = async (responsePath, idTicketEntrada, request, im
   //     auth: {
   //       user: "
 
+
+
   const transporter = nodemailer.createTransport({
-    host: "mail.ssll-dsal.cl",
+    service: "Gmail",
+    host: "smtp.gmail.com",
     port: 465,
     secure: true,
     auth: {
-      user: "bodega_tica@ssll-dsal.cl",
-      pass: process.env.PASS_EMAIL_SUBDOMAIN,
+      user: "bodega.got@gmail.com",
+      pass: "eubu dqiv heoy cipz",
+
     },
   });
 
@@ -85,13 +90,13 @@ const sendEmailTicketEntrada = async (responsePath, idTicketEntrada, request, im
     });
   }
 
+
     
   const mailOptions = {
-    from: '"Bodegas GOT" <bodega_tica@ssll-dsal.cl>',
-    //to: 'benjamin.cortes@psinet.cl',
-    to: 'benjamin.cortes@psinet.cl',
-    //cc: ''
-    subject: 'Vale de Entrada Materiales',
+    from: '"Bodegas GOT" <bodega.got@gmail.com>',
+    to: `"${request.responsableRetira}" <${request.responsableRetiraCorreo}>`,
+    cc: 'benjamin.cortes@psinet.cl',
+    subject:`Ticket De Entrada #${idTicketEntrada} - Bodegas GOT`,
     text: 'Texto de correo',
     html: emailValeEntrada(idTicketEntrada, request.responsableRetira),
     attachments: attachments

@@ -56,7 +56,7 @@ const getMateriales = async (req, res) => {
 
         // Enviar la respuesta con los datos obtenidos al cliente
         res.status(200).json(respuesta);
-        console.log('Materiales obtenidos correctamente');
+        //console.log('Materiales obtenidos correctamente');
 
     } catch (error) {
         // Manejo de errores: imprimir el error en la consola y enviar una respuesta de error al cliente
@@ -176,7 +176,7 @@ const createMaterial = async (req, res) => {
 
         if (result.affectedRows === 1) {
             res.status(201).json({ message: 'Material creado exitosamente' });
-            console.log('Material creado exitosamente')
+            //console.log('Material creado exitosamente')
         } else {
             res.status(400).json({ message: 'No se pudo crear el material' });
         }

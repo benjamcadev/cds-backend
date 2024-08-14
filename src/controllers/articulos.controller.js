@@ -348,7 +348,7 @@ const createArticulo = async (req, res) => {
             // Verificar si el codigo_interno fue actualizado exitosamente en la base de datos y enviar una respuesta de éxito
             if (resultUpdate.affectedRows === 1) {
                 res.status(201).json({ message: 'Articulo creado exitosamente', codigo_interno: codigoInterno });
-                console.log('Articulo creado exitosamente');
+                //console.log('Articulo creado exitosamente');
             } else {
                 res.status(400).json({ message: 'No se pudo actualizar el codigo_interno del Articulo' });
             }
@@ -522,7 +522,7 @@ const deleteArticulo = async (req, res) => {
         // Verificar si el artículo fue marcado como inactivo exitosamente
         if (result.affectedRows === 1) {
             res.status(200).json({ message: 'Articulo eliminado exitosamente' });
-            console.log('Articulo eliminado exitosamente');
+            //console.log('Articulo eliminado exitosamente');
         } else {
             res.status(400).json({ message: 'No se pudo eliminar el Articulo' });
         }

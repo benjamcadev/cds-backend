@@ -75,7 +75,7 @@ const createTicket = async (req, res) => {
                 //GENERAR DIRECTORIO DONDE SE GUARDARA EL PDF Y LA FIRMA DEL TICKET
                 const responsePath = await createDirectoryTicketSalida(lastIdTicketSalida)
 
-                console.log(request)
+                //console.log(request)
                 //GENERAR HTML A PARTIR DEL JSON
                 const html = await jsonToHtmlValeSalida(request, lastIdTicketSalida)
 

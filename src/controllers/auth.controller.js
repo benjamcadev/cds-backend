@@ -45,7 +45,8 @@ const register = async (req, res) => {
                     id: resultUser[0].idusuario,
                     nombre: resultUser[0].nombre,
                     correo: resultUser[0].correo,
-                    usuario: resultUser[0].usuario
+                    usuario: resultUser[0].usuario,
+                    tipoUser: resultUser[0].estado_usuario_idestado_usuario,
                 })
 
                 conn.end()
