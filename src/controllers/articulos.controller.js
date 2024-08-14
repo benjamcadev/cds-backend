@@ -173,7 +173,7 @@ const getFindArticulo = async (req, res) => {
 
 const verificarPermisos = async (usuarioId) => {
 
-    console.log(usuarioId)
+   
 
     // Se declara como let conn para poder reasignarla en el bloque finally si es necesario cerrar la conexión a la base de datos
     let conn;
