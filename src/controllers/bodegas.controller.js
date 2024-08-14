@@ -17,7 +17,9 @@ const getBodegaMaterial = async (req, res) => {
             'INNER JOIN bodegas ' +
             'ON detalle_ticket_entrada.bodegas_idbodegas = bodegas.idbodegas ' +
             'WHERE detalle_ticket_entrada.articulo_idarticulo = ? AND estado = 1  ' +
-            'GROUP BY bodegas.idbodegas', [numero_material])
+            'GROUP BY ubicacion_bodegas.id_ubicacion_bodegas', [numero_material])
+
+            
 
         const result_salidas = await conn.query('SELECT detalle_ticket_salida.articulo_idarticulo, articulo.nombre as nombreArticulo, bodegas.nombre AS nombreBodega, detalle_ticket_salida.bodegas_idbodegas, SUM(detalle_ticket_salida.cantidad) as cantidad, ubicacion_bodegas.id_ubicacion_bodegas as ubicacion_id, ubicacion_bodegas.ubicacion as nombreUbicacion ' +
             'FROM detalle_ticket_salida ' +
@@ -28,7 +30,7 @@ const getBodegaMaterial = async (req, res) => {
             'INNER JOIN bodegas ' +
             'ON detalle_ticket_salida.bodegas_idbodegas = bodegas.idbodegas ' +
             'WHERE detalle_ticket_salida.articulo_idarticulo = ? AND estado = 1  ' +
-            'GROUP BY bodegas.idbodegas', [numero_material])
+            'GROUP BY ubicacion_bodegas.id_ubicacion_bodegas', [numero_material])
 
             for (var i = 0; i < result_salidas.length; i++) {
                 if (result_salidas[i].bodegas_idbodegas == result_entradas[i].bodegas_idbodegas) {
