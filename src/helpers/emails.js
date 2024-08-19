@@ -85,7 +85,7 @@ const sendEmailTicketEntrada = async (responsePath, idTicketEntrada, request, im
   // Verificar si la imagen existe antes de añadirla a los attachments
   if (fs.existsSync(path_image)) {
     attachments.push({
-      filename: '/foto_documentos_' + idTicketEntrada + '.png',
+      filename: '/foto_documentos_' + idTicketEntrada + '.webp',
       path: path_image
     });
   }

@@ -103,8 +103,8 @@ const saveImageEntrada = async (request, path, idTicket) => {
             // Eliminar el prefijo base64
             let base64DataFotoDocumentos = request.foto_documentos.replace(/^data:image\/(png|jpg|jpeg|webp);base64,/, "");
             // Decodificar la cadena base64 y guardar el archivo
-            fs.writeFileSync(join(path, `foto_documentos_${idTicket}.png`), Buffer.from(base64DataFotoDocumentos, 'base64'));
-            pathImages.foto_documentos = join(path, `foto_documentos_${idTicket}.png`);
+            fs.writeFileSync(join(path, `foto_documentos_${idTicket}.webp`), Buffer.from(base64DataFotoDocumentos, 'base64'));
+            pathImages.foto_documentos = join(path, `foto_documentos_${idTicket}.webp`);
         }
 
         return pathImages;
