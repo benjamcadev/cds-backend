@@ -54,7 +54,7 @@ const sendEmailTicketSalida = async (responsePath, idTicket, request) => {
 const sendEmailTicketEntrada = async (responsePath, idTicketEntrada, request, imagePath) => {
   
   let path_pdf = responsePath + '/ticket_entrada_' + idTicketEntrada + '.pdf'
-  let path_image = responsePath + '/foto_documentos_' + idTicketEntrada + '.png'
+  let path_image = responsePath + '/foto_documentos_' + idTicketEntrada + '.webp'
 
   // const transporter = nodemailer.createTransport({
   //     service: 'gmail',
