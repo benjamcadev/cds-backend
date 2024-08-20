@@ -54,7 +54,7 @@ const sendEmailTicketSalida = async (responsePath, idTicket, request) => {
 const sendEmailTicketEntrada = async (responsePath, idTicketEntrada, request, imagePath) => {
   
   let path_pdf = responsePath + '/ticket_entrada_' + idTicketEntrada + '.pdf'
-  let path_image = responsePath + '/foto_documentos_' + idTicketEntrada + '.webp'
+  let path_image = responsePath + '/foto_documentos_' + idTicketEntrada + '.png'
 
   // const transporter = nodemailer.createTransport({
   //     service: 'gmail',
@@ -85,7 +85,7 @@ const sendEmailTicketEntrada = async (responsePath, idTicketEntrada, request, im
   // Verificar si la imagen existe antes de añadirla a los attachments
   if (fs.existsSync(path_image)) {
     attachments.push({
-      filename: '/foto_documentos_' + idTicketEntrada + '.webp',
+      filename: '/foto_documentos_' + idTicketEntrada + '.png',
       path: path_image
     });
   }
