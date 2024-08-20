@@ -44,7 +44,7 @@ const getListaArticulos = async (req, res) => {
 
         //const query = 'SELECT * FROM articulo  WHERE activo = TRUE LIMIT ? OFFSET ?';
         const query = `SELECT articulo.idarticulo, articulo.nombre AS Descripcion, articulo.sap AS Codigo_SAP, 
-        articulo.codigo_interno AS Codigo_interno, articulo.sku AS SKU, articulo.comentario AS Comentarios, 
+        articulo.codigo_interno AS Codigo_interno, articulo.sku AS SKU, articulo.comentario, 
         articulo.unidad_medida, articulo.categoria_idcategoria, articulo.precio, articulo.imagen_url, 
         articulo.activo, IFNULL(SUM(detalle_ticket_entrada.cantidad), 0) AS Stock 
         FROM articulo 
@@ -106,15 +106,15 @@ const getFindArticulo = async (req, res) => {
     try {
         const conn = await pool.getConnection()
 
-        const result = await conn.query('SELECT articulo.idarticulo, articulo.nombre, articulo.sap, articulo.codigo_interno, articulo.sku, articulo.unidad_medida, articulo.precio, articulo.comentario, SUM(detalle_ticket_entrada.cantidad) AS cantidad ' +
+        const result = await conn.query('SELECT articulo.idarticulo, articulo.nombre, articulo.sap, articulo.codigo_interno, articulo.sku, articulo.unidad_medida, articulo.precio, articulo.comentario,articulo.categoria_idcategoria, SUM(detalle_ticket_entrada.cantidad) AS cantidad ' +
             'FROM articulo left JOIN  detalle_ticket_entrada ON articulo.idarticulo = detalle_ticket_entrada.articulo_idarticulo ' +
             'WHERE activo = \'1\' AND  nombre LIKE \'%\' ? \'%\' OR sku LIKE  \'%\' ? \'%\' OR sap  LIKE  \'%\' ? \'%\' ' +
             'GROUP BY articulo.nombre ' +
             'UNION ' +
-            'SELECT articulo.idarticulo,articulo.nombre, articulo.sap, articulo.codigo_interno, articulo.sku, articulo.unidad_medida, articulo.precio, articulo.comentario, SUM(detalle_ticket_salida.cantidad) AS cantidad ' +
+            'SELECT articulo.idarticulo,articulo.nombre, articulo.sap, articulo.codigo_interno, articulo.sku, articulo.unidad_medida, articulo.precio, articulo.comentario, articulo.categoria_idcategoria, SUM(detalle_ticket_salida.cantidad) AS cantidad ' +
             'FROM articulo RIGHT JOIN  detalle_ticket_salida ON articulo.idarticulo = detalle_ticket_salida.articulo_idarticulo ' +
             'WHERE activo = \'1\' AND nombre LIKE \'%\' ? \'%\' OR sku LIKE  \'%\' ? \'%\'  OR sap  LIKE  \'%\' ? \'%\' ' +
-            'GROUP BY articulo.nombre  LIMIT 0, 50 ', [search_value, search_value, search_value, search_value, search_value, search_value, search_value, search_value, search_value, search_value, search_value, search_value])
+            'GROUP BY articulo.nombre  LIMIT 0, 50 ', [search_value, search_value, search_value, search_value, search_value, search_value, search_value, search_value, search_value, search_value, search_value, search_value, search_value])
 
 
         let cantidades_positivas = []
@@ -131,7 +131,8 @@ const getFindArticulo = async (req, res) => {
                     unidad_medida: result[i].unidad_medida,
                     precio: Number(result[i].precio),
                     SKU: result[i].sku,
-                    Comentarios: result[i].comentario,
+                    comentario: result[i].comentario,
+                    categoria_idcategoria: result[i].categoria_idcategoria,
                     Stock: Number(result[i].cantidad)
                 })
 
