@@ -491,6 +491,8 @@ const getImageBase64 = async (req, res) => {
 // ELIMINAR UN ARTICULO (marcar como inactivo)
 const deleteArticulo = async (req, res) => {
 
+    console.log(req.body)
+
     // Declarar la variable conn con let para poder reasignarla en el bloque finally
     let conn;
 
