@@ -32,12 +32,48 @@ const getBodegaMaterial = async (req, res) => {
             'WHERE detalle_ticket_salida.articulo_idarticulo = ? AND estado = 1  ' +
             'GROUP BY ubicacion_bodegas.id_ubicacion_bodegas', [numero_material])
 
-            for (var i = 0; i < result_salidas.length; i++) {
-                if (result_salidas[i].bodegas_idbodegas == result_entradas[i].bodegas_idbodegas) {
-                    result_entradas[i].cantidad =  Number(result_entradas[i].cantidad) + Number(result_salidas[i].cantidad)
-                }
+            // for (var i = 0; i < result_entradas.length; i++) {
+            //     if (result_salidas[i].bodegas_idbodegas == result_entradas[i].bodegas_idbodegas) {
+            //         result_entradas[i].cantidad =  Number(result_entradas[i].cantidad) + Number(result_salidas[i].cantidad)
+            //     }
 
+            // }
+
+            // SABER LAS LONGITUDES DEL ARRAY MAS GRANDE Y MAS PEQUEÑO
+            let array_grande = 0;
+            let array_pequeno = 0;
+
+            if (result_salidas.length > result_entradas.length) {
+                array_grande = result_salidas.length;
+                array_pequeno = result_entradas.length;
+            }else {
+                array_grande = result_entradas.length;
+                array_pequeno = result_salidas.length;
             }
+
+           for (let i = 0; i < array_grande; i++) {
+
+                for (let j = 0; j < array_pequeno; j++) {
+                    // PREGUNTAR QUE ARRAY ES MAS PEQUEÑO
+
+                    if (result_salidas.length > result_entradas.length) {
+                        
+                        if (result_entradas[j].bodegas_idbodegas == result_salidas[i].bodegas_idbodegas) {
+                            //RESTAR CANTIDADES
+                            result_entradas[j].cantidad = Number(result_entradas[j].cantidad) + Number(result_salidas[i].cantidad)
+                            
+                        }
+                    }else {
+                        if (result_salidas[j].bodegas_idbodegas == result_entradas[i].bodegas_idbodegas) {
+                            //RESTAR CANTIDADES
+                            result_entradas[i].cantidad = Number(result_entradas[i].cantidad) + Number(result_salidas[j].cantidad)
+                        }
+                    }
+                    
+                }
+            
+           } 
+
 
         conn.end();
 
