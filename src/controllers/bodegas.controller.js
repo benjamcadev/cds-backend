@@ -58,17 +58,19 @@ const getBodegaMaterial = async (req, res) => {
 
                     if (result_salidas.length > result_entradas.length) {
                         
-                        if (result_entradas[j].bodegas_idbodegas == result_salidas[i].bodegas_idbodegas) {
+                        if (result_entradas[j].bodegas_idbodegas == result_salidas[i].bodegas_idbodegas && result_entradas[j].ubicacion_id == result_salidas[i].ubicacion_id) {
                             //RESTAR CANTIDADES
                             result_entradas[j].cantidad = Number(result_entradas[j].cantidad) + Number(result_salidas[i].cantidad)
                             
                         }
                     }else {
-                        if (result_salidas[j].bodegas_idbodegas == result_entradas[i].bodegas_idbodegas) {
+                        if (result_salidas[j].bodegas_idbodegas == result_entradas[i].bodegas_idbodegas && result_salidas[j].ubicacion_id == result_entradas[i].ubicacion_id) {
                             //RESTAR CANTIDADES
                             result_entradas[i].cantidad = Number(result_entradas[i].cantidad) + Number(result_salidas[j].cantidad)
                         }
                     }
+
+                    console.log(result_entradas)
                     
                 }
             
