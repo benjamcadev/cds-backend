@@ -70,7 +70,7 @@ const getBodegaMaterial = async (req, res) => {
                         }
                     }
 
-                    console.log(result_entradas)
+                    
                     
                 }
             
