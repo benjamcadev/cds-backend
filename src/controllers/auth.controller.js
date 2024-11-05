@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs')
 const { createAccessToken } = require("../helpers/jwt")
 const { convertBigintToInt } = require('../helpers/convertBigintToInt')
 const jwt = require('jsonwebtoken')
+const { sendEmailForgetPass, sendEmailNewPass } = require('../helpers/emails')
 require('dotenv').config()
 
 const register = async (req, res) => {
@@ -143,13 +144,13 @@ const verifyToken = async (req, res) => {
 
         const conn = await pool.getConnection()
         const userFound = await conn.query('SELECT * FROM usuario WHERE idusuario = ?', [user.id])
-       
+
         conn.end()
         if (userFound.length == 0) {
             res.status(401).json({ message: "No Autorizado" });
         }
 
-       return res.status(200).json({
+        return res.status(200).json({
             id: userFound[0].idusuario,
             nombre: userFound[0].nombre,
             correo: userFound[0].correo,
@@ -160,9 +161,87 @@ const verifyToken = async (req, res) => {
     })
 }
 
+const forget = async (req, res) => {
+    const { correo } = req.body;
+
+    try {
+        const conn = await pool.getConnection()
+        const userFound = await conn.query('SELECT nombre,correo,idusuario,pass FROM usuario WHERE correo = ? AND estado_usuario_idestado_usuario != 2', [correo])
+
+
+
+        conn.end()
+
+        if (userFound.length == 0) {
+            res.status(401).json({ message: "No Existe usuario" });
+            return;
+        }
+
+        //SI EL CORREO EXISTE ENVIAMOS UN CORREO PARA QUE PUEDA RESETEAR SU CONTRASEÑA
+        await sendEmailForgetPass(userFound)
+
+        res.status(200).json({
+            message: 'Correo enviado existosamente',
+
+        })
+
+
+    } catch (error) {
+        res.status(500).json({
+            message: 'Hubo un error al buscar correo de usuario: ' + error
+        })
+    }
+}
+
+
+const changePass = async (req, res) => {
+
+    const { newPassword, idUsuario, tokenUsuario, correo } = req.body;
+
+    try {
+
+        //ENCRIPTANDO PASS
+        const passHash = await bcrypt.hash(newPassword, 10)
+
+        const conn = await pool.getConnection()
+        const resultNewPass = await conn.query(` UPDATE usuario SET pass = ? WHERE idusuario = ? AND pass = ?`,
+            [passHash, idUsuario, tokenUsuario])
+
+        
+        if (resultNewPass.affectedRows >= 1) {
+            conn.end();
+
+            await sendEmailNewPass(correo)
+
+            res.status(200).json({
+                message: 'Cambio de contraseña exitoso'
+            })
+
+        } else {
+            conn.end()
+            res.status(500).json({
+                message: 'No se pudo cambiar la contraseña al usuario'
+            })
+        }
+
+        conn.end()
+
+
+    } catch (error) {
+        
+        res.status(500).json({
+            message: 'Hubo un error al cambiar la contraseña' + error
+        })
+    }
+
+}
+
+
 module.exports = {
     register,
     login,
     logout,
-    verifyToken
+    verifyToken,
+    forget,
+    changePass
 }

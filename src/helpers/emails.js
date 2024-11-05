@@ -1,6 +1,6 @@
 const nodemailer = require('nodemailer');
 const fs = require('fs');
-const { emailValeSalida, emailValeEntrada } = require('./generateHtml')
+const { emailValeSalida, emailValeEntrada, emailForgetPass, emailNewPass } = require('./generateHtml')
 
 const sendEmailTicketSalida = async (responsePath, idTicket, request) => {
 
@@ -111,4 +111,74 @@ const sendEmailTicketEntrada = async (responsePath, idTicketEntrada, request, im
   });
 }
 
-module.exports = { sendEmailTicketSalida, sendEmailTicketEntrada }
+const sendEmailForgetPass = async (user) => {
+
+  
+
+  const transporter = nodemailer.createTransport({
+    service: "Gmail",
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+      user: "bodega.got@gmail.com",
+      pass: "eubu dqiv heoy cipz",
+
+    },
+  });
+
+  const mailOptions = {
+    from: '"Bodegas GOT" <bodega.got@gmail.com>',
+    to: `"${user[0].nombre}" <${user[0].correo}>`,
+    cc: 'benjamin.cortes@psinet.cl',
+    subject:`Recuperacion de cuenta - Sistema CDS`,
+    text: 'Texto de correo',
+    html: emailForgetPass(user)
+  };
+
+  transporter.sendMail(mailOptions, function(error, info){
+    if (error) {
+      console.log(error);
+    } else {
+      console.log('Email sent: ' + info.response);
+    }
+  });
+
+
+
+
+}
+
+const sendEmailNewPass = async (correo) => {
+  const transporter = nodemailer.createTransport({
+    service: "Gmail",
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+      user: "bodega.got@gmail.com",
+      pass: "eubu dqiv heoy cipz",
+
+    },
+  });
+
+  const mailOptions = {
+    from: '"Bodegas GOT" <bodega.got@gmail.com>',
+    to: `<${correo}>`,
+    cc: 'benjamin.cortes@psinet.cl',
+    subject:`Contraseña Cambiada - Sistema CDS`,
+    text: 'Texto de correo',
+    html: emailNewPass(correo)
+  };
+
+  transporter.sendMail(mailOptions, function(error, info){
+    if (error) {
+      console.log(error);
+    } else {
+      console.log('Email sent: ' + info.response);
+    }
+  });
+
+
+}
+module.exports = { sendEmailTicketSalida, sendEmailTicketEntrada, sendEmailForgetPass, sendEmailNewPass }
