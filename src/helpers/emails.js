@@ -1,183 +1,164 @@
 const nodemailer = require('nodemailer');
+const axios = require('axios').default;
 const fs = require('fs');
 const { emailValeSalida, emailValeEntrada, emailForgetPass, emailNewPass } = require('./generateHtml')
 
 const sendEmailTicketSalida = async (responsePath, idTicket, request) => {
 
-    let path_pdf = responsePath + '/ticket_salida_' + idTicket + '.pdf'
+  let path_pdf = responsePath + '/ticket_salida_' + idTicket + '.pdf';
+  let base64pdf = '';
 
+  //convertir pdf a base64
+  try {
+    base64pdf = 'data:application/pdf;base64,' + fs.readFileSync(path_pdf, { encoding: 'base64' });
+  } catch (err) {
+    console.error(err)
+  }
 
-    const transporter = nodemailer.createTransport({
-      service: "Gmail",
-      host: "smtp.gmail.com",
-      port: 465,
-      secure: true,
-      auth: {
-        user: "bodega.got@gmail.com",
-        pass: "eubu dqiv heoy cipz",
-
-      },
-    });
-  
-    const mailOptions = {
-      from: '"Bodegas GOT" <bodega.got@gmail.com>',
-      to: `"${request.responsableRetira}" <${request.responsableRetiraCorreo}>`,
-      cc: 'benjamin.cortes@psinet.cl',
-      subject:`Ticket De Salida #${idTicket} - Bodegas GOT`,
-      text: `Salida de Materiales en el Ticket ${idTicket}`,
-      html: emailValeSalida(idTicket, request.responsableRetira),
-      attachments: [
-        {
-          filename: '/ticket_salida_' + idTicket + '.pdf',
-          path: path_pdf
-        }
-      ],
-      //charset: 'UTF-8', // Equivalente a $mail->CharSet
-      //encoding: 'base64', // Equivalente a $mail->Encoding
-      //headers: {
-        //"Content-Type": "text/html",
-      //}
-    };
-  
-    transporter.sendMail(mailOptions, function(error, info){
-      if (error) {
-        console.log(error);
-      } else {
-        console.log('Email sent: ' + info.response);
-        //console.log( request.responsableRetiraCorreo)
-        //console.log( request.responsableEntregaCorreo)
+  const mailOptions = {
+    from: '"Bodegas GOT" <bodega.got@gmail.com>',
+    to: `"${request.responsableRetira}" <${request.responsableRetiraCorreo}>`,
+    cc: 'benjamin.cortes@psinet.cl',
+    subject: `Ticket De Salida #${idTicket} - Bodegas GOT`,
+    text: `Salida de Materiales en el Ticket ${idTicket}`,
+    html: emailValeSalida(idTicket, request.responsableRetira),
+    attachments: [
+      {
+        filename: '/ticket_salida_' + idTicket + '.pdf',
+        content: base64pdf.split("base64,")[1],
+        encoding: 'base64'
       }
-    });
-     
+    ],
+
+  };
+
+  //PARSEAR A JSON EL OBJETO
+  const jsonEmailOptions = JSON.stringify(mailOptions);
+
+  const response = await axios.post(process.env.HOST_EMAIL, jsonEmailOptions, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }).then((res) => {
+    if (res.status == 200) {
+      return res
+    }
+  }).catch((error) => {
+    return error.response
+  })
+
 }
 
 const sendEmailTicketEntrada = async (responsePath, idTicketEntrada, request, imagePath) => {
-  
+
   let path_pdf = responsePath + '/ticket_entrada_' + idTicketEntrada + '.pdf'
   let path_image = responsePath + '/foto_documentos_' + idTicketEntrada + '.png'
 
-  // const transporter = nodemailer.createTransport({
-  //     service: 'gmail',
-  //     auth: {
-  //       user: "
-
-
-
-  const transporter = nodemailer.createTransport({
-    service: "Gmail",
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: "bodega.got@gmail.com",
-      pass: "eubu dqiv heoy cipz",
-
-    },
-  });
+  try {
+    base64pdf = 'data:application/pdf;base64,' + fs.readFileSync(path_pdf, { encoding: 'base64' });
+  } catch (err) {
+    console.error(err)
+  }
 
   const attachments = [
     {
       filename: '/ticket_entrada_' + idTicketEntrada + '.pdf',
-      path: path_pdf
+      content: base64pdf.split("base64,")[1],
+      encoding: 'base64'
     }
   ];
 
   // Verificar si la imagen existe antes de añadirla a los attachments
   if (fs.existsSync(path_image)) {
+    base64png = 'data:image/png;base64,' + fs.readFileSync(path_pdf, { encoding: 'base64' });
     attachments.push({
       filename: '/foto_documentos_' + idTicketEntrada + '.png',
-      path: path_image
+      content: base64png.split("base64,")[1],
+      encoding: 'base64'
     });
   }
 
-
-    
   const mailOptions = {
     from: '"Bodegas GOT" <bodega.got@gmail.com>',
     to: `"${request.responsableRetira}" <${request.responsableRetiraCorreo}>`,
     cc: 'benjamin.cortes@psinet.cl',
-    subject:`Ticket De Entrada #${idTicketEntrada} - Bodegas GOT`,
+    subject: `Ticket De Entrada #${idTicketEntrada} - Bodegas GOT`,
     text: 'Texto de correo',
     html: emailValeEntrada(idTicketEntrada, request.responsableRetira),
     attachments: attachments
   };
 
-  transporter.sendMail(mailOptions, function(error, info){
-    if (error) {
-      console.log(error);
-    } else {
-      console.log('Email sent: ' + info.response);
+  //PARSEAR A JSON EL OBJETO
+  const jsonEmailOptions = JSON.stringify(mailOptions);
+
+  const response = await axios.post(process.env.HOST_EMAIL, jsonEmailOptions, {
+    headers: {
+      'Content-Type': 'application/json'
     }
-  });
+  }).then((res) => {
+    if (res.status == 200) {
+      return res
+    }
+  }).catch((error) => {
+    return error.response
+  })
+
+ 
 }
 
 const sendEmailForgetPass = async (user) => {
-
-  
-
-  const transporter = nodemailer.createTransport({
-    service: "Gmail",
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: "bodega.got@gmail.com",
-      pass: "eubu dqiv heoy cipz",
-
-    },
-  });
 
   const mailOptions = {
     from: '"Bodegas GOT" <bodega.got@gmail.com>',
     to: `"${user[0].nombre}" <${user[0].correo}>`,
     cc: 'benjamin.cortes@psinet.cl',
-    subject:`Recuperacion de cuenta - Sistema CDS`,
+    subject: `Recuperacion de cuenta - Sistema CDS`,
     text: 'Texto de correo',
     html: emailForgetPass(user)
   };
 
-  transporter.sendMail(mailOptions, function(error, info){
-    if (error) {
-      console.log(error);
-    } else {
-      console.log('Email sent: ' + info.response);
+  //PARSEAR A JSON EL OBJETO
+  const jsonEmailOptions = JSON.stringify(mailOptions);
+
+  const response = await axios.post(process.env.HOST_EMAIL, jsonEmailOptions, {
+    headers: {
+      'Content-Type': 'application/json'
     }
-  });
-
-
-
-
+  }).then((res) => {
+    if (res.status == 200) {
+      return res
+    }
+  }).catch((error) => {
+    return error.response
+  })
 }
 
 const sendEmailNewPass = async (correo) => {
-  const transporter = nodemailer.createTransport({
-    service: "Gmail",
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: "bodega.got@gmail.com",
-      pass: "eubu dqiv heoy cipz",
-
-    },
-  });
+  
 
   const mailOptions = {
     from: '"Bodegas GOT" <bodega.got@gmail.com>',
     to: `<${correo}>`,
     cc: 'benjamin.cortes@psinet.cl',
-    subject:`Contraseña Cambiada - Sistema CDS`,
+    subject: `Contraseña Cambiada - Sistema CDS`,
     text: 'Texto de correo',
     html: emailNewPass(correo)
   };
 
-  transporter.sendMail(mailOptions, function(error, info){
-    if (error) {
-      console.log(error);
-    } else {
-      console.log('Email sent: ' + info.response);
+  //PARSEAR A JSON EL OBJETO
+  const jsonEmailOptions = JSON.stringify(mailOptions);
+
+  const response = await axios.post(process.env.HOST_EMAIL, jsonEmailOptions, {
+    headers: {
+      'Content-Type': 'application/json'
     }
-  });
+  }).then((res) => {
+    if (res.status == 200) {
+      return res
+    }
+  }).catch((error) => {
+    return error.response
+  })
 
 
 }
