@@ -185,7 +185,12 @@ const getSignature = async (req, res) => {
        
         //convertir a base64
         const base64_entrega = 'data:image/png;base64,' + fs.readFileSync(result[0].signature_path_entrega, {encoding: 'base64'});
-        const base64_retira = 'data:image/png;base64,' + fs.readFileSync(result[0].signature_path_retira, {encoding: 'base64'});
+        let base64_retira = '';
+        if (result[0].signature_path_retira) {
+             base64_retira = 'data:image/png;base64,' + fs.readFileSync(result[0].signature_path_retira, {encoding: 'base64'}); 
+        }
+
+        
 
 
         const result_final = {
