@@ -75,15 +75,17 @@ const saveSignature = async(request, path, idTicket) => {
         entrega: ''
     }
     try {
+        console.log(path);
         let base64DataFirmaBodega = request.firmaBodega.replace(/^data:image\/png;base64,/, "");
-        fs.writeFileSync(path+ '\\firma_bodega_'+idTicket+'.png', base64DataFirmaBodega , 'base64');
-        pathSignatures.entrega = path.replaceAll("\\", "\\\\")+ '\\\\firma_bodega_'+idTicket+'.png';
+        fs.writeFileSync(path+ '/firma_bodega_'+idTicket+'.png', base64DataFirmaBodega , 'base64');
+        pathSignatures.entrega = path.replaceAll("\\", "/")+ '/firma_bodega_'+idTicket+'.png';
+        console.log(pathSignatures);
         
 
         if (!request.firmaSolicitante == '' ) {
             let base64DataFirmaResponsable = request.firmaSolicitante.replace(/^data:image\/png;base64,/, "");
-            fs.writeFileSync(path+ '\\firma_responsable_'+idTicket+'.png', base64DataFirmaResponsable , 'base64');
-            pathSignatures.retira = path.replaceAll("\\", "\\\\")+ '\\\\firma_responsable_'+idTicket+'.png';
+            fs.writeFileSync(path+ '//firma_responsable_'+idTicket+'.png', base64DataFirmaResponsable , 'base64');
+            pathSignatures.retira = path.replaceAll("//", "////")+ '////firma_responsable_'+idTicket+'.png';
         }
        return pathSignatures
         

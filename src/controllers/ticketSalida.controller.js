@@ -3,7 +3,7 @@ const { convertBigintToInt } = require('../helpers/convertBigintToInt')
 const { htmlToPDF } = require('../helpers/generatePDF')
 const { jsonToHtmlValeSalida } = require('../helpers/generateHtml')
 const { createDirectoryTicketSalida, saveSignature } = require('../helpers/directory')
-const { sendEmailTicketSalida } = require('../helpers/emails')
+const { sendEmailTicketSalida, sendEmailTicketPendiente } = require('../helpers/emails')
 const fs = require('fs');
 
 const createTicket = async (req, res) => {
@@ -89,6 +89,9 @@ const createTicket = async (req, res) => {
 
                 if (request.firmaSolicitante == '') {
                     //ENVIAR CORREO DE FIRMA PENDIENTE
+                    console.log("Enviar correo de ticket abierto !!!")
+                    
+                    await sendEmailTicketPendiente(responsePath, lastIdTicketSalida, request)
 
                     conn.end()
 

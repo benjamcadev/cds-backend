@@ -1,7 +1,7 @@
 const nodemailer = require('nodemailer');
 const axios = require('axios').default;
 const fs = require('fs');
-const { emailValeSalida, emailValeEntrada, emailForgetPass, emailNewPass } = require('./generateHtml')
+const { emailValeSalida, emailValeEntrada, emailForgetPass, emailNewPass, emailTicketAbierto } = require('./generateHtml')
 
 const sendEmailTicketSalida = async (responsePath, idTicket, request) => {
 
@@ -162,4 +162,33 @@ const sendEmailNewPass = async (correo) => {
 
 
 }
-module.exports = { sendEmailTicketSalida, sendEmailTicketEntrada, sendEmailForgetPass, sendEmailNewPass }
+
+const sendEmailTicketPendiente = async (responsePath, idTicket, request) => {
+
+  const mailOptions = {
+    from: '"Bodegas GOT" <bodega.got@gmail.com>',
+    to: `"${request.responsableRetira}" <${request.responsableRetiraCorreo}>`,
+    cc: 'benjamin.cortes@psinet.cl',
+    subject: `Ticket Pendiente - Sistema CDS`,
+    text: '',
+    html: emailTicketAbierto(idTicket, request.responsableRetira,request.responsableRetiraCorreo)
+  };
+
+  //PARSEAR A JSON EL OBJETO
+  const jsonEmailOptions = JSON.stringify(mailOptions);
+
+  const response = await axios.post(process.env.HOST_EMAIL, jsonEmailOptions, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }).then((res) => {
+    if (res.status == 200) {
+      return res
+    }
+  }).catch((error) => {
+    return error.response
+  })
+}
+
+
+module.exports = { sendEmailTicketSalida, sendEmailTicketEntrada, sendEmailForgetPass, sendEmailNewPass, sendEmailTicketPendiente }
