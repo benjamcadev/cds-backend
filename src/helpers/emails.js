@@ -169,7 +169,7 @@ const sendEmailTicketPendiente = async (responsePath, idTicket, request) => {
     from: '"Bodegas GOT" <bodega.got@gmail.com>',
     to: `"${request.responsableRetira}" <${request.responsableRetiraCorreo}>`,
     cc: 'benjamin.cortes@psinet.cl',
-    subject: `Ticket Pendiente - Sistema CDS`,
+    subject: `Ticket Pendiente De Firma - Sistema CDS`,
     text: '',
     html: emailTicketAbierto(idTicket, request.responsableRetira,request.responsableRetiraCorreo)
   };

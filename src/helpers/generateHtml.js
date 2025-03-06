@@ -2,6 +2,7 @@
 
 const jsonToHtmlValeSalida = async (json, idTicket) => {
 
+
   let html = '<html>' +
     '<head>' +
     '<style>' +
@@ -1815,7 +1816,7 @@ const emailTicketAbierto = (idTicket, responsableRetira, responsableCorreo) => {
                   <td class="wrapper">
                     <p><b>Hola ${responsableRetira} !<b></p>
                     <p>Tienes un ticket pendiente de firma, favor haz click en el siguiente link para continuar.</p>
-                    <a  style="font-size: 10px;" href="https://bodega.ssll-dsal.cl/vale-pendiente?id=${idTicket}&email=${responsableCorreo}">https://bodega.ssll-dsal.cl/vale-pendiente?id=${idTicket}&email=${responsableCorreo}</a>
+                    <a  style="font-size: 18px;" href="https://bodega.ssll-dsal.cl/vale-pendiente?id=${idTicket}&email=no-sidebar@psinet.cl&p=cds614&user=${responsableRetira}">CLIC AQUI</a>
                     <br>
                     <p style="margin-top: 5px;">Que tengas un buen dia.</p>
                    

@@ -3,7 +3,7 @@ const { authRequired } = require('../middlewares/validateToken')
 
 
 
-const { createTicket, getTicket, getSignature } = require('../controllers/ticketSalida.controller')
+const { createTicket, getTicket, getSignature, closeTicket } = require('../controllers/ticketSalida.controller')
 
 const router = Router()
 
@@ -15,6 +15,9 @@ router.get('/api/v1/ticket/salida/:id',authRequired ,getTicket)
 
 //CONSULTAR FIRMA, DEVUELVE EN IMAGEN PNG EN BASE64
 router.get('/api/v1/ticket/salida/signature/:id',authRequired, getSignature)
+
+//CERRAR TICKET DE SALIDA
+router.post('/api/v1/ticket/salida/close', authRequired, closeTicket)
 
 
 module.exports = router
