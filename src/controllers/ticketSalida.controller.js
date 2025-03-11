@@ -140,7 +140,7 @@ const getTicket = async (req, res) => {
         ticket_salida.signature_path_entrega, ticket_salida.estado_ticket_idestado_ticket, ticket_salida.usuario_idusuario,
         usuario.correo AS responsableRetiraCorreo 
         FROM ticket_salida INNER JOIN usuario
-        WHERE idticket_salida = ${id_ticket} AND ticket_salida.usuario_idusuario = usuario.idusuario`)
+        WHERE idticket_salida = ${id_ticket} AND ticket_salida.solicitante = usuario.nombre`)
 
         console.log(result_ticket)
         //QUERY RESCATA EL DETALLE DEL TICKET DE ENTRADA
