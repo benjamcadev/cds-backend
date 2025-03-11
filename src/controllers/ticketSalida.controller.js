@@ -134,7 +134,15 @@ const getTicket = async (req, res) => {
 
         const conn = await pool.getConnection()
         //QUERY RESCATA DATOS DEL TICKET ENTRADA
-        let result_ticket = await conn.query(`SELECT * FROM ticket_salida WHERE idticket_salida = ${id_ticket}`)
+        let result_ticket = await conn.query(`SELECT ticket_salida.idticket_salida, ticket_salida.fecha_creacion, ticket_salida.motivo,
+        ticket_salida.fecha_cierre, ticket_salida.solicitante, ticket_salida.cliente_trabajo,
+        ticket_salida.CC, ticket_salida.ticketTrabajo, ticket_salida.observaciones, ticket_salida.signature_path_retira,
+        ticket_salida.signature_path_entrega, ticket_salida.estado_ticket_idestado_ticket, ticket_salida.usuario_idusuario,
+        usuario.correo AS responsableRetiraCorreo 
+        FROM ticket_salida INNER JOIN usuario
+        WHERE idticket_salida = ${id_ticket} AND ticket_salida.usuario_idusuario = usuario.idusuario`)
+
+        console.log(result_ticket)
         //QUERY RESCATA EL DETALLE DEL TICKET DE ENTRADA
         let result_ticket_detalle = await conn.query(`SELECT ROW_NUMBER() OVER (ORDER BY articulo.nombre) AS item, detalle_ticket_salida.bodegas_idbodegas AS bodega, detalle_ticket_salida.ubicacion_bodegas_id AS ubicacion, (detalle_ticket_salida.cantidad) * -1 as cantidad, 
         articulo.nombre AS descripcion,articulo.idarticulo AS id, articulo.unidad_medida AS unidad,
@@ -209,7 +217,7 @@ const closeTicket = async (req, res) => {
         const request = req.body
 
         let result = ''
-       
+
         result = await conn.query('UPDATE ticket_salida SET fecha_cierre = ? , estado_ticket_idestado_ticket = ?  WHERE idticket_salida=?', [dayjs().format('YYYY-MM-DD HH:mm:ss'), 2, request.idTicketSalida])
 
         if (result.affectedRows == 1) {
@@ -218,55 +226,55 @@ const closeTicket = async (req, res) => {
 
 
 
-               //CONSULTANDO NOMBRE DE BODEGUEROS
-               const result_user = await conn.query('SELECT idusuario AS id,idusuario AS value, nombre AS label,correo,usuario FROM usuario')
+            //CONSULTANDO NOMBRE DE BODEGUEROS
+            const result_user = await conn.query('SELECT idusuario AS id,idusuario AS value, nombre AS label,correo,usuario FROM usuario')
 
-               let nombreResponsableEntrega = result_user.map(function (responsable) {
-                   if (responsable.id === request.responsableEntrega) {
-                       return responsable.label
-                   }
-               })
-   
-               //SACANDO EL NOMBRE DEL BODEGUERO MEDIANTE EL ID
-               nombreResponsableEntrega = nombreResponsableEntrega.filter(i => i)
-               request.responsableEntrega = nombreResponsableEntrega
-   
-               //SACANDO NOMBRES DE BODEGAS
-               const result_bodegas = await conn.query('SELECT idbodegas, nombre AS label_bodega FROM bodegas WHERE estado = 1')
-   
-               //RECORRER EL DETALLE DE DEL REQUEST PARA REMPLAZAR EL NUMERO DE LA BODEGA POR SU NOMBRE
-               for (let i = 0; i < request.detalle.length; i++) {
-                   for (let o = 0; o < result_bodegas.length; o++) {
-   
-                       if (request.detalle[i].bodega == result_bodegas[o].idbodegas) {
-                           request.detalle[i].bodega = result_bodegas[o].label_bodega
-                       }
-                   }
-               }
-   
-               //SACANDO NOMBRES DE UBICACION BODEGAS
-               const result_ubicacion_bodegas = await conn.query('SELECT id_ubicacion_bodegas, ubicacion AS label_ubicacion_bodega FROM ubicacion_bodegas')
-   
-               //RECORRER EL DETALLE DE DEL REQUEST PARA REMPLAZAR EL NUMERO DE LA UBICACION BODEGA POR SU NOMBRE
-               for (let i = 0; i < request.detalle.length; i++) {
-                   for (let o = 0; o < result_ubicacion_bodegas.length; o++) {
-   
-                       if (request.detalle[i].ubicacion == result_ubicacion_bodegas[o].id_ubicacion_bodegas) {
-                           request.detalle[i].ubicacion = result_ubicacion_bodegas[o].label_ubicacion_bodega
-                       }
-                   }
-               }
+            let nombreResponsableEntrega = result_user.map(function (responsable) {
+                if (responsable.id === request.responsableEntrega) {
+                    return responsable.label
+                }
+            })
 
-         
+            //SACANDO EL NOMBRE DEL BODEGUERO MEDIANTE EL ID
+            nombreResponsableEntrega = nombreResponsableEntrega.filter(i => i)
+            request.responsableEntrega = nombreResponsableEntrega
+
+            //SACANDO NOMBRES DE BODEGAS
+            const result_bodegas = await conn.query('SELECT idbodegas, nombre AS label_bodega FROM bodegas WHERE estado = 1')
+
+            //RECORRER EL DETALLE DE DEL REQUEST PARA REMPLAZAR EL NUMERO DE LA BODEGA POR SU NOMBRE
+            for (let i = 0; i < request.detalle.length; i++) {
+                for (let o = 0; o < result_bodegas.length; o++) {
+
+                    if (request.detalle[i].bodega == result_bodegas[o].idbodegas) {
+                        request.detalle[i].bodega = result_bodegas[o].label_bodega
+                    }
+                }
+            }
+
+            //SACANDO NOMBRES DE UBICACION BODEGAS
+            const result_ubicacion_bodegas = await conn.query('SELECT id_ubicacion_bodegas, ubicacion AS label_ubicacion_bodega FROM ubicacion_bodegas')
+
+            //RECORRER EL DETALLE DE DEL REQUEST PARA REMPLAZAR EL NUMERO DE LA UBICACION BODEGA POR SU NOMBRE
+            for (let i = 0; i < request.detalle.length; i++) {
+                for (let o = 0; o < result_ubicacion_bodegas.length; o++) {
+
+                    if (request.detalle[i].ubicacion == result_ubicacion_bodegas[o].id_ubicacion_bodegas) {
+                        request.detalle[i].ubicacion = result_ubicacion_bodegas[o].label_ubicacion_bodega
+                    }
+                }
+            }
+
+
 
             try {
                 //GENERAR DIRECTORIO DONDE SE GUARDARA EL PDF Y LA FIRMA DEL TICKET
                 const responsePath = await createDirectoryTicketSalida(lastIdTicketSalida)
 
-               
+
                 //GENERAR HTML A PARTIR DEL JSON
                 const html = await jsonToHtmlValeSalida(request, lastIdTicketSalida)
-               
+
 
                 //GUARDAR FIRMAS
                 let pathSignature = await saveSignaturePendiente(request, responsePath, lastIdTicketSalida)
