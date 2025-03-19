@@ -5,6 +5,7 @@ const { emailValeSalida, emailValeEntrada, emailForgetPass, emailNewPass, emailT
 
 const sendEmailTicketSalida = async (responsePath, idTicket, request) => {
 
+
   let path_pdf = responsePath + '/ticket_salida_' + idTicket + '.pdf';
   let base64pdf = '';
 
@@ -41,6 +42,7 @@ const sendEmailTicketSalida = async (responsePath, idTicket, request) => {
     }
   }).then((res) => {
     if (res.status == 200) {
+     
       return res
     }
   }).catch((error) => {

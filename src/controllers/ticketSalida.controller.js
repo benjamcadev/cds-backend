@@ -82,7 +82,6 @@ const createTicket = async (req, res) => {
                 //GUARDAR FIRMAS
                 let pathSignature = await saveSignature(request, responsePath, lastIdTicketSalida)
 
-
                 //UPDATEAR PATH DE FIRMAS
                 result = await conn.query('UPDATE ticket_salida SET signature_path_entrega="' + pathSignature.entrega + '" WHERE  idticket_salida = ' + lastIdTicketSalida)
 
@@ -101,6 +100,8 @@ const createTicket = async (req, res) => {
                 } else {
                     //GENERACION DEL PDF
                     await htmlToPDF(html, responsePath, lastIdTicketSalida)
+
+                   
                     //ENVIAR PDF POR CORREO
                     await sendEmailTicketSalida(responsePath, lastIdTicketSalida, request)
 
