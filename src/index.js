@@ -8,7 +8,7 @@ const path = require('path')
 
 
 
-const { articulosRoutes, bodegasRoutes, ticketEntradaRoutes, usuariosRoutes, ticketSalidaRoutes, authRoutes, categoriasRoutes } = require('./routes')
+const { articulosRoutes, bodegasRoutes, ticketEntradaRoutes, usuariosRoutes, ticketSalidaRoutes, authRoutes, categoriasRoutes, cotizacionRoutes } = require('./routes')
 
 const app = express()
 
@@ -37,6 +37,7 @@ app.use(ticketEntradaRoutes)
 app.use(usuariosRoutes)
 app.use(ticketSalidaRoutes)
 app.use(authRoutes)
+app.use(cotizacionRoutes)
 
 
 // Configura la ruta para servir archivos estáticos desde la carpeta de imágenes
