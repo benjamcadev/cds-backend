@@ -84,7 +84,7 @@ const getListCotizaciones = async (req, res) => {
 
             let excelBase64 = await convertirABase64(cotizacionesConvertidos[clave].path_excel);
       
-           return cotizacionesConvertidos[clave] = excelBase64;
+         cotizacionesConvertidos[clave] = excelBase64;
 
             
         }))
