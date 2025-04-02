@@ -6,6 +6,7 @@ const { createDirectoryTicketSalida, saveSignature, saveSignaturePendiente } = r
 const { sendEmailTicketSalida, sendEmailTicketPendiente } = require('../helpers/emails')
 const fs = require('fs');
 const dayjs = require('dayjs');
+const { convertirABase64 } = require('../helpers/convertFileToBase64')
 
 const createTicket = async (req, res) => {
     try {
@@ -291,7 +292,7 @@ const closeTicket = async (req, res) => {
                 let path_pdf = responsePath + '/ticket_salida_' + lastIdTicketSalida + '.pdf';
                 result = await conn.query('UPDATE ticket_salida SET pdf_path="' + path_pdf + '" WHERE  idticket_salida = ' + lastIdTicketSalida)
 
-                
+
                 //ENVIAR PDF POR CORREO
                 await sendEmailTicketSalida(responsePath, lastIdTicketSalida, request)
 
@@ -324,11 +325,52 @@ const getListValesSalida = async (req, res) => {
         const request = req.body
         let result = ''
 
-        result = await conn.query('')
+        result = await conn.query('SELECT ticket_salida.idticket_salida as id, ticket_salida.motivo, ticket_salida.solicitante, ' +
+            'usuario.nombre ,ticket_salida.fecha_creacion, ticket_salida.estado_ticket_idestado_ticket, ticket_salida.pdf_path ' +
+            'FROM ticket_salida INNER JOIN usuario WHERE ticket_salida.usuario_idusuario = usuario.idusuario ' +
+            'ORDER BY ticket_salida.idticket_salida DESC')
+
+        // Convertir valores BigInt a String durante la serialización
+        const valesSalidaConvertidos = result.map(valeSalida => {
+            return {
+                ...valeSalida,
+                id: valeSalida.id ? valeSalida.id.toString() : null,
+            };
+        });
+
+
+        conn.release();
+        conn.end();
+
+
+        // Enviar la respuesta con los datos obtenidos al cliente
+        await res.status(200).json(valesSalidaConvertidos);
 
     } catch (error) {
 
     }
+}
+
+const getValeSalida = async (req, res) => {
+
+    const { pdf_path } = req.body;
+
+
+    try {
+        const fileBase64 = await convertirABase64(pdf_path)
+
+        const response = {
+            base64: fileBase64
+        }
+
+        res.status(200).json(response);
+    } catch (error) {
+        res.status(500).send('Error al consultar cotizacion en base64 ' + error);
+    }
+
+
+
+
 }
 
 module.exports = {
@@ -336,5 +378,6 @@ module.exports = {
     getTicket,
     getSignature,
     closeTicket,
-    getListValesSalida
+    getListValesSalida,
+    getValeSalida
 }

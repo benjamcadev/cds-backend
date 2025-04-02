@@ -74,6 +74,9 @@ const getListCotizaciones = async (req, res) => {
             };
         });
 
+        conn.release();
+        conn.end();
+
         // Enviar la respuesta con los datos obtenidos al cliente
         await res.status(200).json(cotizacionesConvertidos);
 

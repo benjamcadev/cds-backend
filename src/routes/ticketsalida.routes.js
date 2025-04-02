@@ -3,7 +3,7 @@ const { authRequired } = require('../middlewares/validateToken')
 
 
 
-const { createTicket, getTicket, getSignature, closeTicket, getListValesSalida } = require('../controllers/ticketSalida.controller')
+const { createTicket, getTicket, getSignature, closeTicket, getListValesSalida, getValeSalida } = require('../controllers/ticketSalida.controller')
 
 const router = Router()
 
@@ -21,6 +21,9 @@ router.post('/api/v1/ticket/salida/close', authRequired, closeTicket)
 
 //LISTAR TICKETS
 router.post('/api/v1/ticket/salida/list', authRequired, getListValesSalida)
+
+//TRAER EN BASE64 EL EXCEL SOLICITADO
+router.post('/api/v1/ticket/salida/get', getValeSalida)
 
 
 module.exports = router
