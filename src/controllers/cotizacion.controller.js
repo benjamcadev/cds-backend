@@ -74,23 +74,8 @@ const getListCotizaciones = async (req, res) => {
             };
         });
 
-        const claves = Object.keys(cotizacionesConvertidos); 
-
-        console.log(claves)
-
-        // CONVERTIR EXCEL A BASE64
-
-        const resultados = await Promise.all(claves.map(async (clave) => {
-
-            let excelBase64 = await convertirABase64(cotizacionesConvertidos[clave].path_excel);
-      
-         cotizacionesConvertidos[clave] = excelBase64;
-
-            
-        }))
-
         // Enviar la respuesta con los datos obtenidos al cliente
-        await res.status(200).json(resultados);
+        await res.status(200).json(cotizacionesConvertidos);
 
 
 
@@ -106,7 +91,29 @@ const getListCotizaciones = async (req, res) => {
     }
 }
 
+const getExcelCotizacion = async (req, res) => {
+
+    const { path_excel } = req.body;
+
+    try {
+        const fileBase64 = convertirABase64(path_excel)
+
+        const response = {
+            base64: fileBase64
+        }
+
+        res.status(200).json(response);
+    } catch (error) {
+        res.status(500).send('Error al consultar cotizacion en base64 ' + error);
+    }
+
+
+
+
+}
+
 module.exports = {
     createCotizacion,
-    getListCotizaciones
+    getListCotizaciones,
+    getExcelCotizacion
 }
