@@ -60,7 +60,7 @@ const getListCotizaciones = async (req, res) => {
         let result = ''
 
         result = await conn.query('SELECT ROW_NUMBER() OVER () AS id, cotizacion.descripcion, cotizacion.fecha, usuario.nombre AS usuario, cotizacion.path_excel ' +
-            'FROM cotizacion INNER JOIN usuario WHERE cotizacion.usuario_idusuario = usuario.idusuario')
+            'FROM cotizacion INNER JOIN usuario WHERE cotizacion.usuario_idusuario = usuario.idusuario ORDER BY id_cotizacion DESC ')
 
         // Convertir valores BigInt a String durante la serialización
         const cotizacionesConvertidos = result.map(cotizacion => {
@@ -95,8 +95,9 @@ const getExcelCotizacion = async (req, res) => {
 
     const { path_excel } = req.body;
 
+
     try {
-        const fileBase64 = convertirABase64(path_excel)
+        const fileBase64 = await convertirABase64(path_excel)
 
         const response = {
             base64: fileBase64
