@@ -103,10 +103,9 @@ const createTicket = async (req, res) => {
 
                     //GUARDAR PDF EN BASE DE DATOS
                     let path_pdf = responsePath + '/ticket_salida_' + lastIdTicketSalida + '.pdf';
-                    console.log(path_pdf)
                     result = await conn.query('UPDATE ticket_salida SET pdf_path="' + path_pdf + '" WHERE  idticket_salida = ' + lastIdTicketSalida)
-                    
-                   
+
+
                     //ENVIAR PDF POR CORREO
                     await sendEmailTicketSalida(responsePath, lastIdTicketSalida, request)
 
@@ -287,6 +286,12 @@ const closeTicket = async (req, res) => {
 
                 //GENERACION DEL PDF
                 await htmlToPDF(html, responsePath, lastIdTicketSalida)
+
+                //GUARDAR PDF EN BASE DE DATOS
+                let path_pdf = responsePath + '/ticket_salida_' + lastIdTicketSalida + '.pdf';
+                result = await conn.query('UPDATE ticket_salida SET pdf_path="' + path_pdf + '" WHERE  idticket_salida = ' + lastIdTicketSalida)
+
+                
                 //ENVIAR PDF POR CORREO
                 await sendEmailTicketSalida(responsePath, lastIdTicketSalida, request)
 
@@ -320,9 +325,9 @@ const getListValesSalida = async (req, res) => {
         let result = ''
 
         result = await conn.query('')
-        
+
     } catch (error) {
-        
+
     }
 }
 
