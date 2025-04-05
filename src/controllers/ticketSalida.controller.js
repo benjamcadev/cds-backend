@@ -365,7 +365,7 @@ const getValeSalida = async (req, res) => {
 
         res.status(200).json(response);
     } catch (error) {
-        res.status(500).send('Error al consultar cotizacion en base64 ' + error);
+        res.status(500).send('Error al consultar vale salida pdf en base64 ' + error);
     }
 
 

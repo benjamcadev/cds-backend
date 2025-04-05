@@ -1,9 +1,10 @@
 const pool = require('../db')
 const { convertBigintToInt } = require('../helpers/convertBigintToInt')
-const {  htmlToPdfEntrada } = require('../helpers/generatePDF')
+const { htmlToPdfEntrada } = require('../helpers/generatePDF')
 const { jsonToHtmlValeEntrada } = require('../helpers/generateHtml')
 const { createDirectoryTicketEntrada, saveSignature, saveImageEntrada } = require('../helpers/directory')
 const { sendEmailTicketEntrada } = require('../helpers/emails')
+const { convertirABase64 } = require('../helpers/convertFileToBase64')
 
 
 const createTicket = async (req, res) => {
@@ -13,10 +14,10 @@ const createTicket = async (req, res) => {
         const request = req.body;
 
         let result = '';
-        
+
         result = await conn.query(
             'INSERT INTO ticket_entrada (fecha, motivo, responsable_bodega, foto_documentos, estado_ticket_idestado_ticket, usuario_idusuario, tipo_ticket_idtipo_ticket, signature_path_responsable, signature_path_entrega) ' +
-            'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+            'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
             [request.fecha, request.motivo, request.responsable_bodega, request.foto_documentos, 2, request.usuario_idusuario, request.tipo_ticket_idtipo_ticket, request.firmaBodega, request.firmaSolicitante]
         )
 
@@ -25,8 +26,8 @@ const createTicket = async (req, res) => {
             const lastIdTicketEntrada = convertBigintToInt(result.insertId);
 
             for (let i = 0; i < request.detalle.length; i++) {
-                const reservaOcValue = request.detalle[i].reserva 
-                    ? request.detalle[i].reserva 
+                const reservaOcValue = request.detalle[i].reserva
+                    ? request.detalle[i].reserva
                     : null;
 
                 await conn.query('INSERT INTO detalle_ticket_entrada (cantidad, articulo_idarticulo, ticket_entrada_idticket_entrada, bodegas_idbodegas, ubicacion_bodegas_id, reserva_oc) ' +
@@ -71,7 +72,7 @@ const createTicket = async (req, res) => {
 
                 const responsePath = await createDirectoryTicketEntrada(lastIdTicketEntrada);
 
-               
+
                 const imagenPath = await saveImageEntrada(request, responsePath, lastIdTicketEntrada)
 
                 let pathSignature = await saveSignature(request, responsePath, lastIdTicketEntrada);
@@ -82,7 +83,7 @@ const createTicket = async (req, res) => {
 
                 await conn.query('UPDATE ticket_entrada SET signature_path_entrega="' + pathSignature.entrega + '" WHERE idticket_entrada = ' + lastIdTicketEntrada);
 
-                if ( !request.firmaBodega ) {
+                if (!request.firmaBodega) {
                     conn.end();
                     res.status(200).json({
                         idTicket: lastIdTicketEntrada
@@ -101,7 +102,7 @@ const createTicket = async (req, res) => {
                 conn.end();
                 res.status(400).send('Hubo un error: ' + error);
             }
-            
+
         } else {
             conn.end();
             res.status(400).send('Hubo un error: ' + result);
@@ -116,13 +117,13 @@ const getTicketEntrada = async (req, res) => {
     const id_ticket = req.params.id
 
     try {
-       
+
         const conn = await pool.getConnection()
         //QUERY RESCATA DATOS DEL TICKET ENTRADA
         let result_ticket = await conn.query(`SELECT * FROM ticket_entrada WHERE idticket_entrada = ${id_ticket}`)
-            //QUERY RESCATA EL DETALLE DEL TICKET DE ENTRADA
+        //QUERY RESCATA EL DETALLE DEL TICKET DE ENTRADA
         let result_ticket_detalle = await conn.query(
-                `SELECT detalle_ticket_entrada.bodegas_idbodegas AS bodega, detalle_ticket_entrada.ubicacion_bodegas_id AS ubicacion, (detalle_ticket_entrada.cantidad) * -1 as cantidad, 
+            `SELECT detalle_ticket_entrada.bodegas_idbodegas AS bodega, detalle_ticket_entrada.ubicacion_bodegas_id AS ubicacion, (detalle_ticket_entrada.cantidad) * -1 as cantidad, 
                 articulo.nombre AS descripcion,articulo.idarticulo AS id, articulo.unidad_medida AS unidad,
                 articulo.idarticulo AS idArticulo
                 FROM detalle_ticket_entrada 
@@ -135,21 +136,21 @@ const getTicketEntrada = async (req, res) => {
         //var fecha_creacion = result_ticket[0].fecha_creacion.toISOString().substring(0, 19).replace("T", " ")
         //result_ticket[0].fecha_creacion = fecha_creacion;
 
-       conn.end()
+        conn.end()
         if (result_ticket.length == 0) {
             return res.status(400).json({
                 message: 'No existe datos para ticket consultado',
                 title: 'Error'
-             });
+            });
         }
-      
-       result_final = {...result_ticket[0], detalle: result_ticket_detalle}
-       
-       res.status(200).json(convertBigintToInt(result_final))
+
+        result_final = { ...result_ticket[0], detalle: result_ticket_detalle }
+
+        res.status(200).json(convertBigintToInt(result_final))
 
 
     } catch (error) {
-         res.status(400).send('hubo un error en getUsuarios: ' + error)
+        res.status(400).send('hubo un error en getUsuarios: ' + error)
     }
 }
 
@@ -164,13 +165,13 @@ const getSignatureEntrada = async (req, res) => {
             return res.status(400).json({
                 message: 'No existen firmas para ticket consultado',
                 title: 'Error'
-             });
+            });
         }
 
-       
+
         //convertir a base64
-        const base64_entrega = 'data:image/png;base64,' + fs.readFileSync(result[0].signature_path_entrega, {encoding: 'base64'});
-        const base64_responsable = 'data:image/png;base64,' + fs.readFileSync(result[0].signature_path_responsable, {encoding: 'base64'});
+        const base64_entrega = 'data:image/png;base64,' + fs.readFileSync(result[0].signature_path_entrega, { encoding: 'base64' });
+        const base64_responsable = 'data:image/png;base64,' + fs.readFileSync(result[0].signature_path_responsable, { encoding: 'base64' });
 
 
         const result_final = {
@@ -200,9 +201,69 @@ const getTipoTicket = async (req, res) => {
 
 }
 
+const getListValesEntrada = async (req, res) => {
+    const conn = await pool.getConnection()
+
+    try {
+        const request = req.body
+        let result = ''
+
+        result = await conn.query('SELECT ticket_entrada.idticket_entrada as id, ticket_entrada.fecha, ticket_entrada.motivo, ' +
+            'ticket_entrada.responsable_bodega, ticket_entrada.tipo_ticket_idtipo_ticket, ticket_entrada.estado_ticket_idestado_ticket, ' +
+            'ticket_entrada.pdf_path ' +
+            'FROM ticket_entrada ' +
+            'INNER JOIN usuario ' +
+            'WHERE usuario.idusuario = ticket_entrada.usuario_idusuario ' +
+            'ORDER BY ticket_entrada.idticket_entrada DESC')
+
+        // Convertir valores BigInt a String durante la serialización
+        const valesEntradaConvertidos = result.map(valeEntrada => {
+                return {
+                    ...valeEntrada,
+                    id: valeEntrada.id ? valeEntrada.id.toString() : null,
+                };
+            });
+
+
+        conn.release();
+        conn.end();
+
+
+        // Enviar la respuesta con los datos obtenidos al cliente
+        await res.status(200).json(valesEntradaConvertidos);
+
+    } catch (error) {
+
+    }
+}
+
+const getValeEntrada = async (req, res) => {
+
+    const { pdf_path } = req.body;
+
+
+    try {
+        const fileBase64 = await convertirABase64(pdf_path)
+
+        const response = {
+            base64: fileBase64
+        }
+
+        res.status(200).json(response);
+    } catch (error) {
+        res.status(500).send('Error al consultar vale entrada pdf en base64 ' + error);
+    }
+
+
+
+
+}
+
 module.exports = {
     createTicket,
     getTipoTicket,
     getTicketEntrada,
-    getSignatureEntrada
+    getSignatureEntrada,
+    getListValesEntrada,
+    getValeEntrada
 }

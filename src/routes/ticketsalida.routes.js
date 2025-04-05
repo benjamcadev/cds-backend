@@ -22,7 +22,7 @@ router.post('/api/v1/ticket/salida/close', authRequired, closeTicket)
 //LISTAR TICKETS
 router.post('/api/v1/ticket/salida/list', authRequired, getListValesSalida)
 
-//TRAER EN BASE64 EL EXCEL SOLICITADO
+//TRAER EN BASE64 EL PDF SOLICITADO
 router.post('/api/v1/ticket/salida/get', getValeSalida)
 
 
