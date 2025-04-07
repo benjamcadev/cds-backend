@@ -45,12 +45,12 @@ const getListaArticulos = async (req, res) => {
         //const query = 'SELECT * FROM articulo  WHERE activo = TRUE LIMIT ? OFFSET ?';
         const query = `SELECT articulo.idarticulo, articulo.nombre AS Descripcion, articulo.sap AS Codigo_SAP, 
         articulo.codigo_interno AS Codigo_interno, articulo.sku AS SKU, articulo.comentario, 
-        articulo.unidad_medida, articulo.categoria_idcategoria, articulo.precio, articulo.imagen_url, 
+        articulo.unidad_medida, articulo.categoria_idcategoria, articulo.precio, articulo.imagen_url, articulo.cantidad_min,
         articulo.activo, IFNULL(SUM(detalle_ticket_entrada.cantidad), 0) AS Stock 
         FROM articulo 
         LEFT JOIN detalle_ticket_entrada ON articulo.idarticulo = detalle_ticket_entrada.articulo_idarticulo 
         WHERE articulo.activo = TRUE 
-        GROUP BY articulo.idarticulo 
+        GROUP BY articulo.idarticulo DESC
         LIMIT ? OFFSET ?`;
         const result = await conn.query(query, [limit, offset]);
 
@@ -65,8 +65,11 @@ const getListaArticulos = async (req, res) => {
                 SKU: articulo.sku ? articulo.sku.toString() : null,
                 categoria_idcategoria: articulo.categoria_idcategoria ? articulo.categoria_idcategoria.toString() : null,
                 Stock: articulo.Stock ? articulo.Stock.toString() : null,
+                cantidad_min: articulo.cantidad_min ? articulo.cantidad_min.toString() : null
             };
         });
+
+
 
         // Preparar la respuesta con los datos obtenidos con información de paginación y los artículos convertidos
         const respuesta = {
@@ -103,15 +106,16 @@ const getFindArticulo = async (req, res) => {
 
     const { search_value } = req.body
 
+
     try {
         const conn = await pool.getConnection()
 
-        const result = await conn.query('SELECT articulo.idarticulo, articulo.nombre, articulo.sap, articulo.codigo_interno, articulo.sku, articulo.unidad_medida, articulo.precio, articulo.comentario,articulo.categoria_idcategoria, SUM(detalle_ticket_entrada.cantidad) AS cantidad ' +
+        const result = await conn.query('SELECT articulo.idarticulo, articulo.nombre, articulo.sap, articulo.codigo_interno, articulo.sku, articulo.unidad_medida, articulo.precio, articulo.cantidad_min, articulo.comentario,articulo.categoria_idcategoria, SUM(detalle_ticket_entrada.cantidad) AS cantidad ' +
             'FROM articulo left JOIN  detalle_ticket_entrada ON articulo.idarticulo = detalle_ticket_entrada.articulo_idarticulo ' +
             'WHERE activo = \'1\' AND  nombre LIKE \'%\' ? \'%\' OR sku LIKE  \'%\' ? \'%\' OR sap  LIKE  \'%\' ? \'%\' ' +
             'GROUP BY articulo.nombre ' +
             'UNION ' +
-            'SELECT articulo.idarticulo,articulo.nombre, articulo.sap, articulo.codigo_interno, articulo.sku, articulo.unidad_medida, articulo.precio, articulo.comentario, articulo.categoria_idcategoria, SUM(detalle_ticket_salida.cantidad) AS cantidad ' +
+            'SELECT articulo.idarticulo,articulo.nombre, articulo.sap, articulo.codigo_interno, articulo.sku, articulo.unidad_medida, articulo.precio,articulo.cantidad_min , articulo.comentario, articulo.categoria_idcategoria, SUM(detalle_ticket_salida.cantidad) AS cantidad ' +
             'FROM articulo RIGHT JOIN  detalle_ticket_salida ON articulo.idarticulo = detalle_ticket_salida.articulo_idarticulo ' +
             'WHERE activo = \'1\' AND nombre LIKE \'%\' ? \'%\' OR sku LIKE  \'%\' ? \'%\'  OR sap  LIKE  \'%\' ? \'%\' ' +
             'GROUP BY articulo.nombre  LIMIT 0, 50 ', [search_value, search_value, search_value, search_value, search_value, search_value, search_value, search_value, search_value, search_value, search_value, search_value, search_value])
@@ -130,6 +134,7 @@ const getFindArticulo = async (req, res) => {
                     Codigo_interno: result[i].codigo_interno,
                     unidad_medida: result[i].unidad_medida,
                     precio: Number(result[i].precio),
+                    cantidad_min: Number(result[i].cantidad_min),
                     SKU: result[i].sku,
                     comentario: result[i].comentario,
                     categoria_idcategoria: result[i].categoria_idcategoria,
@@ -157,6 +162,8 @@ const getFindArticulo = async (req, res) => {
         }
 
         const result_final = cantidades_positivas;
+
+
 
         if (result_final.length === 0) { conn.end(); return res.status(404).json({ message: "Material no encontrado" }); }
 
@@ -275,7 +282,7 @@ const createArticulo = async (req, res) => {
     let conn;
 
     // Obtener los datos del Articulo desde el cuerpo de la petición
-    const { nombre, sap, sku, unidad_medida, comentario, categoria_idcategoria, precio, imagen_base64 } = req.body;
+    const { nombre, sap, sku, unidad_medida, comentario, categoria_idcategoria, precio, imagen_base64, cantidad_min } = req.body;
     const usuarioId = req.headers.usuarioid; // Me aseguro de que el usuarioId esté disponible en los headers de la petición
 
     // Verificar si todos los campos obligatorios están presentes
@@ -289,6 +296,7 @@ const createArticulo = async (req, res) => {
     const comentarioValue = comentario || '';
     const precioFloat = parseFloat(precio);
     const categoria_idcategoriaValue = categoria_idcategoria || 0;
+    const cantMinValue = cantidad_min || 1;
 
     // Convertir el precio a un número de punto flotante y verificar si es válido
     if (isNaN(precioFloat)) {
@@ -315,10 +323,10 @@ const createArticulo = async (req, res) => {
 
         // Insertar el artículo sin la URL de la imagen para obtener el idArticulo
         const queryInsert = `
-            INSERT INTO articulo (nombre, sap, sku, unidad_medida, comentario, categoria_idcategoria, precio)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO articulo (nombre, sap, sku, unidad_medida, comentario, categoria_idcategoria, precio, cantidad_min)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `;
-        const valuesInsert = [nombre, sapValue, skuValue, unidad_medida, comentarioValue, categoria_idcategoriaValue, precioFloat];
+        const valuesInsert = [nombre, sapValue, skuValue, unidad_medida, comentarioValue, categoria_idcategoriaValue, precioFloat, cantMinValue];
         const resultInsert = await conn.query(queryInsert, valuesInsert);
 
         // Verificar si el articulo fue creado exitosamente en la base de datos
@@ -386,7 +394,7 @@ const createArticulo = async (req, res) => {
 const updateArticulo = async (req, res) => {
     let conn;
 
-    const { id, Descripcion, Codigo_SAP, SKU, unidad_medida, comentario, categoria_idcategoria, precio, imagen_base64 } = req.body;
+    const { id, Descripcion, Codigo_SAP, SKU, unidad_medida, comentario, categoria_idcategoria, precio, imagen_base64, cantidad_min } = req.body;
     const usuarioId = req.headers.usuarioid;
 
     if (!Descripcion || !unidad_medida) {
@@ -398,6 +406,7 @@ const updateArticulo = async (req, res) => {
     const comentarioValue = comentario || '';
     const precioFloat = parseFloat(precio);
     const categoria_idcategoriaValue = categoria_idcategoria || 1;
+    const cantMinValue = cantidad_min || 1;
 
     if (isNaN(precioFloat)) {
         return res.status(400).json({ message: 'El precio debe ser un número válido' });
@@ -423,10 +432,10 @@ const updateArticulo = async (req, res) => {
 
         const query = `
             UPDATE articulo
-            SET nombre = ?, sap = ?, codigo_interno = ?, sku = ?, unidad_medida = ?, comentario = ?, categoria_idcategoria = ?, precio = ?, imagen_url = COALESCE(?, imagen_url)
+            SET nombre = ?, sap = ?, codigo_interno = ?, sku = ?, unidad_medida = ?, comentario = ?, categoria_idcategoria = ?, precio = ?, imagen_url = COALESCE(?, imagen_url), cantidad_min = ?
             WHERE idarticulo = ?
         `;
-        const values = [Descripcion, sapValue, codigo_interno, skuValue, unidad_medida, comentarioValue, categoria_idcategoriaValue, precioFloat, imagen_url, id];
+        const values = [Descripcion, sapValue, codigo_interno, skuValue, unidad_medida, comentarioValue, categoria_idcategoriaValue, precioFloat, imagen_url, cantMinValue, id];
         const result = await conn.query(query, values);
 
         conn.release();
@@ -605,6 +614,92 @@ const getTopSalida = async (req, res) => {
     }
 }
 
+const getFindArticuloStockCritico = async (req, res) => {
+
+    try {
+        const conn = await pool.getConnection()
+
+        const result = await conn.query('SELECT articulo.idarticulo, articulo.nombre, articulo.sap, articulo.codigo_interno, articulo.sku, articulo.unidad_medida, articulo.precio, articulo.cantidad_min, articulo.comentario,articulo.categoria_idcategoria, SUM(detalle_ticket_entrada.cantidad) AS cantidad ' +
+            'FROM articulo left JOIN  detalle_ticket_entrada ON articulo.idarticulo = detalle_ticket_entrada.articulo_idarticulo ' +
+            'WHERE activo = \'1\' ' +
+            'GROUP BY articulo.nombre ' +
+            'UNION ' +
+            'SELECT articulo.idarticulo,articulo.nombre, articulo.sap, articulo.codigo_interno, articulo.sku, articulo.unidad_medida, articulo.precio,articulo.cantidad_min , articulo.comentario, articulo.categoria_idcategoria, SUM(detalle_ticket_salida.cantidad) AS cantidad ' +
+            'FROM articulo RIGHT JOIN  detalle_ticket_salida ON articulo.idarticulo = detalle_ticket_salida.articulo_idarticulo ' +
+            'WHERE activo = \'1\' ' +
+            'GROUP BY articulo.nombre ', [])
+
+        conn.end();
+        let cantidades_positivas = []
+        let cantidades_negativas = []
+
+
+        for (var i = 0; i < result.length; i++) {
+            if (result[i].cantidad >= 0) {
+                cantidades_positivas.push({
+                    id: Number(result[i].idarticulo),
+                    Descripcion: result[i].nombre,
+                    Codigo_SAP: result[i].sap,
+                    Codigo_interno: result[i].codigo_interno,
+                    unidad_medida: result[i].unidad_medida,
+                    precio: Number(result[i].precio),
+                    cantidad_min: Number(result[i].cantidad_min),
+                    SKU: result[i].sku,
+                    comentario: result[i].comentario,
+                    categoria_idcategoria: result[i].categoria_idcategoria,
+                    Stock: Number(result[i].cantidad)
+                })
+
+            }
+
+            if (result[i].cantidad < 0) {
+                cantidades_negativas.push({ id: Number(result[i].idarticulo), Stock: Number(result[i].cantidad) })
+            }
+        }
+
+
+
+        var o = 0
+        for (var j = 0; j < cantidades_positivas.length; j++) {
+            if (cantidades_negativas.length > o) {
+                if (cantidades_positivas[j].id == cantidades_negativas[o].id) {
+                    cantidades_positivas[j].Stock = cantidades_positivas[j].Stock + cantidades_negativas[o].Stock
+                    o++
+
+                }
+            }
+        }
+
+        const result_final = convertBigintToInt(cantidades_positivas);
+
+
+        const resultStockCritico = result_final.map(material => {
+            if (material.Stock <= material.cantidad_min) {
+                return {
+                    id: material.id,
+                    nombre: material.Descripcion,
+                    sap: material.Codigo_SAP,
+                    cantidad_actual: material.Stock,
+                    stock_minimo: material.cantidad_min
+                }
+            }
+        })
+
+
+
+        // Filtrar los valores undefined
+        let resultFiltrados = resultStockCritico.filter(item => item !== undefined);
+
+        conn.release();
+        conn.end();
+        res.status(200).json(resultFiltrados);
+
+        
+    } catch (error) {
+        res.status(400).send('hubo un error' + error)
+    }
+}
+
 // CRUD: Create, Read, Update, Delete
 module.exports = {
     createArticulo,
@@ -614,6 +709,7 @@ module.exports = {
     getFindArticulo,
     getImageBase64,
     getTotal,
-    getTopSalida
+    getTopSalida,
+    getFindArticuloStockCritico
 
 }
