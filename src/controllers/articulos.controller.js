@@ -33,13 +33,13 @@ const getListaArticulos = async (req, res) => {
             conn.end();
             return res.status(404).json({ message: 'La tabla articulo no existe' });
         }
-        
+
         // Consultar el número total de registros en la tabla 'articulo'
 
         const totalRegistrosQuery = 'SELECT COUNT(*) AS total FROM articulo WHERE activo = TRUE';
         const totalResult = await conn.query(totalRegistrosQuery);
         const totalArticulos = Number(totalResult[0].total); // Convertir el valor BigInt a Number
-        
+
         // Consultar los registros de la tabla 'articulo' con paginación
 
         //const query = 'SELECT * FROM articulo  WHERE activo = TRUE LIMIT ? OFFSET ?';
@@ -54,9 +54,9 @@ const getListaArticulos = async (req, res) => {
         LIMIT ? OFFSET ?`;
         const result = await conn.query(query, [limit, offset]);
 
-        
 
-        
+
+
         // Convertir valores BigInt a String durante la serialización
         const articulosConvertidos = result.map(articulo => {
             return {
@@ -75,7 +75,7 @@ const getListaArticulos = async (req, res) => {
             Pagina_Actual: page, // Página actual solicitada
             articulosEnPagina: articulosConvertidos.length, // Número de artículos en la página actual
             total_Paginas: Math.ceil(totalArticulos / limit), // Número total de páginas
-            
+
             articulos: articulosConvertidos, // Lista de artículos en la página actual
         };
 
@@ -100,7 +100,7 @@ const getListaArticulos = async (req, res) => {
 
 // BUSCAR UN MATERIAL
 const getFindArticulo = async (req, res) => {
-    
+
     const { search_value } = req.body
 
     try {
@@ -151,7 +151,7 @@ const getFindArticulo = async (req, res) => {
                 if (cantidades_positivas[j].id == cantidades_negativas[o].id) {
                     cantidades_positivas[j].Stock = cantidades_positivas[j].Stock + cantidades_negativas[o].Stock
                     o++
-                   
+
                 }
             }
         }
@@ -174,7 +174,7 @@ const getFindArticulo = async (req, res) => {
 
 const verificarPermisos = async (usuarioId) => {
 
-   
+
 
     // Se declara como let conn para poder reasignarla en el bloque finally si es necesario cerrar la conexión a la base de datos
     let conn;
@@ -183,14 +183,14 @@ const verificarPermisos = async (usuarioId) => {
     try {
         // Obtener una conexión a la base de datos desde el pool de conexiones
         conn = await pool.getConnection();
-        
+
         // Consulta SQL para obtener el estado del usuario basado en su ID
         const query = 'SELECT estado_usuario_idestado_usuario FROM usuario WHERE idusuario = ?';
 
         // Ejecutar la consulta con el usuarioId como parámetro
         const result = await conn.query(query, [usuarioId]);
 
-        
+
 
         // Verificar si el resultado de la consulta está vacío o no se encontró el usuario
         if (!result || result.length === 0) {
@@ -228,19 +228,19 @@ const createDirectoryForArticle = async (idArticulo) => {
     let dir_articulo = path.join(__dirname, `../../public/uploads/imagenes_articulos/${idArticulo}`);
 
     try {
-        if (!fs.existsSync(dir_public)){
+        if (!fs.existsSync(dir_public)) {
             fs.mkdirSync(dir_public, { recursive: true });
         }
 
-        if (!fs.existsSync(dir_uploads)){
+        if (!fs.existsSync(dir_uploads)) {
             fs.mkdirSync(dir_uploads, { recursive: true });
         }
 
-        if (!fs.existsSync(dir_imagenesArticulos)){
+        if (!fs.existsSync(dir_imagenesArticulos)) {
             fs.mkdirSync(dir_imagenesArticulos, { recursive: true });
         }
 
-        if (!fs.existsSync(dir_articulo)){
+        if (!fs.existsSync(dir_articulo)) {
             fs.mkdirSync(dir_articulo, { recursive: true });
         }
 
@@ -279,7 +279,7 @@ const createArticulo = async (req, res) => {
     const usuarioId = req.headers.usuarioid; // Me aseguro de que el usuarioId esté disponible en los headers de la petición
 
     // Verificar si todos los campos obligatorios están presentes
-    if (!nombre || !unidad_medida  || precio === undefined || !imagen_base64) {
+    if (!nombre || !unidad_medida || precio === undefined || !imagen_base64) {
         return res.status(400).json({ message: 'Todos los campos son obligatorios' });
     }
 
@@ -389,7 +389,7 @@ const updateArticulo = async (req, res) => {
     const { id, Descripcion, Codigo_SAP, SKU, unidad_medida, comentario, categoria_idcategoria, precio, imagen_base64 } = req.body;
     const usuarioId = req.headers.usuarioid;
 
-    if ( !Descripcion || !unidad_medida) {
+    if (!Descripcion || !unidad_medida) {
         return res.status(400).json({ message: 'Todos los campos son obligatorios' });
     }
 
@@ -435,7 +435,7 @@ const updateArticulo = async (req, res) => {
         if (result.affectedRows === 1) {
             res.status(200).json({ message: 'Artículo actualizado exitosamente', codigo_interno });
         } else {
-            
+
             res.status(400).json({ message: 'No se pudo actualizar el artículo' });
         }
 
@@ -467,16 +467,16 @@ const getImageBase64 = async (req, res) => {
         conn.end();
 
         if (result.length === 0) {
-            return res.status(404).json({ 
-                message: 'No existe imagen para el artículo' 
+            return res.status(404).json({
+                message: 'No existe imagen para el artículo'
             });
         }
         //console.log(result);
 
         const imagePath = result[0].imagen_url;
         if (!fs.existsSync(imagePath)) {
-            return res.status(404).json({ 
-                message: 'El archivo de imagen no existe en el servidor' 
+            return res.status(404).json({
+                message: 'El archivo de imagen no existe en el servidor'
             });
         }
 
@@ -491,7 +491,7 @@ const getImageBase64 = async (req, res) => {
 // ELIMINAR UN ARTICULO (marcar como inactivo)
 const deleteArticulo = async (req, res) => {
 
-    
+
 
     // Declarar la variable conn con let para poder reasignarla en el bloque finally
     let conn;
@@ -549,6 +549,62 @@ const deleteArticulo = async (req, res) => {
     }
 };
 
+//traer total de materiales activos
+const getTotal = async (req, res) => {
+
+    try {
+        const conn = await pool.getConnection()
+
+        const result = await conn.query('SELECT COUNT(*) as total FROM articulo WHERE activo = 1')
+
+        // Convertir valores BigInt a String durante la serialización
+        const materialesConvertidos = result.map(materiales => {
+            return {
+                ...materiales,
+                total: materiales.total ? materiales.total.toString() : null,
+            };
+        });
+
+        conn.release();
+        conn.end();
+        res.status(200).json(materialesConvertidos);
+
+    } catch (error) {
+        res.status(500).send('Error interno del servidor' + error);
+    }
+}
+
+const getTopSalida = async (req, res) => {
+    try {
+        const conn = await pool.getConnection()
+
+        const result = await conn.query('SELECT SUM(bodega_tica.detalle_ticket_salida.cantidad) * -1 AS cantidad, bodega_tica.articulo.nombre ' +
+            'FROM bodega_tica.detalle_ticket_salida ' +
+            'INNER JOIN bodega_tica.articulo ' +
+            'ON bodega_tica.detalle_ticket_salida.articulo_idarticulo = bodega_tica.articulo.idarticulo ' +
+            'GROUP BY bodega_tica.detalle_ticket_salida.articulo_idarticulo ' +
+            'ORDER BY cantidad DESC ' +
+            'LIMIT 10')
+
+
+        // Crear dos arrays, uno para 'cantidad' y otro para 'nombre'
+        const cantidades = result.map(item => item.cantidad);
+        const nombres = result.map(item => item.nombre);
+
+        let response = {
+            cantidad: cantidades,
+            nombre: nombres
+        }
+
+        conn.release();
+        conn.end();
+        res.status(200).json(response);
+
+    } catch (error) {
+        res.status(500).send('Error interno del servidor' + error);
+    }
+}
+
 // CRUD: Create, Read, Update, Delete
 module.exports = {
     createArticulo,
@@ -556,6 +612,8 @@ module.exports = {
     updateArticulo,
     deleteArticulo,
     getFindArticulo,
-    getImageBase64
+    getImageBase64,
+    getTotal,
+    getTopSalida
 
 }

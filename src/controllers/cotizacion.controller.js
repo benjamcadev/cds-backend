@@ -116,8 +116,34 @@ const getExcelCotizacion = async (req, res) => {
 
 }
 
+const getTotalCotizacionesMensual = async (req, res) => {
+
+      try {
+            const conn = await pool.getConnection()
+    
+            const result = await conn.query("SELECT COUNT(*) as total FROM cotizacion " + 
+                "WHERE fecha  >= DATE_FORMAT(CURDATE(), '%Y-%m-01') AND fecha  < CURDATE() + INTERVAL 1 DAY")
+    
+            // Convertir valores BigInt a String durante la serialización
+            const cotizacionesConvertidos = result.map(cotizacion => {
+                return {
+                    ...cotizacion,
+                   total: cotizacion.total ? cotizacion.total.toString() : 0,
+                };
+            });
+    
+            conn.release();
+            conn.end();
+            res.status(200).json(cotizacionesConvertidos);
+    
+        } catch (error) {
+            res.status(500).send('Error interno del servidor' + error);
+        }
+}
+
 module.exports = {
     createCotizacion,
     getListCotizaciones,
-    getExcelCotizacion
+    getExcelCotizacion,
+    getTotalCotizacionesMensual
 }

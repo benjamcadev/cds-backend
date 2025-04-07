@@ -3,7 +3,7 @@ const router = express.Router();
 
 const { authRequired } = require('../middlewares/validateToken')
 
-const { createTicket, getTipoTicket, getTicketEntrada, getSignatureEntrada, getListValesEntrada, getValeEntrada } = require('../controllers/ticketEntrada.controller')
+const { createTicket, getTipoTicket, getTicketEntrada, getSignatureEntrada, getListValesEntrada, getValeEntrada, getTotalValeEntradaMensual } = require('../controllers/ticketEntrada.controller')
 
 //GUARDAR UN TICKET
 router.post ('/api/v1/ticket/entrada', createTicket  )
@@ -19,6 +19,9 @@ router.post('/api/v1/ticket/entrada/list', authRequired, getListValesEntrada)
 
 //TRAER EN BASE64 EL PDF SOLICITADO
 router.post('/api/v1/ticket/entrada/get', getValeEntrada)
+
+//TRAER CANTIDAD DE VALES ENTRADA DEL MES ACTUAL
+router.get('/api/v1/ticket/entrada-total', getTotalValeEntradaMensual)
 
 
 module.exports = router

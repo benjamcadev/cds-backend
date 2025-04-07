@@ -259,11 +259,37 @@ const getValeEntrada = async (req, res) => {
 
 }
 
+const getTotalValeEntradaMensual = async (req, res) => {
+
+      try {
+            const conn = await pool.getConnection()
+    
+            const result = await conn.query("SELECT COUNT(*) as total FROM ticket_entrada " + 
+                "WHERE fecha  >= DATE_FORMAT(CURDATE(), '%Y-%m-01') AND fecha  < CURDATE() + INTERVAL 1 DAY")
+    
+            // Convertir valores BigInt a String durante la serialización
+            const valeEntradaConvertidos = result.map(vale => {
+                return {
+                    ...vale,
+                   total: vale.total ? vale.total.toString() : 0,
+                };
+            });
+    
+            conn.release();
+            conn.end();
+            res.status(200).json(valeEntradaConvertidos);
+    
+        } catch (error) {
+            res.status(500).send('Error interno del servidor' + error);
+        }
+}
+
 module.exports = {
     createTicket,
     getTipoTicket,
     getTicketEntrada,
     getSignatureEntrada,
     getListValesEntrada,
-    getValeEntrada
+    getValeEntrada,
+    getTotalValeEntradaMensual
 }
