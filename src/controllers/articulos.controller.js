@@ -2,9 +2,11 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const pool = require('../db')
-
+const dayjs = require('dayjs');
 const { convertBigintToInt } = require('../helpers/convertBigintToInt')
-
+require('dayjs/locale/es'); // Importar el locale español si deseas nombres de meses/días en español
+require('dayjs/plugin/utc');
+require('dayjs/plugin/timezone');
 
 // OBTENER TODOS LOS ARTICULOS
 const getListaArticulos = async (req, res) => {
@@ -694,7 +696,82 @@ const getFindArticuloStockCritico = async (req, res) => {
         conn.end();
         res.status(200).json(resultFiltrados);
 
+
+    } catch (error) {
+        res.status(400).send('hubo un error' + error)
+    }
+}
+
+const getFindArticuloKardex = async (req, res) => {
+
+    const numero_material = req.params.id
+
+    try {
+        const conn = await pool.getConnection()
+
+        const resultSalida = await conn.query('SELECT ticket_salida.fecha_creacion AS fecha, detalle_ticket_salida.cantidad,detalle_ticket_salida.ticket_salida_idticket_salida AS idticket ,bodegas.nombre as bodega,  "Salida" AS tipo_movimiento ' +
+            'FROM detalle_ticket_salida ' +
+            'INNER JOIN ticket_salida ' +
+            'ON detalle_ticket_salida.ticket_salida_idticket_salida = ticket_salida.idticket_salida ' +
+            'INNER JOIN bodegas ' +
+            'ON bodegas.idbodegas = detalle_ticket_salida.bodegas_idbodegas ' +
+            'WHERE articulo_idarticulo = ? ' +
+            'ORDER BY fecha DESC', [numero_material])
+
+        const resultEntrada = await conn.query('SELECT ticket_entrada.fecha AS fecha, detalle_ticket_entrada.cantidad,detalle_ticket_entrada.ticket_entrada_idticket_entrada AS idticket ,bodegas.nombre as bodega,  "Entrada" AS tipo_movimiento ' +
+            'FROM detalle_ticket_entrada ' +
+            'INNER JOIN ticket_entrada ' +
+            'ON detalle_ticket_entrada.ticket_entrada_idticket_entrada = ticket_entrada.idticket_entrada ' +
+            'INNER JOIN bodegas ' +
+            'ON bodegas.idbodegas = detalle_ticket_entrada.bodegas_idbodegas ' +
+            'WHERE articulo_idarticulo = ? ' +
+            'ORDER BY fecha DESC', [numero_material])
+
+
+        // Convertir valores BigInt a String durante la serialización
+        const resultSalidaConvertidos = resultSalida.map(registro => {
+            return {
+                ...registro,
+                cantidad: registro.cantidad ? registro.cantidad.toString() : 0,
+                idticket: registro.idticket ? registro.idticket.toString() : 0,
+                fecha: dayjs.utc(registro.fecha).format('DD-MM-YYYY HH:mm:ss') 
+            };
+        });
+
+
+        const resultEntradaConvertidos = resultEntrada.map(registro => {
+            return {
+                ...registro,
+                cantidad: registro.cantidad ? registro.cantidad.toString() : 0,
+                idticket: registro.idticket ? registro.idticket.toString() : 0,
+                fecha: dayjs.utc(registro.fecha).format('DD-MM-YYYY HH:mm:ss') 
+            };
+        });
+
+        // Unimos ambos arrays
+        const mergedArray = resultSalidaConvertidos.concat(resultEntradaConvertidos);
+
+        // Ordenamos el array combinado por la fecha
+        const sortedArray = mergedArray.sort((a, b) => {
+            const fechaA = new Date(a.fecha);
+            const fechaB = new Date(b.fecha);
         
+            // Comparar las fechas
+            if (fechaA < fechaB) {
+              return -1; // a viene antes que b
+            }
+            if (fechaA > fechaB) {
+              return 1;  // b viene antes que a
+            }
+            return 0;    // las fechas son iguales
+          });
+
+
+
+        conn.release();
+        conn.end();
+        res.status(200).json(sortedArray);
+
     } catch (error) {
         res.status(400).send('hubo un error' + error)
     }
@@ -710,6 +787,7 @@ module.exports = {
     getImageBase64,
     getTotal,
     getTopSalida,
-    getFindArticuloStockCritico
+    getFindArticuloStockCritico,
+    getFindArticuloKardex
 
 }

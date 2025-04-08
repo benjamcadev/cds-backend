@@ -3,7 +3,7 @@ const { authRequired } = require('../middlewares/validateToken')
 
 //IMPORTANDO FUNCIONES
 
-const { getListaArticulos, createArticulo, getFindArticulo, deleteArticulo, updateArticulo, getTotal, getTopSalida, getFindArticuloStockCritico } = require('../controllers/articulos.controller')
+const { getListaArticulos, createArticulo, getFindArticulo, deleteArticulo, updateArticulo, getTotal, getTopSalida, getFindArticuloStockCritico, getFindArticuloKardex } = require('../controllers/articulos.controller')
 const { getImageBase64 } = require('../controllers/articulos.controller')
 
 
@@ -41,6 +41,9 @@ router.get('/api/v1/materiales/topsalida', getTopSalida)
 
 //BUSCAR MATERIALES CRITICOS STOCK
 router.get('/api/v1/materiales/stock-critico', getFindArticuloStockCritico)
+
+//BUSCAR MATERIALES
+router.get('/api/v1/materiales/kardex/:id', getFindArticuloKardex)
 
 
 module.exports = router
